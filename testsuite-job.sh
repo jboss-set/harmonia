@@ -1,7 +1,20 @@
+readonly JENKINS_URL=${1}
+readonly JOB_NAME=${2}
+readonly UPSTREAM_BUILD_URL=${3}
+
 if [ ! -z "${UPSTREAM_BUILD_URL}"  ]; then
-    ARCHIVE_URL="${JENKINS_URL}/job/${PARENT_JOB_NAME}/lastSuccessfulBuild/artifact/*zip*/archive.zip"
+  if [ -z "${JENKINS_URL}" ] ; then
+    echo "Missing JENKINS_URL"
+    exit 1
+  fi
+
+  if [ -z "${JOB_NAME}" ] ; then
+    echo "Missing JOB_NAME"
+    exit 2
+  fi
+  ARCHIVE_URL="${JENKINS_URL}/job/${PARENT_JOB_NAME}/lastSuccessfulBuild/artifact/*zip*/archive.zip"
 else
-    ARCHIVE_URL="${UPSTREAM_BUILD_URL}/artifact/*zip*/archive.zip"
+  ARCHIVE_URL="${UPSTREAM_BUILD_URL}/artifact/*zip*/archive.zip"
 fi
 
 archive=$(mktemp)
