@@ -1,16 +1,29 @@
 readonly JENKINS_URL=${1}
 readonly JOB_NAME=${2}
-readonly UPSTREAM_BUILD_URL=${3}
+readonly JENKINS_USERNAME=${3}
+readonly JENKINS_PASSWORD=${4}
+readonly UPSTREAM_BUILD_URL=${5}
+
+if [ -z "${JENKINS_USERNAME}" ]; then
+  echo "Missing JENKINS_USERNAME"
+  exit 1
+fi
+
+if [ -z "${JENKINS_PASSWORD}" ]; then
+  echo "Missing JENKINS_PASSWORD"
+  exit 2
+fi
+
 
 if [ ! -z "${UPSTREAM_BUILD_URL}"  ]; then
   if [ -z "${JENKINS_URL}" ] ; then
     echo "Missing JENKINS_URL"
-    exit 1
+    exit 3
   fi
 
   if [ -z "${JOB_NAME}" ] ; then
     echo "Missing JOB_NAME"
-    exit 2
+    exit 4
   fi
   ARCHIVE_URL="${JENKINS_URL}/job/${PARENT_JOB_NAME}/lastSuccessfulBuild/artifact/*zip*/archive.zip"
 else
