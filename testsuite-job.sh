@@ -15,7 +15,7 @@ if [ -z "${JENKINS_PASSWORD}" ]; then
 fi
 
 
-if [ ! -z "${UPSTREAM_BUILD_URL}"  ]; then
+if [ -z "${UPSTREAM_BUILD_URL}"  ]; then
   if [ -z "${JENKINS_URL}" ] ; then
     echo "Missing JENKINS_URL"
     exit 3
