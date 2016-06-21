@@ -1,4 +1,3 @@
-/home/jboss/jenkins_workspace/jobs/eap-6.4.x-proposed-build/lastSuccessful/archive
 readonly JENKINS_HOME=${JENKINS_HOME:-'/home/jboss/jenkins_workspace/'}
 readonly JENKINS_URL=${1}
 readonly JOB_NAME=${2}
