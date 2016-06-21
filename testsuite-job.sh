@@ -17,7 +17,7 @@ if [ -z "${JENKINS_PASSWORD}" ]; then
 fi
 
 if [ -z "${UPSTREAM_BUILD_URL}"  ]; then
-  rsync -Avrz "${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/*" .
+  rsync -Avrz ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/* .
 else
 
   if [ -z "${JENKINS_URL}" ] ; then
