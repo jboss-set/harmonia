@@ -1,20 +1,7 @@
-readonly JOB_NAME=${1}
-readonly UPSTREAM_BUILD_URL=${2}
-readonly JENKINS_HOME=${3:-'/home/jboss/jenkins_workspace/'}
+echo "Ensure artefacts have been properly copied over:"
+ls
 
-if [ -z "${UPSTREAM_BUILD_URL}"  ]; then
-  rsync -Avrz ${JENKINS_HOME}/jobs/${JOB_NAME}/lastSuccessful/archive/* .
-else
-
-  ARCHIVE_URL="${UPSTREAM_BUILD_URL}/artifact/*zip*/archive.zip"
-
-  archive=$(mktemp)
-  wget --auth-no-challenge --user "${JENKINS_USERNAME}" --password "${JENKINS_PASSWORD}" -nv "${ARCHIVE_URL}" -O "${archive}"
-  unzip -q "${archive}" -d archive
-  rm "${archive}"
-  cd archive
-  mv * ..
-fi
+echo " -------------------- "
 
 . /opt/jboss-set-ci-scripts/common_bash.sh
 set_ip_addresses
