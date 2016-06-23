@@ -1,8 +1,3 @@
-echo "Ensure artefacts have been properly copied over:"
-ls
-
-echo " -------------------- "
-
 . /opt/jboss-set-ci-scripts/common_bash.sh
 set_ip_addresses
 kill_jboss
