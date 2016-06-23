@@ -24,7 +24,7 @@ fi
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=90000"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=/opt/old-as-releases"
-TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=true"
+TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=false"
 
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
