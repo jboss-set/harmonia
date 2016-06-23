@@ -1,3 +1,12 @@
+if [ -z "${EXECUTOR_NUMBER}" ]; then
+  echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
+fi
+
+if [ -z "${WORKSPACE}" ]; then
+  echo -n "inside workspace: ${WORKSPACE}"
+fi
+echo '.'
+
 . /opt/jboss-set-ci-scripts/common_bash.sh
 set_ip_addresses
 kill_jboss
