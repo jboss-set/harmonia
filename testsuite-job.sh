@@ -18,7 +18,8 @@ LOCAL_REPO_DIR=$WORKSPACE/maven-local-repository
 
 export MAVEN_OPTS="-Xmx1024m -Xms512m -XX:MaxPermSize=256m"
 if [ ! -z "${EXECUTOR_NUMBER}" ]; then
-  TESTSUITE_OPTS="-Dnode0=127.0.${EXECUTOR_NUMBER}.1 -Dnode1=127.0.${EXECUTOR_NUMBER}.1"
+  readonly SUBNET_ID=$(expr ${EXECUTOR_NUMBER} + 1)
+  TESTSUITE_OPTS="-Dnode0=127.0.${SUBNET_ID}.1 -Dnode1=127.0.${SUBNET_ID}.2"
 fi
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=90000"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
