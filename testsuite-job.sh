@@ -23,4 +23,4 @@ chmod +x ../tools/maven/bin/mvn
 cd ..
 
 chmod +x ./integration-tests.sh
-./integration-tests.sh -DallTests ${TESTSUITE_OPTS}
+bash -x ./integration-tests.sh -DallTests ${TESTSUITE_OPTS}
