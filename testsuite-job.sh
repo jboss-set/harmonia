@@ -1,8 +1,8 @@
-if [ -z "${EXECUTOR_NUMBER}" ]; then
+if [ ! -z "${EXECUTOR_NUMBER}" ]; then
   echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
 fi
 
-if [ -z "${WORKSPACE}" ]; then
+if [ ! -z "${WORKSPACE}" ]; then
   echo -n "inside workspace: ${WORKSPACE}"
 fi
 echo '.'
@@ -17,7 +17,9 @@ java -version
 LOCAL_REPO_DIR=$WORKSPACE/maven-local-repository
 
 export MAVEN_OPTS="-Xmx1024m -Xms512m -XX:MaxPermSize=256m"
-TESTSUITE_OPTS="-Dnode0=127.0.1.1 -Dnode1=127.0.2.1"
+if [ ! -z "${EXECUTOR_NUMBER}" ]; then
+  TESTSUITE_OPTS="-Dnode0=127.0.${EXECUTOR_NUMBER}.1 -Dnode1=127.0.${EXECUTOR_NUMBER}.1"
+fi
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=90000"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=/opt/old-as-releases"
