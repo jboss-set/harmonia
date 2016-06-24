@@ -1,5 +1,8 @@
 cd $(dirname ${0})
 
+export JAVA_HOME=/java
+export PATH=${JAVA_HOME}/bin:${PATH}
+
 which java
 java -version
 
