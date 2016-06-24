@@ -10,13 +10,15 @@ readonly LOCAL_REPO_DIR=/workspace/maven-local-repository
 readonly MAVEN_HOME=/maven_home
 export MAVEN_HOME
 
+readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-'/opt/old-as-releases'}
+
 export PATH=${MAVEN_HOME}/bin:${PATH}
 export MAVEN_OPTS="-Xmx1024m -Xms512m -XX:MaxPermSize=256m"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=90000"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
-TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=/opt/old-as-releases"
+TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
 TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=false"
 
 cd testsuite
