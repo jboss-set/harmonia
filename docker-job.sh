@@ -1,7 +1,12 @@
-if [ ! -z "${WORKSPACE}" ]; then
-  echo -n "inside workspace: ${WORKSPACE}"
+if [ -z "${WORKSPACE}" ]; then
+  echo "No WORKSPACE defined - is this script running inside Jenkins ? If not, set the WORKSPACE value."
+  exit 1
 fi
-echo '.'
+
+if [ -z "${MAVEN_HOME}" ]; then
+  echo "No MAVEN_HOME defined, this is required to run the build."
+  exit 2
+fi
 
 readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
@@ -14,10 +19,13 @@ if [ "${?}" -ne 0 ]; then
   exit 1
 fi
 
+if [ -z "${CONTAINER_ID}" ]; then
+  echo "No container - aborting"
+  exit 2
+fi
+
 trap "docker stop ${CONTAINER_ID}" EXIT INT QUIT TERM
 docker exec "${CONTAINER_ID}" /bin/bash /job_home/job-run.sh
 status=${?}
 docker stop "${CONTAINER_ID}"
 exit "${status}"
-
-
