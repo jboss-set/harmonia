@@ -19,7 +19,7 @@ readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-'/opt/old-as-releases'}
 
 readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
-readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" $(pwd):/job_home "${DOCKER_IMAGE}")
+readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
 
 if [ "${?}" -ne 0 ]; then
   echo 'Failed to create container.'
