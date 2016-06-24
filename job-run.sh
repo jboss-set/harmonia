@@ -1,3 +1,5 @@
+cd $(dirname ${0})
+
 which java
 java -version
 
