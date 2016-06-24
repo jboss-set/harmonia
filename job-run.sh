@@ -1,5 +1,3 @@
-readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v $(pwd):/job_home "${DOCKER_IMAGE}")
-
 which java
 java -version
 
