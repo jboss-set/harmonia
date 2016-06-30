@@ -1,5 +1,5 @@
-if [ ${EXECUTOR_NUMBER} -gt 1 ]; then
-  echo "Job build remotely on a docker container - no docker setup"
+if [ ${NODE_NAME} != 'master' ]; then
+  echo "Job build remotely on a docker container - no docker setup: ${NODE_NAME}"
   ${WORKSPACE}/job-run.sh
   exit $?
 else
