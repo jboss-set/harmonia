@@ -8,11 +8,6 @@ else
     exit 1
   fi
 
-  if [ -z "${MAVEN_HOME}" ]; then
-    echo "No MAVEN_HOME defined, this is required to run the build."
-    exit 2
-  fi
-
   if [ -z "${JAVA_HOME}" ]; then
     echo "JAVA_HOME if not set - this is required for the build to run."
     exit 3
@@ -24,7 +19,7 @@ else
 
   readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
-  readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
+  readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
 
   if [ "${?}" -ne 0 ]; then
     echo 'Failed to create container.'
