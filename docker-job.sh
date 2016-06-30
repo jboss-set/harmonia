@@ -1,6 +1,6 @@
 if [ ${NODE_NAME} != 'master' ]; then
   echo "Job build remotely on a docker container - no docker setup: ${NODE_NAME}"
-  ${WORKSPACE}/job-run.sh
+  bash -x /opt/jboss-set-ci-scripts/eap-63-testsuite.sh
   exit $?
 else
   if [ -z "${WORKSPACE}" ]; then
