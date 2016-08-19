@@ -1,7 +1,12 @@
 cd $(dirname ${0})
 
+if [ -z "${USER}" ]; then
+  export USER='jboss'
+fi
+
 export JAVA_HOME=/java
 export PATH=${JAVA_HOME}/bin:${PATH}
+
 
 which java
 java -version
