@@ -1,3 +1,10 @@
+if [ -z "${JAVA_HOME}" ]; then
+  echo "JAVA_HOME if not set - this is required for the build to run."
+  exit 1
+else
+  echo "JAVA_HOME:${JAVA_HOME}"
+fi
+
 if [ ${NODE_NAME} != 'master' ]; then
   echo "Job build remotely on a docker container - no docker setup: ${NODE_NAME}"
   bash -x /opt/jboss-set-ci-scripts/all-integration-tests.sh
@@ -5,19 +12,12 @@ if [ ${NODE_NAME} != 'master' ]; then
 else
   if [ -z "${WORKSPACE}" ]; then
     echo "No WORKSPACE defined - is this script running inside Jenkins ? If not, set the WORKSPACE value."
-    exit 1
+    exit 2
   fi
 
   if [ -z "${MAVEN_HOME}" ]; then
     echo "No MAVEN_HOME defined, this is required to run the build."
-    exit 2
-  fi
-
-  if [ -z "${JAVA_HOME}" ]; then
-    echo "JAVA_HOME if not set - this is required for the build to run."
     exit 3
-  else
-    echo "JAVA_HOME:${JAVA_HOME}"
   fi
 
   readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-'/opt/old-as-releases'}
@@ -30,12 +30,12 @@ else
     echo 'Failed to create container.'
     # just in case container is somehow running
     docker stop ${CONTAINER_ID}
-    exit 1
+    exit 4
   fi
 
   if [ -z "${CONTAINER_ID}" ]; then
     echo "No container - aborting"
-    exit 2
+    exit 5
   fi
 
   trap "docker stop ${CONTAINER_ID}" EXIT INT QUIT TERM
