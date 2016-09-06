@@ -7,6 +7,7 @@ fi
 chown -R "${USER}:${USER}" /workspace
 
 unset JBOSS_HOME
+export JBOSS_HOME
 
 export JAVA_HOME=/java
 export PATH=${JAVA_HOME}/bin:${PATH}
