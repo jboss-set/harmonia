@@ -32,8 +32,8 @@ TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=false"
 
 cd testsuite
 chmod +x ../tools/maven/bin/mvn
-su "${USER}" -c "../tools/maven/bin/mvn clean"
+../tools/maven/bin/mvn clean
 cd ..
 
 chmod +x ./integration-tests.sh
-su "${USER}" -c "bash -x ./integration-tests.sh -DallTests ${TESTSUITE_OPTS}"
+bash -x ./integration-tests.sh -DallTests ${TESTSUITE_OPTS}

@@ -39,7 +39,7 @@ else
   fi
 
   trap "docker stop ${CONTAINER_ID}" EXIT INT QUIT TERM
-  docker exec "${CONTAINER_ID}" /bin/bash /job_home/job-run.sh
+  docker exec "${CONTAINER_ID}" /bin/bash /job_home/run-job-as.sh /job_home/job-run.sh
   status=${?}
   docker stop "${CONTAINER_ID}"
   exit "${status}"
