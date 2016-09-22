@@ -24,7 +24,9 @@ else
 
   readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
-  readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
+  readonly JAVAZI_MOUNT=${JAVAZI_MOUNT:-'/usr/share/javazi-1.8/:/usr/share/javazi-1.8/'}
+
+  readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE}:/workspace"  -v "${MAVEN_HOME}:/maven_home" -v ${JAVAZI_MOUNT} -v "${JAVA_HOME}:/java" -v "${OLD_RELEASES_FOLDER}:${OLD_RELEASES_FOLDER}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
 
   if [ "${?}" -ne 0 ]; then
     echo 'Failed to create container.'
