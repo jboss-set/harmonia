@@ -24,13 +24,13 @@ else
 
   readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
-  readonly JAVAZI_MOUNT=${JAVAZI_MOUNT:-'/usr/share/javazi-1.8/:/usr/share/javazi-1.8/'}
-  readonly WORKSPACE_MOUNT="${WORKSPACE}:/workspace"
-  readonly MAVEN_HOME_MOUNT="${MAVEN_HOME}:/maven_home"
-  readonly JAVA_HOME_MOUNT="${JAVA_HOME}:/java"
-  readonly OPT_MOUNT='/opt:/opt'
+  readonly DOCKER_JAVAZI_MOUNT=${DOCKER_JAVAZI_MOUNT:-'/usr/share/javazi-1.8/:/usr/share/javazi-1.8/'}
+  readonly DOCKER_WORKSPACE_MOUNT="${WORKSPACE}:/workspace"
+  readonly DOCKER_MAVEN_HOME_MOUNT="${MAVEN_HOME}:/maven_home"
+  readonly DOCKER_JAVA_HOME_MOUNT="${JAVA_HOME}:/java"
+  readonly DOCKER_OPT_MOUNT='/opt:/opt'
 
-  readonly CONTAINER_ID=$(docker run -d -v "${WORKSPACE_MOUNT}"  -v "${MAVEN_HOME_MOUNT}" -v "${JAVAZI_MOUNT}" -v "${JAVA_HOME_MOUNT}" -v "${OPT_MOUNT}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
+  readonly CONTAINER_ID=$(docker run -d -v "${DOCKER_WORKSPACE_MOUNT}" -v "${DOCKER_MAVEN_HOME_MOUNT}" -v "${DOCKER_JAVAZI_MOUNT}" -v "${DOCKER_JAVA_HOME_MOUNT}" -v "${DOCKER_OPT_MOUNT}" -v $(pwd):/job_home "${DOCKER_IMAGE}")
 
   if [ "${?}" -ne 0 ]; then
     echo 'Failed to create container.'
