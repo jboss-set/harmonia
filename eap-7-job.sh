@@ -4,6 +4,8 @@
 # Build Wildlfy/EAP
 #
 
+readonly BUILD_COMMAND=${1}
+
 # ensure provided JAVA_HOME, if any, is first in PATH
 if [ ! -z "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
@@ -66,4 +68,18 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
 unset JBOSS_HOME
-./build.sh clean install -B
+if [ -z "${BUILD_COMMAND}" ]; then
+   ./build.sh clean install -B
+else
+  unset JBOSS_HOME
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
+
+  cd testsuite
+  mvn clean
+  cd ..
+
+  bash -x ./integration-tests.sh -DallTests ${TESTSUITE_OPTS}
+fi
