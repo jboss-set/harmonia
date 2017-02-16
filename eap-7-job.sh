@@ -77,6 +77,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
 
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -s $(pwd)/settings.xml"
   cd testsuite
   mvn clean
   cd ..
