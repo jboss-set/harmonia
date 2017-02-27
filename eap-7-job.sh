@@ -69,7 +69,7 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
-  ./build.sh clean install -s $(pwd)/settings.xml -B
+  ./build.sh clean install -s ./harmonia/settings.xml -B
 else
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
