@@ -14,6 +14,9 @@ fi
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx1024m -Xms512m -XX:MaxPermSize=256m'}
 
+readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
+readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
+
 if [ ! -z "${EXECUTOR_NUMBER}" ]; then
   echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
 fi
@@ -62,8 +65,8 @@ mkdir -p "${LOCAL_REPO_DIR}"
 
 export MAVEN_OPTS="${MAVEN_OPTS} ${MEMORY_SETTINGS}"
 # workaround wagon isseu - https://projects.engineering.redhat.com/browse/SET-20
-export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.http.pool=false"
-export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute=3"
+export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.http.pool=${MAVEN_WAGON_HTTP_POOL}"
+export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE}"
 # using project's maven repository
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
