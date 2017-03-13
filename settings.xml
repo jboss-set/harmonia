@@ -38,6 +38,12 @@ under the License.
       <url>http://thunder.sin2.redhat.com/product</url>
     </mirror>
     <mirror>
+      <id>thunder.brew.cache.7.0</id>
+      <mirrorOf>jboss-product-repository</mirrorOf>
+      <name>Thunder Product EAP 7.0 Cache</name>
+      <url>http://thunder.sin2.redhat.com/product-7.0</url>
+    </mirror>
+    <mirror>
       <id>thunder.jboss.org.cache</id>
       <mirrorOf>jboss-public-repository-group</mirrorOf>
       <name>Thunder JBoss Public Repositories Cache</name>
