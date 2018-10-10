@@ -14,6 +14,7 @@ fi
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx1024m -Xms512m -XX:MaxPermSize=256m'}
 
+readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML:-"$(pwd)/harmonia/settings.xml"}
 readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
 readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
 
@@ -72,7 +73,7 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
-  ./build.sh clean install -s ./harmonia/settings.xml -B
+  ./build.sh clean install -s "${MAVEN_SETTINGS_XML}" -B
 else
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
@@ -80,7 +81,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
 
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -s $(pwd)/settings.xml"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -s ${MAVEN_SETTINGS_XML}"
   cd testsuite
   mvn clean
   cd ..
