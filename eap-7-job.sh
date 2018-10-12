@@ -86,5 +86,5 @@ else
   mvn clean
   cd ..
 
-  bash -x ./integration-tests.sh -DallTests ${TESTSUITE_OPTS}
+  bash -x ./integration-tests.sh -DallTests -fae ${TESTSUITE_OPTS}
 fi
