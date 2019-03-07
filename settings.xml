@@ -32,16 +32,10 @@ under the License.
       <url>http://thunder.sin2.redhat.com/maven</url>
     </mirror>
     <mirror>
-      <id>thunder.brew.cache</id>
-      <mirrorOf>jboss-eap-7.1-product-repository</mirrorOf>
-      <name>Thunder Product EAP Cache</name>
-      <url>http://thunder.sin2.redhat.com/eap-7.1</url>
-    </mirror>
-    <mirror>
-      <id>thunder.brew.cache.7.0</id>
+      <id>thunder.brew.cache.6.4</id>
       <mirrorOf>jboss-product-repository</mirrorOf>
-      <name>Thunder Product EAP 7.0 Cache</name>
-      <url>http://thunder.sin2.redhat.com/eap-7.0</url>
+      <name>Thunder Product EAP 6.4 Cache</name>
+      <url>http://thunder.sin2.redhat.com/eap-6.4</url>
     </mirror>
     <mirror>
       <id>thunder.jboss.org.cache</id>
