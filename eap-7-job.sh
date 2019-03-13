@@ -11,6 +11,8 @@ if [ ! -z "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
+readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
+
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx1024m -Xms512m -XX:MaxPermSize=256m'}
 
@@ -74,13 +76,9 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
   ./build.sh clean install -s "${MAVEN_SETTINGS_XML}" -B ${BUILD_OPTS}
-  if [ $? -ne 0 ]; then
-    #Compilation failure: 125 for git
+  if [ "${?}" -ne 0 ]; then
     echo "Compilation failed"
-    exit 125
-  else
-    #exit $?  ?
-    exit 0
+    exit "${GIT_SKIP_BISECT_ERROR_CODE}"
   fi
 else
   unset JBOSS_HOME
@@ -95,5 +93,5 @@ else
   cd ..
 
   bash -x ./integration-tests.sh -DallTests -fae ${TESTSUITE_OPTS}
-  exit $?
+  exit "${?}"
 fi
