@@ -9,7 +9,7 @@ to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
@@ -18,9 +18,9 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<settings xmlns="https://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="https://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
   <pluginGroups/>
   <proxies/>
   <servers/>
@@ -29,31 +29,31 @@ under the License.
       <id>thunder.maven.central.cache</id>
       <mirrorOf>central</mirrorOf>
       <name>Thunder Maven Central Cache</name>
-      <url>http://localhost/maven</url>
+      <url>https://localhost/maven</url>
     </mirror>
     <mirror>
       <id>thunder.brew.cache.eap72</id>
       <mirrorOf>jboss-eap-7.2-product-repository</mirrorOf>
       <name>Thunder Product EAP 7.2 Cache</name>
-      <url>http://localhost/eap-7.2</url>
+      <url>https://localhost/eap-7.2</url>
     </mirror>
     <mirror>
       <id>thunder.brew.cache.eap71</id>
       <mirrorOf>jboss-eap-7.1-product-repository</mirrorOf>
       <name>Thunder Product EAP 7.1 Cache</name>
-      <url>http://localhost/eap-7.1</url>
+      <url>https://localhost/eap-7.1</url>
     </mirror>
     <mirror>
       <id>thunder.brew.cache.eap70</id>
       <mirrorOf>jboss-product-repository</mirrorOf>
       <name>Thunder Product EAP 7.0 Cache</name>
-      <url>http://localhost/eap-7.0</url>
+      <url>https://localhost/eap-7.0</url>
     </mirror>
     <mirror>
       <id>thunder.jboss.org.cache</id>
       <mirrorOf>jboss-public-repository-group</mirrorOf>
       <name>Thunder JBoss Public Repositories Cache</name>
-      <url>http://localhost/jboss</url>
+      <url>https://localhost/jboss</url>
     </mirror>
   </mirrors>
   <profiles/>
