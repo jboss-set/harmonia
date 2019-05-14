@@ -75,7 +75,7 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
-  ./build.sh clean install -s "${MAVEN_SETTINGS_XML}" -B ${BUILD_OPTS}
+  mvn clean install -s "${MAVEN_SETTINGS_XML}" -B ${BUILD_OPTS}
   if [ "${?}" -ne 0 ]; then
     echo "Compilation failed"
     exit "${GIT_SKIP_BISECT_ERROR_CODE}"
