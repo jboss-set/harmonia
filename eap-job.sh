@@ -11,6 +11,7 @@ if [ ! -z "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
+
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
 
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
@@ -86,6 +87,7 @@ if [ -z "${BUILD_COMMAND}" ]; then
 else
   unset JBOSS_HOME
   export MAVEN_HOME="${MAVEN_HOME}"
+
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
@@ -95,6 +97,7 @@ else
   cd testsuite
   mvn clean
   cd ..
+
 
   # workaround the fact that this script set MAVEN_HOME to "" without any override possible
   sed -i ./integration-tests.sh -e 's;MAVEN_HOME=.*;;g'
