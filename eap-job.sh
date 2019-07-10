@@ -3,7 +3,6 @@
 #
 # Build Wildlfy/EAP
 #
-
 readonly BUILD_COMMAND=${1}
 
 # ensure provided JAVA_HOME, if any, is first in PATH
@@ -16,7 +15,7 @@ readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx1024m -Xms512m -XX:MaxPermSize=256m'}
 
-readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML:-"$(pwd)/harmonia/settings.xml"}
+readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/jboss/settings.xml'}
 readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
 readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
 
@@ -75,9 +74,15 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute
 # using project's maven repository
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
+if [ ! -z "${MAVEN_SETTINGS_XML}" ]; then
+  readonly MAVEN_SETTINGS_XML_OPTION="-s ${MAVEN_SETTINGS_XML}"
+else
+  readonly MAVEN_SETTINGS_XML_OPTION=''
+fi
+
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
-  mvn clean install -s "${MAVEN_SETTINGS_XML}" -B ${BUILD_OPTS}
+  mvn clean install "${MAVEN_SETTINGS_XML_OPTION}" -B ${BUILD_OPTS}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
