@@ -82,7 +82,7 @@ fi
 
 unset JBOSS_HOME
 if [ -z "${BUILD_COMMAND}" ]; then
-  mvn clean install "${MAVEN_SETTINGS_XML_OPTION}" -B ${BUILD_OPTS}
+  mvn clean install ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
@@ -95,7 +95,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
 
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -s ${MAVEN_SETTINGS_XML}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
   cd testsuite
   mvn clean
   cd ..
