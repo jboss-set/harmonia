@@ -29,5 +29,5 @@ teardown() {
   export MAVEN_SETTINGS_XML=''
   run "${SCRIPT}"
   [ "${status}" -eq 0 ]
-  [ "${lines[-1]}" = 'mvn clean install  -B' ]
+  [ "${lines[-1]}" = 'mvn clean install -B' ]
 }
