@@ -3,7 +3,31 @@
 #
 # Build Wildlfy/EAP
 #
-readonly BUILD_COMMAND=${1}
+
+usage() {
+  local script_name=$(basename ${0})
+  echo "${script_name} <build|testsuite> [extra-args]"
+  echo
+  echo "ex: ${script_name} 'testsuite' -Dcustom.args"
+  echo
+  echo Note that if no arguments is provided, it default to 'build'. To run the testsuite, you need to provide 'testsuite' as a first argument. All arguments beyond this first will be appended to the mvn command line.
+  echo
+  echo 'Warning: This script also set several mvn args. Please refer to its content before adding some extra maven arguments.'
+}
+
+BUILD_COMMAND=${1}
+
+if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
+  usage
+  exit 0
+fi
+
+if [ "${BUILD_COMMAND}" != 'build' ] && [ "${BUILD_COMMAND}" != 'testsuite' ]; then
+  readonly BUILD_COMMAND='build'
+else
+  readonly BUILD_COMMAND="${BUILD_COMMAND}"
+  shift
+fi
 
 # ensure provided JAVA_HOME, if any, is first in PATH
 if [ ! -z "${JAVA_HOME}" ]; then
@@ -81,8 +105,8 @@ else
 fi
 
 unset JBOSS_HOME
-if [ -z "${BUILD_COMMAND}" ]; then
-  mvn clean install ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS}
+if [ "${BUILD_COMMAND}" = 'build' ]; then
+  mvn clean install ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
@@ -100,6 +124,6 @@ else
   mvn clean
   cd ..
 
-  bash -x ./integration-tests.sh -DallTests -fae ${TESTSUITE_OPTS}
+  bash -x ./integration-tests.sh -DallTests -fae ${TESTSUITE_OPTS} ${@}
   exit "${?}"
 fi
