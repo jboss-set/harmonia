@@ -29,3 +29,9 @@ deleteIfExist() {
     rm -rf "${file}"
   fi
 }
+
+createDummyCommand() {
+  local command=${1}
+  echo 'echo ${@}' > "${command}"
+  chmod +x "${command}"
+}

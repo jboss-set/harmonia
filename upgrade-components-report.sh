@@ -1,14 +1,4 @@
 #!/bin/bash
-#
-# ex:
-#   - wildfly-core:
-#    ./upgrade-components-report.sh rpelisse@redhat.com wildfly-master wildfly-core 'Wildfly Core'
-#   - elytron-web:
-#    ./upgrade-components-report.sh jboss-set@redhat.com elytron-1x elytron-web 'Elytron Web'
-#   - wildfly-elytron:
-#     ./upgrade-components-report.sh jboss-set@redhat.com  elytron-1x wildfly-elytron 'Wildfly Elytron'
-#   - wildfly-master:
-#     ./upgrade-components-report.sh jboss-set@redhat.com wildfly-master wildfly 'Wildfly Master'
 set -e
 
 usage() {
@@ -28,6 +18,11 @@ if [ -z "${EMAIL}" ]; then
   echo 'Missing email adress.'
   usage
   exit 1
+fi
+
+if [ "${EMAIL}" = '-h' ]; then
+  usage
+  exit 0
 fi
 
 readonly RULE_NAME="${2}"
@@ -50,7 +45,7 @@ readonly REPORT_TITLE="${4:-$(basename "${TARGET_DIR}")}"
 
 readonly JBOSS_USER_HOME=${JBOSS_USER_HOME:-'/home/jboss'}
 readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
-readonly CONFIG="${JBOSS_USER_HOME}/dependency-alignment-configs/rules-${RULE_NAME}.json"
+readonly CONFIG=${CONFIG:-"${JBOSS_USER_HOME}/dependency-alignment-configs/rules-${RULE_NAME}.json"}
 readonly TARGET="${TARGET_DIR}/pom.xml"
 readonly REPORT_FILE=${REPORT_FILE:-'report.txt'}
 
