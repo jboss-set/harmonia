@@ -26,6 +26,7 @@ teardown() {
 }
 
 @test "Missing HARMONIA_SCRIPT" {
+  export HARMONIA_SCRIPT="/invalid/path"
   run ${RUN_TEST}
   [ "${status}" -eq 1 ]
   [[ ${output} == "${PERUN_LOG_PREFIX} Invalid path to Harmonia script provided: ${HARMONIA_SCRIPT}. Aborting." ]]
