@@ -36,14 +36,6 @@ teardown() {
   [[ ${output} == "${PERUN_LOG_PREFIX} No bad revision provided, aborting." ]]
 }
 
-@test "Missing reproducer URL" {
-  export GOOD_REVISION='1'
-  export BAD_REVISION='2'
-  run ${PERUN}
-  [ "${status}" -eq 3 ]
-  [[ ${output} == "${PERUN_LOG_PREFIX} No URL for the reproducer patch provided, aborting." ]]
-}
-
 @test "Missing Testname" {
   export GOOD_REVISION='1'
   export BAD_REVISION='2'
