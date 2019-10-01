@@ -60,6 +60,12 @@ echo '==== REPORT CONFIGURATION ==='
 cat "${CONFIG}"
 echo '===='
 
+rm -f "${REPORT_FILE}"
 java -jar "${CLI}" 'generate-report' -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
-mail -a "${REPORT_FILE}" -s "Possible component upgrades report - ${REPORT_TITLE}" "${EMAIL}"
+if [ -e "${REPORT_FILE}" ]; then
+    mail -a "${REPORT_FILE}" -s "Possible component upgrades report - ${REPORT_TITLE}" "${EMAIL}"
+else
+    echo "No report generated"
+fi
+
