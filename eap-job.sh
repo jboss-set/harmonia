@@ -5,7 +5,7 @@
 #
 
 usage() {
-  local script_name=$(basename ${0})
+  local -r script_name=$(basename ${0})
   echo "${script_name} <build|testsuite> [extra-args]"
   echo
   echo "ex: ${script_name} 'testsuite' -Dcustom.args"
@@ -30,7 +30,7 @@ else
 fi
 
 # ensure provided JAVA_HOME, if any, is first in PATH
-if [ ! -z "${JAVA_HOME}" ]; then
+if [ -n "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
@@ -45,11 +45,13 @@ readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
 
 readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-/opt/old-as-releases}
 
-if [ ! -z "${EXECUTOR_NUMBER}" ]; then
+readonly FOLDER_DOES_NOT_EXIST_ERROR_CODE='3'
+
+if [ -n "${EXECUTOR_NUMBER}" ]; then
   echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
 fi
 
-if [ ! -z "${WORKSPACE}" ]; then
+if [ -n "${WORKSPACE}" ]; then
   echo -n "inside workspace: ${WORKSPACE}"
 fi
 echo '.'
@@ -60,14 +62,15 @@ if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
     export MAVEN_HOME=${DEFAULT_MAVEN_HOME}
     if [ ! -d  "${DEFAULT_MAVEN_HOME}" ]; then
       echo "No maven install found (${DEFAULT_MAVEN_HOME}) - downloading one:"
-      cd $(pwd)/tools
-      export MAVEN_HOME=$(pwd)
+      cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+      MAVEN_HOME="$(pwd)"
+      export MAVEN_HOME
       bash ./download-maven.sh
-      chmod +x */bin/*
-      cd -
+      chmod +x ./*/bin/*
+      cd - || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     fi
 
-    which mvn
+    command -v mvn
     mvn -version
 fi
 
@@ -75,14 +78,14 @@ readonly MAVEN_BIN_DIR=${MAVEN_HOME}/bin
 echo "Adding ${MAVEN_BIN_DIR} to PATH:${PATH}."
 export PATH=${MAVEN_BIN_DIR}:${PATH}
 
-which java
+command -v java
 java -version
 if [ "${?}" -ne 0 ]; then
    echo "No JVM provided - aborting..."
    exit 1
 fi
 
-which mvn
+command -v mvn
 mvn -version
 if [ "${?}" -ne 0 ]; then
    echo "No MVN provided - aborting..."
@@ -98,7 +101,7 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute
 # using project's maven repository
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
-if [ ! -z "${MAVEN_SETTINGS_XML}" ]; then
+if [ -n "${MAVEN_SETTINGS_XML}" ]; then
   readonly MAVEN_SETTINGS_XML_OPTION="-s ${MAVEN_SETTINGS_XML}"
 else
   readonly MAVEN_SETTINGS_XML_OPTION=''
@@ -120,7 +123,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
 
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
-  cd testsuite
+  cd testsuite || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   mvn clean
   cd ..
 
