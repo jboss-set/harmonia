@@ -60,7 +60,6 @@ echo '==== REPORT CONFIGURATION ==='
 cat "${CONFIG}"
 echo '===='
 
-rm -f "${REPORT_FILE}"
 java -jar "${CLI}" 'generate-report' -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
 if [ -e "${REPORT_FILE}" ]; then
