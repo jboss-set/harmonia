@@ -15,11 +15,13 @@ setup() {
   readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
   touch "${CLI}"
   export REPORT_FILE="$(mktemp)"
+  echo "Dummy content" > "${REPORT_FILE}"
   export CONFIG="$(mktemp)"
 }
 
 teardown() {
   deleteIfExist './java'
+  deleteIfExist './mail'
   deleteIfExist "${REPORT_FILE}"
   deleteIfExist "${CLI}"
   deleteIfExist "${JBOSS_USER_HOME}"
