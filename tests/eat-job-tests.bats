@@ -51,6 +51,7 @@ teardown() {
 }
 
 @test "Simple run" {
+  export MAVEN_SETTINGS_XML=''
   run "${SCRIPT}" "${JBOSS_CODE}"
   [ "${status}" -eq 0 ]
   [ "${lines[0]}" = "Runing EAT on JBoss server: ${JBOSS_FOLDER} - using extra opts: " ]
@@ -67,6 +68,7 @@ teardown() {
 }
 
 @test "Simple run with extra opts" {
+  export MAVEN_SETTINGS_XML=''
   export EAT_EXTRA_OPTS='-Dnative'
   run "${SCRIPT}" "${JBOSS_CODE}"
   echo "${lines[1]}"
