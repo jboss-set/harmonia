@@ -12,7 +12,7 @@ readonly EAT_EXTRA_OPTS=${EAT_EXTRA_OPTS-''}
 set -u
 
 usage() {
-  local script_name=$(basename ${0})
+  local -r script_name=$(basename "${0}")
 
   echo "${script_name} <jboss-version-code> <smode>"
   echo
@@ -33,7 +33,7 @@ assertJBossASVersion() {
   local m2_repo=${2}
 
   cd "${m2_repo}"
-  local pom_file=$(find . -name "${pom_file_prefix}-parent*.pom")
+  local -r pom_file=$(find . -name "${pom_file_prefix}-parent*.pom")
 
   if [ ! -e "${pom_file}" ]; then
     echo "No pom file found with prefix ${pom_file_prefix} in ${m2_repo}."
@@ -41,9 +41,10 @@ assertJBossASVersion() {
     exit 6
   fi
 
-  which xpath 2>&1 > /dev/null
+  command -v xpath > /dev/null 2>&1
+  # shellcheck disable=SC2181
   if [ "${?}" -ne 0 ]; then
-    echo 'Utility 'xpath' is missing from PATH. Please install tool or set JBOSS_VERSION.'
+    echo 'Utility xpath is missing from PATH. Please install tool or set JBOSS_VERSION.'
     exit 7
   fi
 
@@ -100,7 +101,7 @@ if [ ! -d "${JBOSS_FOLDER}" ]; then
   exit 5
 fi
 
-if [ ! -z "${SMODE}" ]; then
+if [ -n "${SMODE}" ]; then
   SMODE_CONFIG='-Dserver-integration'
 else
   SMODE_CONFIG='-Dstandalone'
@@ -124,4 +125,5 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Xmx1024m -Xms512m -XX:MaxPermSize=256m"
 # Run EAT
 #
 echo "Runing EAT on JBoss server: ${JBOSS_FOLDER} - using extra opts: ${EAT_EXTRA_OPTS}"
-mvn clean install -D${JBOSS_VERSION_CODE} ${SMODE_CONFIG} ${SETTINGS_XML_OPTION} ${MAVEN_LOCAL_REPOSITORY_OPTION} ${EAT_EXTRA_OPTS}
+# shellcheck disable=SC2086
+mvn clean install "-D${JBOSS_VERSION_CODE}" ${SMODE_CONFIG} ${SETTINGS_XML_OPTION} ${MAVEN_LOCAL_REPOSITORY_OPTION} ${EAT_EXTRA_OPTS}
