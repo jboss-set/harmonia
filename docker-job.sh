@@ -24,12 +24,12 @@ killContainer() {
 }
 
 cleanUpContainer() {
-  if [ -z "${KEEP_CONTAINER}" -a ! -z "${CONTAINER_ID}" -a "$(containerExists)" -gt 0 ]; then
+  # shellcheck disable=SC2166
+  if [ -z "${KEEP_CONTAINER}" -a -n "${CONTAINER_ID}" -a "$(containerExists)" -gt 0 ]; then
     killContainer
   fi
 }
 
-
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v $(pwd):/work/:rw -tdi --privileged "${DOCKER_IMAGE}" /usr/sbin/init)
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v "$(pwd)":/work/:rw -tdi --privileged "${DOCKER_IMAGE}" /usr/sbin/init)
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
