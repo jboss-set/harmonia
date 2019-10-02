@@ -5,6 +5,8 @@ source ./tests/tests-common.sh
 
 setup() {
   export MAVEN_HOME=$(mktemp -d)
+  mkdir -p "${MAVEN_HOME}/bin"
+  cp "${DUMMY_MVN}" "${MAVEN_HOME}/bin/"
   export JBOSS_FOLDER=$(mktemp -d)
   export JBOSS_VERSION='7.6'
   export JBOSS_CODE='eap72x'
@@ -49,27 +51,22 @@ teardown() {
 }
 
 @test "Simple run" {
-  skip "Broken, to be fixed"
-
   run "${SCRIPT}" "${JBOSS_CODE}"
-  echo $output
   [ "${status}" -eq 0 ]
   [ "${lines[0]}" = "Runing EAT on JBoss server: ${JBOSS_FOLDER} - using extra opts: " ]
   [ "${lines[1]}" = "mvn clean install -D${JBOSS_CODE} -Dstandalone" ]
 }
 
 @test "Simple run with customized setting.xml" {
-  skip "Broken, to be fixed"
-  export SETTINGS_XML="$(mktemp --suffix .xml)"
+  export MAVEN_SETTINGS_XML="$(mktemp --suffix .xml)"
   run "${SCRIPT}" "${JBOSS_CODE}"
   [ "${status}" -eq 0 ]
   [ "${lines[0]}" = "Runing EAT on JBoss server: ${JBOSS_FOLDER} - using extra opts: " ]
-  [ "${lines[1]}" = "mvn clean install -D${JBOSS_CODE} -Dstandalone -s ${SETTINGS_XML}" ]
+  [ "${lines[1]}" = "mvn clean install -D${JBOSS_CODE} -Dstandalone -s ${MAVEN_SETTINGS_XML-}" ]
   rm -rf "${SETTINGS_XML}"
 }
 
 @test "Simple run with extra opts" {
-  skip "Broken, to be fixed"
   export EAT_EXTRA_OPTS='-Dnative'
   run "${SCRIPT}" "${JBOSS_CODE}"
   echo "${lines[1]}"
