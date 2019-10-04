@@ -2,7 +2,7 @@
 echo "Run Tests..."
 bats -t tests/eap-job-tests.bats > eap.tap
 bats -t tests/eat-job-tests.bats > eat.tap
-bats -t tests/upgrade-components-report-test.sh > upgrade-components-report.tap
+bats -t tests/upgrade-components-report-test.bats > upgrade-components-report.tap
 cd perun || exit 1
 bats -t tests/run-test-unit-tests.bats > ../perun-run-test.tap
 bats -t tests/perun-unit-tests.bats > ../perun-unit-tests.tap
