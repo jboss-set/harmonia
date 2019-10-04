@@ -12,3 +12,11 @@ job specific items can be stored in different branch than master.
 Note:
 [Harmonia](https://en.wikipedia.org/wiki/Harmonia_(mythology)) is one of the infant of Zeus - which is the named of the
 Ansible configuration in charge of Thunder.
+
+Development
+----
+
+To run testsuite execute:
+
+```bats -t tests/```
+
