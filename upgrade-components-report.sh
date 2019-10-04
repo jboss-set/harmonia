@@ -48,6 +48,7 @@ readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
 readonly CONFIG=${CONFIG:-"${JBOSS_USER_HOME}/dependency-alignment-configs/rules-${RULE_NAME}.json"}
 readonly TARGET="${TARGET_DIR}/pom.xml"
 readonly REPORT_FILE=${REPORT_FILE:-'report.txt'}
+readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 
 set -u
 
@@ -63,7 +64,7 @@ echo '===='
 java -jar "${CLI}" 'generate-report' -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
 if [ -e "${REPORT_FILE}" ]; then
-    mail -a "${REPORT_FILE}" -s "Possible component upgrades report - ${REPORT_TITLE}" "${EMAIL}"
+    mail -a "${REPORT_FILE}" -s "Possible component upgrades report - ${REPORT_TITLE}" -r "${FROM_ADDRESS}" "${EMAIL}"
 else
     echo "No report generated"
 fi
