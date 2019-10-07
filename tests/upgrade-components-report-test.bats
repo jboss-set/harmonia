@@ -38,7 +38,7 @@ run_test_case() {
   run "${SCRIPT}" "${email}" "${rule_name}" "${target_dir}" "${report_title}"
   [ "${status}" -eq 0 ]
   [ "${lines[2]}" = "-jar ${CLI} generate-report -c ${CONFIG} -f ${target_dir}/pom.xml -o ${REPORT_FILE}" ]
-  [ "${lines[3]}" = "-a ${REPORT_FILE} -s Possible component upgrades report - ${report_title} -r ${from_address} ${email}" ]
+  [ "${lines[3]}" = "-s Possible component upgrades report - ${report_title} -r ${from_address} ${email}" ]
 }
 
 @test "Test usage" {

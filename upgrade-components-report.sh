@@ -64,7 +64,7 @@ echo '===='
 java -jar "${CLI}" 'generate-report' -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
 if [ -e "${REPORT_FILE}" ]; then
-    mail -a "${REPORT_FILE}" -s "Possible component upgrades report - ${REPORT_TITLE}" -r "${FROM_ADDRESS}" "${EMAIL}"
+    mail -s "Possible component upgrades report - ${REPORT_TITLE}" -r "${FROM_ADDRESS}" "${EMAIL}" < "${REPORT_FILE}"
 else
     echo "No report generated"
 fi
