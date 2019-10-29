@@ -5,12 +5,12 @@ usage() {
   echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title]"
 }
 
-clean_report() {
+deleteOldReportFile() {
   if [ -e "${REPORT_FILE}" ]; then
+    echo "Deleting ${REPORT_FILE}"
     rm "${REPORT_FILE}"
   fi
 }
-trap clean_report EXIT
 
 readonly EMAIL="${1}"
 
@@ -61,9 +61,11 @@ echo '==== REPORT CONFIGURATION ==='
 cat "${CONFIG}"
 echo '===='
 
+deleteOldReportFile
+
 java -jar "${CLI}" 'generate-report' -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
-if [ -e "${REPORT_FILE}" ]; then
+if [ -e "${REPORT_FILE}" ] && [ -s "${REPORT_FILE}" ]; then
     mail -s "Possible component upgrades report - ${REPORT_TITLE}" -r "${FROM_ADDRESS}" "${EMAIL}" < "${REPORT_FILE}"
 else
     echo "No report generated"
