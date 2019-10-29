@@ -5,18 +5,26 @@ source ./tests/tests-common.sh
 
 readonly INTEGRATION_TESTS_SCRIPT='integration-tests.sh'
 
+createDummyJavaCommand() {
+  # created dummy command creates a report file and prints arguments to stdout
+  local command="java"
+  echo 'echo ${@}' > "${command}"
+  echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
+  chmod +x "${command}"
+}
+
 setup() {
+  export REPORT_FILE="$(mktemp)"
+  export CONFIG="$(mktemp)"
+
   # dummy java cmd, just printing the args
-  createDummyCommand 'java'
+  createDummyJavaCommand
   createDummyCommand 'mail'
   export PATH=.:${PATH}
   # override env
   export JBOSS_USER_HOME="$(mktemp -d)"
   readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
   touch "${CLI}"
-  export REPORT_FILE="$(mktemp)"
-  echo "Dummy content" > "${REPORT_FILE}"
-  export CONFIG="$(mktemp)"
 }
 
 teardown() {
@@ -37,8 +45,8 @@ run_test_case() {
 
   run "${SCRIPT}" "${email}" "${rule_name}" "${target_dir}" "${report_title}"
   [ "${status}" -eq 0 ]
-  [ "${lines[2]}" = "-jar ${CLI} generate-report -c ${CONFIG} -f ${target_dir}/pom.xml -o ${REPORT_FILE}" ]
-  [ "${lines[3]}" = "-s Possible component upgrades report - ${report_title} -r ${from_address} ${email}" ]
+  [ "${lines[3]}" = "-jar ${CLI} generate-report -c ${CONFIG} -f ${target_dir}/pom.xml -o ${REPORT_FILE}" ]
+  [ "${lines[4]}" = "-s Possible component upgrades report - ${report_title} -r ${from_address} ${email}" ]
 }
 
 @test "Test usage" {
