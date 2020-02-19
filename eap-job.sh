@@ -65,6 +65,7 @@ if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
       cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
       MAVEN_HOME="$(pwd)"
       export MAVEN_HOME
+      export PATH=${MAVEN_HOME}/bin:${PATH}
       bash ./download-maven.sh
       chmod +x ./*/bin/*
       cd - || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
