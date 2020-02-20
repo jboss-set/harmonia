@@ -35,18 +35,18 @@ teardown() {
   local extra_arg='-Dsome.extra.arg'
   run "${SCRIPT}" 'build' "${extra_arg}"
   [ "${status}" -eq 0 ]
-  [ "${lines[${#lines[@]}-1]}" = "mvn clean install -s /home/master/settings.xml -B ${extra_arg}" ]
+  [ "${lines[${#lines[@]}-1]}" = "mvn clean install -fae -s /home/master/settings.xml -B ${extra_arg}" ]
 }
 
 @test "Run with default settings.xml" {
   run "${SCRIPT}"
   [ "${status}" -eq 0 ]
-  [ "${lines[${#lines[@]}-1]}" = 'mvn clean install -s /home/master/settings.xml -B' ]
+  [ "${lines[${#lines[@]}-1]}" = 'mvn clean install -fae -s /home/master/settings.xml -B' ]
 }
 
 @test "No settings.xml provided" {
   export MAVEN_SETTINGS_XML=''
   run "${SCRIPT}"
   [ "${status}" -eq 0 ]
-  [ "${lines[${#lines[@]}-1]}" = 'mvn clean install -B' ]
+  [ "${lines[${#lines[@]}-1]}" = 'mvn clean install -fae -B' ]
 }
