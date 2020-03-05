@@ -8,7 +8,9 @@ echo -n "Building release artifacts..."
 
 readonly EAP_RELEASE_NAME=${EAP_RELEASE_NAME:-'jboss-eap-6.4'}
 readonly EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME=${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME:-"${EAP_RELEASE_NAME}-maven-artifacts.zip"}
-readonly EAP_MAVEN_SOURCES_ZIPFILE_NAME=${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME:-"${EAP_RELEASE_NAME}-src-prepared.zip"}
+readonly EAP_MAVEN_SOURCES_ZIPFILE_NAME=${EAP_MAVEN_SOURCES_ZIPFILE_NAME:-"${EAP_RELEASE_NAME}-src-prepared.zip"}
+readonly EAP_LOCAL_MAVEN_REPO_FOLDER=${EAP_LOCAL_MAVEN_REPO_FOLDER:-'maven-local-repository'}
+
 zip -qr "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" ${EAP_LOCAL_MAVEN_REPO_FOLDER} 2>&1 > /dev/null
 zip -qr "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" ${WORKSPACE} 2>&1 > /dev/null
 echo 'Done.'
