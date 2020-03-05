@@ -17,9 +17,6 @@ cd ${SRC_LOCATION}
 echo "Starting build..."
 ./build.sh clean install -fae -B -DskipTests -Dts.noSmoke -DallTests -Prelease
 
-# Workaround for Bug 1160227 - SAMLMetadataTestCase fails once -Dnode0 and -Dnode1 are used
-#rm testsuite/integration/picketlink/target/test-classes/org/wildfly/test/integration/security/picketlink/federation/*-metadata*.xml
-
 # Adjust Surefire memory settings (due to failures in JDK6)
 echo "Adjusted memory settings"
 sed -i 's/-Duser.language=en<\/argLine>/-Duser.language=en -XX:MaxPermSize=256m<\/argLine>/g' pom.xml
