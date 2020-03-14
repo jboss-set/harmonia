@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+export HARMONIA_FOLDER=${HARMONIA_FOLDER:-"$(pwd)/harmonia/"}
+
+"${HARMONIA_FOLDER}/eap-job.sh" ${@}
+
 echo 'Adjust Surefire memory settings (due to failures in JDK6)'
 sed -i 's/-Duser.language=en<\/argLine>/-Duser.language=en -XX:MaxPermSize=256m<\/argLine>/g' pom.xml
 
