@@ -17,10 +17,10 @@ readonly EAP_LOCAL_MAVEN_REPO_FOLDER=${EAP_LOCAL_MAVEN_REPO_FOLDER:-'maven-local
 
 
 cd ${EAP_LOCAL_MAVEN_REPO_FOLDER}
-zip -qr "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" .
+zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" .
 mv "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" "${WORKSPACE}"
 cd "${WORKSPACE}"
-zip -x \*.zip -x "${EAP_LOCAL_MAVEN_REPO_FOLDER}" -qr "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" .
+zip -x "${HARMONIA_FOLDER}" -x \*.zip -x "${EAP_LOCAL_MAVEN_REPO_FOLDER}" -qr "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" .
 
 # just to ensure zipfile are properly created
 unzip -t "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" > /dev/null
