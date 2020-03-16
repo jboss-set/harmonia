@@ -2,6 +2,7 @@
 set -e
 
 export HARMONIA_FOLDER=${HARMONIA_FOLDER:-"$(pwd)/harmonia/"}
+export NO_ZIPFILES=${NO_ZIPFILES:-'true'}
 
 "${HARMONIA_FOLDER}/eap-job.sh" ${@}
 
@@ -17,14 +18,15 @@ readonly EAP_LOCAL_MAVEN_REPO_FOLDER=${EAP_LOCAL_MAVEN_REPO_FOLDER:-'maven-local
 
 rm -rf "${HARMONIA_FOLDER}"
 
-cd ${EAP_LOCAL_MAVEN_REPO_FOLDER}
-zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" .
-mv "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" "${WORKSPACE}"
-cd "${WORKSPACE}"
-zip -x "${HARMONIA_FOLDER}" -x \*.zip -x "${EAP_LOCAL_MAVEN_REPO_FOLDER}" -qr "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" .
+if [ -z "${NO_ZIPFILES}" ]; then
+  cd ${EAP_LOCAL_MAVEN_REPO_FOLDER}
+  zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" .
+  mv "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" "${WORKSPACE}"
+  cd "${WORKSPACE}"
+  zip -x "${HARMONIA_FOLDER}" -x \*.zip -x "${EAP_LOCAL_MAVEN_REPO_FOLDER}" -qr "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" .
 
-# just to ensure zipfile are properly created
-unzip -t "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" > /dev/null
-unzip -t "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" > /dev/null
-
+  # just to ensure zipfile are properly created
+  unzip -t "${EAP_MAVEN_ARTIFACTS_ZIPFILE_NAME}" > /dev/null
+  unzip -t "${EAP_MAVEN_SOURCES_ZIPFILE_NAME}" > /dev/null
+fi
 echo 'Done.'
