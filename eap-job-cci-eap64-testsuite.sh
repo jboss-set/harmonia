@@ -19,9 +19,12 @@ if [ ! -e "${EAP_MAVEN_ARTIFACTS_ZIPFILE=}" ]; then
   exit 2
 fi
 
-unzip "${EAP_SOURCES_ZIPFILE}" -d . > /dev/null
-rm -rf "${EAP_LOCAL_MAVEN_REPO}"
-unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
+export NO_ZIPFILES=${NO_ZIPFILES:-'true'}
+if [ -z "${NO_ZIPFILES}" ]; then
+  unzip "${EAP_SOURCES_ZIPFILE}" -d . > /dev/null
+  rm -rf "${EAP_LOCAL_MAVEN_REPO}"
+  unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
+fi
 
 # temporary hack to disable failing test
 sed -e 's;\(public void testRepositoryService()\);@org.junit.Ignore \1;' -i "${WORKSPACE}/testsuite/integration/osgi/src/test/java/org/jboss/as/test/integration/osgi/repository/RepositoryTestCase.java"
