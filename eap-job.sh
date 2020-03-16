@@ -118,6 +118,11 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     echo "Compilation failed"
     exit "${GIT_SKIP_BISECT_ERROR_CODE}"
   fi
+
+  readonly ZIP_WORKSPACE='true'
+  if [ -n "${ZIP_WORKSPACE}" ]; then
+    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
+  fi
 else
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
