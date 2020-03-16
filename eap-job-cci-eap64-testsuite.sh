@@ -9,18 +9,19 @@ readonly EAP_MAVEN_ARTIFACTS_ZIPFILE=${EAP_MAVEN_ARTIFACTS_ZIPFILE:-'jboss-eap-6
 
 readonly BUILD_SCRIPT=${BUILD_SCRIPT:-"${HARMONIA_FOLDER}/eap-job.sh"}
 
-if [ ! -e "${EAP_SOURCES_ZIPFILE}" ]; then
-  echo "No such zipfile for the EAP sources: ${EAP_SOURCES_ZIPFILE}. Aborting."
-  exit 1
-fi
-
-if [ ! -e "${EAP_MAVEN_ARTIFACTS_ZIPFILE=}" ]; then
-  echo "No such zipfile for the EAP artifacts: ${EAP_MAVEN_ARTIFACTS_ZIPFILE=}. Aborting."
-  exit 2
-fi
-
 export NO_ZIPFILES=${NO_ZIPFILES:-'true'}
 if [ -z "${NO_ZIPFILES}" ]; then
+
+  if [ ! -e "${EAP_SOURCES_ZIPFILE}" ]; then
+    echo "No such zipfile for the EAP sources: ${EAP_SOURCES_ZIPFILE}. Aborting."
+    exit 1
+  fi
+
+  if [ ! -e "${EAP_MAVEN_ARTIFACTS_ZIPFILE=}" ]; then
+    echo "No such zipfile for the EAP artifacts: ${EAP_MAVEN_ARTIFACTS_ZIPFILE=}. Aborting."
+    exit 2
+  fi
+
   unzip "${EAP_SOURCES_ZIPFILE}" -d . > /dev/null
   rm -rf "${EAP_LOCAL_MAVEN_REPO}"
   unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
