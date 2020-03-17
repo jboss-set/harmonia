@@ -64,7 +64,7 @@ if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
     export MAVEN_HOME=${DEFAULT_MAVEN_HOME}
     if [ ! -d  "${DEFAULT_MAVEN_HOME}" ]; then
       echo "No maven install found (${DEFAULT_MAVEN_HOME}) - downloading one:"
-      cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+      cd "${WORKSPACE}/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
       MAVEN_HOME="$(pwd)/maven"
       export MAVEN_HOME
       export PATH=${MAVEN_HOME}/bin:${PATH}
