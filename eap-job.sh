@@ -3,6 +3,7 @@
 #
 # Build Wildlfy/EAP
 #
+set -x
 
 usage() {
   local -r script_name=$(basename ${0})
