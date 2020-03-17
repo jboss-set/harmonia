@@ -121,7 +121,7 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
 
   readonly ZIP_WORKSPACE='true'
   if [ -n "${ZIP_WORKSPACE}" ]; then
-    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
+    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' .
   fi
 else
   unset JBOSS_HOME
