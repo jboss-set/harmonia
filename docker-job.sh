@@ -31,6 +31,6 @@ cleanUpContainer() {
   fi
 }
 
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v "$(pwd)":/work/:rw -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v "$(pwd)":/work/:rw  '/opt:/opt:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
