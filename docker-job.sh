@@ -3,6 +3,7 @@
 readonly DOCKER_CMD=${DOCKER_CMD:-'/usr/bin/docker'}
 readonly ROOT_CMD_FOR_DOCKER_CONTAINER=${ROOT_CMD_FOR_DOCKER_CONTAINER:-'/bin/bash'}
 readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
+readonly ENV_FILE=$(mktemp)
 
 docker_cmd() {
   local cmd=${1}
@@ -29,8 +30,13 @@ cleanUpContainer() {
   if [ -z "${KEEP_CONTAINER}" -a -n "${CONTAINER_ID}" -a "$(containerExists)" -gt 0 ]; then
     killContainer
   fi
+
+  if [ -e "${ENV_FILE}" ]; then
+    rm -f "${ENV_FILE}"
+  fi
 }
 
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run --env MAVEN_HOME="${MAVEN_HOME}" -v "$(pwd)":/work/:rw  -v '/opt:/opt:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
+env > "${ENV_FILE}"
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run --env-file="${ENV_FILE}" -v "$(pwd)":/work/:rw  -v '/opt:/opt:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
