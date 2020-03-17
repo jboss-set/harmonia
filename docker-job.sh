@@ -1,6 +1,7 @@
 #!/bin/bash
 
 readonly DOCKER_CMD=${DOCKER_CMD:-'/usr/bin/docker'}
+readonly ROOT_CMD_FOR_DOCKER_CONTAINER=${ROOT_CMD_FOR_DOCKER_CONTAINER:-'/bin/bash'}
 readonly DOCKER_IMAGE=${DOCKER_IMAGE:-'rhel6-jenkins-shared-slave'}
 
 docker_cmd() {
@@ -30,6 +31,6 @@ cleanUpContainer() {
   fi
 }
 
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v "$(pwd)":/work/:rw -tdi --privileged "${DOCKER_IMAGE}" /usr/sbin/init)
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run -v "$(pwd)":/work/:rw -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
