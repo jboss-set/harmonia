@@ -17,6 +17,8 @@ usage() {
 
 BUILD_COMMAND=${1}
 
+cd "${WORKSPACE}"
+
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
   usage
   exit 0
