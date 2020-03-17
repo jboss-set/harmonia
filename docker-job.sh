@@ -41,6 +41,6 @@ readonly REAL_WORKSPACE=${WORKSPACE}
 export WORKSPACE=${WORKSPACE_MOUNT_POINT}
 
 env > "${ENV_FILE}"
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run --env-file="${ENV_FILE}" -v "${REAL_WORKSPACE}:${WORKSPACE_MOUNT_POINT}:rw"  -v '/opt:/opt:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run --env-file="${ENV_FILE}" -v "${REAL_WORKSPACE}:${WORKSPACE_MOUNT_POINT}:rw"  -v '/opt:/opt:ro' -v '/home/jboss:/home/jboss:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
