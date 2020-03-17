@@ -36,6 +36,6 @@ cleanUpContainer() {
 readonly REAL_WORKSPACE=${WORKSPACE}
 export WORKSPACE=${WORKSPACE_MOUNT_POINT}
 
-readonly CONTAINER_ID=$("${DOCKER_CMD}" run -e MAVEN_HOME="${MAVEN_HOME}" -v "${REAL_WORKSPACE}:${WORKSPACE_MOUNT_POINT}:rw"  -v '/opt:/opt:ro' -v '/home/jboss:/home/jboss:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
+readonly CONTAINER_ID=$("${DOCKER_CMD}" run -e MAVEN_SETTINGS_XML="${MAVEN_SETTINGS_XML}" -e MAVEN_HOME="${MAVEN_HOME}" -v "${REAL_WORKSPACE}:${WORKSPACE_MOUNT_POINT}:rw"  -v '/opt:/opt:ro' -v '/home/jboss:/home/jboss:ro' -tdi --privileged "${DOCKER_IMAGE}" "${ROOT_CMD_FOR_DOCKER_CONTAINER}")
 trap cleanUpContainer EXIT
 docker exec -t "${CONTAINER_ID}" "${PATH_TO_SCRIPT}"
