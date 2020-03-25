@@ -27,10 +27,6 @@ if [ -z "${NO_ZIPFILES}" ]; then
   unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
 fi
 
-# temporary hack to disable failing test
-sed -e 's;\(public void testRepositoryService()\);@org.junit.Ignore \1;' -i "${WORKSPACE}/testsuite/integration/osgi/src/test/java/org/jboss/as/test/integration/osgi/repository/RepositoryTestCase.java"
-# end
-
 # Temporary skip testsuite for IBM JDK 8 (due to some keystore issues)
 if [ "${jdk}" != "IBM_JDK8" ]; then
   ${BUILD_SCRIPT} 'testsuite'
