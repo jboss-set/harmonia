@@ -27,7 +27,9 @@ if [ -z "${NO_ZIPFILES}" ]; then
   unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
 fi
 
-./build.sh clean install -fae -B -Dts.noSmoke -s "${MAVEN_SETTINGS_XML}"
+export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=2"
+
+./build.sh clean install -fae -B -Dts.noSmoke -s "${MAVEN_SETTINGS_XML}" ${TESTSUITE_OPTS}
 # Temporary skip testsuite for IBM JDK 8 (due to some keystore issues)
 if [ "${jdk}" != "IBM_JDK8" ]; then
   ${BUILD_SCRIPT} 'testsuite'
