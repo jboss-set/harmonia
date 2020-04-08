@@ -30,8 +30,20 @@ fi
 export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=2"
 
 ./build.sh clean install -fae -B -Dts.noSmoke -s "${MAVEN_SETTINGS_XML}" ${TESTSUITE_OPTS}
+status_code=${?}
 # Temporary skip testsuite for IBM JDK 8 (due to some keystore issues)
 if [ "${jdk}" != "IBM_JDK8" ]; then
-  ${BUILD_SCRIPT} 'testsuite'
-  # ./integration-tests.sh test -Dts.integration -Ddomain.module -Dcompat.module ${TESTSUITE_OPTS}
+  readonly CONSOLE_LOG="${CONSOLE_LOG:-$(mktemp)}"
+  ${BUILD_SCRIPT} 'testsuite' 2>&1 | tee "${CONSOLE_LOG}"
+  status_code=${?}
+  set +e
+  grep "${CONSOLE_LOG}" -q \
+      -e 'JBAS013486' \
+      -e 'Could not start container' \
+      -e 'java.util.concurrent.CancellationException: Operation was cancelled'
+  if [ "${?}" -ne 0 ]; then
+    status_code=99
+  fi
+  rm "${CONSOLE_LOG}"
 fi
+exit "${status_code}"
