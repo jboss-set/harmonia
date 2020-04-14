@@ -41,7 +41,7 @@ if [ "${jdk}" != "IBM_JDK8" ]; then
       -e 'JBAS013486' \
       -e 'Could not start container' \
       -e 'java.util.concurrent.CancellationException: Operation was cancelled'
-  if [ "${?}" -ne 0 ]; then
+  if [ "${?}" -eq 0 ]; then
     status_code=99
   fi
   rm "${CONSOLE_LOG}"
