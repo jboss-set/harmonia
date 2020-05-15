@@ -40,6 +40,7 @@ if [ "${jdk}" != "IBM_JDK8" ]; then
   status_code=${?}
   set +e
   grep "${CONSOLE_LOG}" -q \
+      -e 'VM crash or System.exit called?' \
       -e 'JBAS013486' \
       -e 'Could not start container' \
       -e 'java.util.concurrent.CancellationException: Operation was cancelled'
