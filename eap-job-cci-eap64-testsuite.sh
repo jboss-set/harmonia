@@ -28,6 +28,8 @@ if [ -z "${NO_ZIPFILES}" ]; then
 fi
 
 export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=2"
+export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.jbossdeveloper.repourl=http://localhost/repos/"
+export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.eap.repourl=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/"
 
 ./build.sh clean install -fae -B -Dts.noSmoke -s "${MAVEN_SETTINGS_XML}" ${TESTSUITE_OPTS}
 status_code=${?}
