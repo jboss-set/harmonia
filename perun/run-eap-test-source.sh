@@ -47,7 +47,7 @@ fi
 
 # TODO if patch fails, we need to skip test and print a message that the test is not compatible with the revision skipped
 log "Start EAP testsuite"
-bash -x ${HARMONIA_SCRIPT} 'testsuite'
+bash -x "${HARMONIA_SCRIPT}" 'testsuite'
 #CODE=$?
 log "Stop EAP testsuite"
 #exit $CODE
