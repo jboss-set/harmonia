@@ -20,8 +20,9 @@ readonly EAP_GITHUB_BRANCH="${EAP_GITHUB_BRANCH:-'7.2.x-proposed'}"
 readonly BISECT_WORKSPACE="${BISECT_WORKSPACE:-$(mktemp -d)}"
 # export to reuse
 export BISECT_WORKSPACE
-export HARMONIA_FOLDER="${WORKSPACE}/harmonia"
-readonly SCRIPT_PATH=${0%/*}
+readonly SCRIPT=$(readlink -f "${0}")
+readonly SCRIPT_FOLDER=$(dirname "${SCRIPT}")
+
 #for EAT and harmonia build script
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 export LOCAL_REPO_DIR
@@ -111,4 +112,4 @@ git bisect 'start'
 git bisect 'bad' "${BAD_REVISION}"
 git bisect 'good' "${GOOD_REVISION}"
 
-git bisect run "${SCRIPT_PATH}/run-test.sh"
+git bisect run "${SCRIPT_FOLDER}/run-test.sh"
