@@ -13,6 +13,6 @@ echo 'Run Shellcheck on scripts...'
 for script_file in *.sh
 do
   echo "===== ${script_file} ===="
-  shellcheck -e SC2086 -e SC2068 -e SC2181 "${script_file}"
+  shellcheck "${script_file}"
 done
 echo 'Done.'
