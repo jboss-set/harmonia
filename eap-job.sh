@@ -5,7 +5,7 @@
 #
 
 usage() {
-  local -r script_name=$(basename ${0})
+  local -r script_name=$(basename "${0}")
   echo "${script_name} <build|testsuite> [extra-args]"
   echo
   echo "ex: ${script_name} 'testsuite' -Dcustom.args"
@@ -84,6 +84,7 @@ export PATH=${MAVEN_BIN_DIR}:${PATH}
 
 command -v java
 java -version
+# shellcheck disable=SC2181
 if [ "${?}" -ne 0 ]; then
    echo "No JVM provided - aborting..."
    exit 1
@@ -91,6 +92,7 @@ fi
 
 command -v mvn
 mvn -version
+# shellcheck disable=SC2181
 if [ "${?}" -ne 0 ]; then
    echo "No MVN provided - aborting..."
    exit 2
@@ -113,6 +115,7 @@ fi
 
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
+  # shellcheck disable=SC2086,SC2068
   mvn clean install "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
@@ -132,6 +135,7 @@ else
   mvn clean
   cd ..
 
+  # shellcheck disable=SC2086,SC2068
   bash -x ./integration-tests.sh -DallTests "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
   exit "${?}"
 fi
