@@ -50,6 +50,7 @@ readonly RERUN_FAILING_TESTS=${RERUN_FAILING_TESTS:-'0'}
 readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-/opt/old-as-releases}
 
 readonly FOLDER_DOES_NOT_EXIST_ERROR_CODE='3'
+readonly ZIP_WORKSPACE=${ZIP_WORKSPACE:-'false'}
 
 if [ -n "${EXECUTOR_NUMBER}" ]; then
   echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
@@ -124,7 +125,6 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     exit "${GIT_SKIP_BISECT_ERROR_CODE}"
   fi
 
-  readonly ZIP_WORKSPACE='true'
   if [ -n "${ZIP_WORKSPACE}" ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
