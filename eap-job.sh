@@ -118,7 +118,7 @@ fi
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
   # shellcheck disable=SC2086,SC2068
-  mvn clean install "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  mvn clean install "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} "${MAVEN_DEBUG}" ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
