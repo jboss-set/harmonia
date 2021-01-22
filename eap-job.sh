@@ -16,6 +16,21 @@ usage() {
   echo 'Warning: This script also set several mvn args. Please refer to its content before adding some extra maven arguments.'
 }
 
+is_dirpath_defined_and_exists() {
+  local dir_path=${1}
+  local var_name=${2}
+
+  if [ "${dir_path}" = '' ]; then
+    echo "Directory path provided by ${var_name} is not set."
+    return 1
+  fi
+
+  if [ ! -d "${dir_path}" ]; then
+    echo "Following dir_path does not exists: ${dir_path}."
+    return 2
+  fi
+}
+
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -29,6 +44,8 @@ else
   readonly BUILD_COMMAND="${BUILD_COMMAND}"
   shift
 fi
+
+readonly MAVEN_VERBOSE=${MAVEN_VERBOSE}
 
 # ensure provided JAVA_HOME, if any, is first in PATH
 if [ -n "${JAVA_HOME}" ]; then
@@ -60,7 +77,6 @@ if [ -n "${WORKSPACE}" ]; then
   echo -n "inside workspace: ${WORKSPACE}"
 fi
 echo '.'
-
 
 if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
     echo "No Maven Home defined - setting to default: ${DEFAULT_MAVEN_HOME}"
@@ -117,6 +133,7 @@ fi
 
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
+  # shellcheck disable=SC2086,SC2068
   echo mvn clean install ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   # shellcheck disable=SC2086,SC2068
   mvn clean install ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
@@ -130,6 +147,10 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
 else
+  if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
+    echo "Invalid directory for old_releases: ${OLD_RELEASES_FOLDER}. Testsuite will fails to run, aborting."
+    exit 3
+  fi
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
@@ -143,6 +164,6 @@ else
   cd ..
 
   # shellcheck disable=SC2086,SC2068
-  bash -x ./integration-tests.sh -DallTests "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
+  bash -x ./integration-tests.sh -DallTests ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
   exit "${?}"
 fi
