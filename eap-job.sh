@@ -159,11 +159,13 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=${RERUN_FAILING_TESTS}"
 
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
+
+  export TEST_TO_RUN=${TEST_TO_RUN:-'-DallTests'}
   cd testsuite || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   mvn clean
   cd ..
 
   # shellcheck disable=SC2086,SC2068
-  bash -x ./integration-tests.sh -DallTests ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
+  bash -x ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
   exit "${?}"
 fi
