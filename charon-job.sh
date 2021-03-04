@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eopipefail
+set -eo pipefail
 
 readonly WORKSPACE=${WORKSPACE}
 readonly JBOSS_STREAMS_URL='https://github.com/jboss-set/jboss-streams'
