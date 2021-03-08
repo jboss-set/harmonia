@@ -117,7 +117,7 @@ fi
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
   # zip sources
-  zip -qr jboss-eap-src-${GIT_COMMIT:0:7}.zip "${EAP_SOURCES_DIR}"
+  zip -qr jboss-eap-src-${GIT_COMMIT:0:7}.zip ${EAP_SOURCES_FOLDER}
 
   cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   mvn clean install -Dts.skipTests=true "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
