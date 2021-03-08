@@ -36,6 +36,9 @@ fi
 
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
 
+readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-'eap-sources'}
+readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
+readonly EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
 readonly EAP_LOCAL_MAVEN_REPO_FOLDER=${EAP_LOCAL_MAVEN_REPO_FOLDER:-'maven-local-repository'}
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-"${WORKSPACE}/${EAP_LOCAL_MAVEN_REPO_FOLDER}"}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx1024m -Xms512m -XX:MaxPermSize=256m'}
@@ -113,21 +116,44 @@ fi
 
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
-  mvn clean install "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  # zip sources
+  zip -qr jboss-eap-src-${GIT_COMMIT:0:7}.zip "${EAP_SOURCES_DIR}"
+
+  cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  mvn clean install -Dts.skipTests=true "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
     exit "${GIT_SKIP_BISECT_ERROR_CODE}"
   fi
+
+  cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
+
+  cd "${WORKSPACE}"
+  zip -qr jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip "${EAP_LOCAL_MAVEN_REPO_FOLDER}"
+
 else
   unset JBOSS_HOME
+
+  # unzip artifacts from build job
+  find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
+
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
 
+  TEST_JBOSS_DIST=$(find -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
+  if [ -z "$TEST_JBOSS_DIST" ]; then
+    echo "No EAP distribution to be tested"
+    exit 2
+  else
+    export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
+  fi
+
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
-  cd testsuite || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  cd "${EAP_SOURCES_DIR}/testsuite" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   mvn clean
   cd ..
 
