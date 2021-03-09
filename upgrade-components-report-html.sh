@@ -5,6 +5,23 @@ usage() {
   echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title] [project-code]"
 }
 
+emailWithSMTP() {
+    mutt -e "set from = '${FROM_ADDRESS}'"
+         -e 'set content_type=text/html' \
+         -s "Possible component upgrades report - ${REPORT_TITLE}" \
+         "${TO_ADDRESS}" < "${REPORT_FILE}"
+}
+
+emailWithGMail() {
+    mutt -e 'set content_type = text/html' \
+         -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
+         -e "set smtp_pass = '${SMTP_PASSWORD}'" \
+         -e "set ssl_starttls = yes" \
+         -e "set ssl_force_tls = yes" \
+         -s "Possible component upgrades report - ${REPORT_TITLE}" \
+         "${TO_ADDRESS}" < "${REPORT_FILE}"
+}
+
 readonly TO_ADDRESS="${1}"
 
 if [ -z "${TO_ADDRESS}" ]; then
@@ -45,6 +62,11 @@ readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component-alignment.int.open.paas.redhat.com/api'}
 
+readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
+if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
+  readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
+fi
+
 set -u
 
 if [ ! -e "${CLI}" ]; then
@@ -68,8 +90,11 @@ java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
      -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
 
 if [ -e "${REPORT_FILE}" ] && [ -s "${REPORT_FILE}" ]; then
-    EMAIL="${FROM_ADDRESS}" mutt -e 'set content_type=text/html' -s "Possible component upgrades report - ${REPORT_TITLE}" "${TO_ADDRESS}" < "${REPORT_FILE}"
+  if [ -z "${SMTP_PASSWORD}" ]; then
+    emailWithSMTP
+  else
+    emailWithGMail
+  fi
 else
     echo "No report generated"
 fi
-
