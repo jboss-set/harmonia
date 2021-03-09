@@ -12,7 +12,7 @@ deleteOldReportFile() {
   fi
 }
 
-readonly EMAIL="${1}"
+readonly TO_ADDRESS="${TO_ADDRESS:-${1}}"
 
 if [ -z "${EMAIL}" ]; then
   echo 'Missing email adress.'
@@ -25,7 +25,7 @@ if [ "${EMAIL}" = '-h' ]; then
   exit 0
 fi
 
-readonly RULE_NAME="${2}"
+readonly RULE_NAME="${RULE_NAME:-${2}}"
 
 if [ -z "${RULE_NAME}" ]; then
   echo 'Missing rule name.'
@@ -33,7 +33,7 @@ if [ -z "${RULE_NAME}" ]; then
   exit 2
 fi
 
-readonly TARGET_DIR="${3}"
+readonly TARGET_DIR="${TARGET_DIR:-${3}}"
 
 if [ -z "${TARGET_DIR}" ]; then
   echo 'Missing target dir.'
@@ -41,7 +41,9 @@ if [ -z "${TARGET_DIR}" ]; then
   exit 3
 fi
 
-readonly REPORT_TITLE="${4:-$(basename "${TARGET_DIR}")}"
+#readonly REPORT_TITLE_DEFAULT_TITLE="$(basename "${TARGET_DIR}")"
+readonly REPORT_TITLE="${REPORT_TITLE:-${4}}"
+readonly LOGGER_PROJECT_CODE="${LOGGER_PROJECT_CODE:-${5}}"
 
 readonly JBOSS_USER_HOME=${JBOSS_USER_HOME:-'/home/jboss'}
 readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
@@ -70,4 +72,3 @@ if [ -e "${REPORT_FILE}" ] && [ -s "${REPORT_FILE}" ]; then
 else
     echo "No report generated"
 fi
-
