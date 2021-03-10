@@ -43,7 +43,7 @@ if [ -z "${RULE_NAME}" ]; then
   exit 2
 fi
 
-readonly TARGET_DIR="${TARGET_DIR:-${3}}"
+readonly TARGET_DIR='workdir'
 
 if [ -z "${TARGET_DIR}" ]; then
   echo 'Missing target dir.'
@@ -56,8 +56,8 @@ readonly REPORT_TITLE="${REPORT_TITLE:-${4}}"
 readonly LOGGER_PROJECT_CODE="${LOGGER_PROJECT_CODE:-${5}}"
 
 readonly JBOSS_USER_HOME=${JBOSS_USER_HOME:-'/home/jboss'}
-readonly CLI="${PATH_TO_CLI:-'/opt/tools/alignment-cli-0.5.jar'}"
-readonly CONFIG=${CONFIG:-"${JBOSS_USER_HOME}/dependency-alignment-configs/rules-${RULE_NAME}.json"}
+readonly CLI="${PATH_TO_CLI:-/opt/tools/alignment-cli-0.6.jar}"
+readonly CONFIG=${CONFIG:-"/opt/tools/dependency-alignment-configs/rules-${RULE_NAME}.json"}
 readonly TARGET="${TARGET_DIR}/pom.xml"
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
@@ -66,10 +66,11 @@ readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
   readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
+else
+  readonly SMTP_PASSWORD="${STMP_PASSWORD}"
 fi
 
 set -u
-
 echo '==== REPORT CONFIGURATION ==='
 cat "${CONFIG}"
 echo '===='
@@ -79,6 +80,7 @@ if [ -e "${REPORT_FILE}" ]; then
   echo "Deleting ${REPORT_FILE}"
   rm "${REPORT_FILE}"
 fi
+ls workdir/
 
 java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
      -Dlogger.uri="${LOGGER_URI}" \
