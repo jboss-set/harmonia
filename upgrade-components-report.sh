@@ -56,7 +56,7 @@ readonly REPORT_TITLE="${REPORT_TITLE:-${4}}"
 readonly LOGGER_PROJECT_CODE="${LOGGER_PROJECT_CODE:-${5}}"
 
 readonly JBOSS_USER_HOME=${JBOSS_USER_HOME:-'/home/jboss'}
-readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
+readonly CLI="${PATH_TO_CLI:-'/opt/tools/alignment-cli-0.5.jar'}"
 readonly CONFIG=${CONFIG:-"${JBOSS_USER_HOME}/dependency-alignment-configs/rules-${RULE_NAME}.json"}
 readonly TARGET="${TARGET_DIR}/pom.xml"
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
@@ -69,11 +69,6 @@ if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
 fi
 
 set -u
-
-if [ ! -e "${CLI}" ]; then
-  echo "CLI jar does not exists: ${CLI}"
-  exit 4
-fi
 
 echo '==== REPORT CONFIGURATION ==='
 cat "${CONFIG}"
