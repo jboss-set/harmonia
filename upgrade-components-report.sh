@@ -1,12 +1,63 @@
 #!/bin/bash
-set -ex
+set -eou pipefail
 
 usage() {
   echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title] [project-code]"
 }
 
+runComponentAlignment() {
+  java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
+       -Dlogger.uri="${LOGGER_URI}" \
+       -jar "${CLI}" 'generate-html-report' \
+       -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
+}
+
+ifRequestedPrintUsageAndExit() {
+  local firstArg=${1}
+
+  if [ "${firstArg}" = '-h' ]; then
+    usage
+    exit 0
+  fi
+}
+
+sendReportByEmail() {
+  local report_file=${1}
+
+  if [ -n "${SMTP_PASSWORD}" ]; then
+    if [ -e "${report_file}" ] && [ -s "${report_file}" ]; then
+      if [ -z "${SMTP_PASSWORD}" ]; then
+        emailWithSMTP
+      else
+        emailWithGMail
+      fi
+    else
+      echo "No report generated"
+    fi
+  fi
+}
+
+printConfig() {
+  local config_file=${1}
+
+  if [ -n "${DEBUG}" ]; then
+    echo '==== REPORT CONFIGURATION ==='
+    cat "${config_file}"
+    echo '===='
+  fi
+}
+
+deleteOldReportFile() {
+  local report_file=${1}
+
+  if [ -e "${REPORT_FILE}" ]; then
+    echo "Deleting ${REPORT_FILE}"
+    rm "${REPORT_FILE}"
+  fi
+}
+
 emailWithSMTP() {
-    mutt -e "set from = '${FROM_ADDRESS}'"
+    mutt -e "set from = '${FROM_ADDRESS}'" \
          -e 'set content_type=text/html' \
          -s "Possible component upgrades report - ${REPORT_TITLE}" \
          "${TO_ADDRESS}" < "${REPORT_FILE}"
@@ -22,35 +73,14 @@ emailWithGMail() {
          "${TO_ADDRESS}" < "${REPORT_FILE}"
 }
 
+set +u
+ifRequestedPrintUsageAndExit "${1}"
+
+readonly DEBUG=${DEBUG}
 readonly TO_ADDRESS="${TO_ADDRESS:-${1}}"
-
-if [ -z "${TO_ADDRESS}" ]; then
-  echo 'Missing email adress.'
-  usage
-  exit 1
-fi
-
-if [ "${1}" = '-h' ]; then
-  usage
-  exit 0
-fi
-
 readonly RULE_NAME="${RULE_NAME:-${2}}"
 
-if [ -z "${RULE_NAME}" ]; then
-  echo 'Missing rule name.'
-  usage
-  exit 2
-fi
-
-readonly TARGET_DIR='workdir'
-
-if [ -z "${TARGET_DIR}" ]; then
-  echo 'Missing target dir.'
-  usage
-  exit 3
-fi
-
+readonly TARGET_DIR=${TARGET_DIR:-'workdir'}
 #readonly REPORT_TITLE_DEFAULT_TITLE="$(basename "${TARGET_DIR}")"
 readonly REPORT_TITLE="${REPORT_TITLE:-${4}}"
 readonly LOGGER_PROJECT_CODE="${LOGGER_PROJECT_CODE:-${5}}"
@@ -67,32 +97,27 @@ readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-sm
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
   readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
 else
-  readonly SMTP_PASSWORD="${STMP_PASSWORD}"
+  readonly SMTP_PASSWORD="${SMTP_PASSWORD}"
 fi
 
 set -u
-echo '==== REPORT CONFIGURATION ==='
-cat "${CONFIG}"
-echo '===='
 
-# delete old report file
-if [ -e "${REPORT_FILE}" ]; then
-  echo "Deleting ${REPORT_FILE}"
-  rm "${REPORT_FILE}"
+if [ -z "${TO_ADDRESS}" ]; then
+  echo 'Missing email adress.'
+  usage
+  exit 1
 fi
-ls workdir/
 
-java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
-     -Dlogger.uri="${LOGGER_URI}" \
-     -jar "${CLI}" 'generate-html-report' \
-     -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
-
-if [ -e "${REPORT_FILE}" ] && [ -s "${REPORT_FILE}" ]; then
-  if [ -z "${SMTP_PASSWORD}" ]; then
-    emailWithSMTP
-  else
-    emailWithGMail
-  fi
-else
-    echo "No report generated"
+if [ -z "${RULE_NAME}" ]; then
+  echo 'Missing rule name.'
+  usage
+  exit 2
 fi
+
+printConfig "${CONFIG}"
+
+deleteOldReportFile "${REPORT_FILE}"
+
+runComponentAlignment
+
+sendReportByEmail "${REPORT_FILE}"
