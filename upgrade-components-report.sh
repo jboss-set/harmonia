@@ -5,11 +5,29 @@ usage() {
   echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title] [project-code]"
 }
 
+checkEnvVar() {
+  local envVarName=${1}
+  local envVarValue=${2}
+  local exitCode=${3}
+
+  if [ -z "${envVarValue}" ]; then
+    echo "Environnement variable ${envVarName} is not defined."
+    usage
+    exit ${exitCode}
+  else
+    if [ -n "${DEBUG}" ]; then
+      echo "${envVarName}: ${envVarValue}"
+    fi
+  fi
+}
+
 runComponentAlignment() {
+  local target="${TARGET_DIR}/pom.xml"
+
   java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
        -Dlogger.uri="${LOGGER_URI}" \
        -jar "${CLI}" 'generate-html-report' \
-       -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
+       -c "${CONFIG}" -f "${target}/" -o "${REPORT_FILE}"
 }
 
 ifRequestedPrintUsageAndExit() {
@@ -76,19 +94,10 @@ emailWithGMail() {
 set +u
 ifRequestedPrintUsageAndExit "${1}"
 
-readonly DEBUG=${DEBUG}
-readonly TO_ADDRESS="${TO_ADDRESS:-${1}}"
-readonly RULE_NAME="${RULE_NAME:-${2}}"
-
-readonly TARGET_DIR=${TARGET_DIR:-'workdir'}
-#readonly REPORT_TITLE_DEFAULT_TITLE="$(basename "${TARGET_DIR}")"
-readonly REPORT_TITLE="${REPORT_TITLE:-${4}}"
-readonly LOGGER_PROJECT_CODE="${LOGGER_PROJECT_CODE:-${5}}"
-
-readonly JBOSS_USER_HOME=${JBOSS_USER_HOME:-'/home/jboss'}
+readonly DEBUG=${DEBUG:-true}
+readonly TARGET_DIR=${TARGET_DIR:-'.'}
 readonly CLI="${PATH_TO_CLI:-/opt/tools/alignment-cli-0.6.jar}"
-readonly CONFIG=${CONFIG:-"/opt/tools/dependency-alignment-configs/rules-${RULE_NAME}.json"}
-readonly TARGET="${TARGET_DIR}/pom.xml"
+readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component-alignment.int.open.paas.redhat.com/api'}
@@ -100,19 +109,31 @@ else
   readonly SMTP_PASSWORD="${SMTP_PASSWORD}"
 fi
 
-set -u
-
-if [ -z "${TO_ADDRESS}" ]; then
-  echo 'Missing email adress.'
-  usage
+if [ ! -e "${JOBS_SETTINGS}" ]; then
+  echo "Invalid set up, missing jobs settings file: ${JOBS_SETTINGS}."
   exit 1
 fi
 
-if [ -z "${RULE_NAME}" ]; then
-  echo 'Missing rule name.'
-  usage
+readonly JOB_NAME=${JOB_NAME}
+if [ -z "${JOB_NAME}" ]; then
+  echo "No JOB_NAME provided - aborting".
   exit 2
+else
+  readonly JOB_CONFIG=$(grep -e "^${JOB_NAME}," "${JOBS_SETTINGS}")
 fi
+
+readonly RULE_NAME=$(echo "${JOB_CONFIG}" | cut -f2 -d, )
+readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
+readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f3 -d, )
+
+readonly CONFIG=${CONFIG:-"/opt/tools/dependency-alignment-configs/rules-${RULE_NAME}.json"}
+
+set -u
+
+checkEnvVar 'TO_ADDRESS' "${TO_ADDRESS}" '2'
+checkEnvVar 'RULE_NAME' "${RULE_NAME}" '3'
+checkEnvVar 'REPORT_TITLE' "${REPORT_TITLE}" '4'
+checkEnvVar 'LOGGER_PROJECT_CODE' "${LOGGER_PROJECT_CODE}" '5'
 
 printConfig "${CONFIG}"
 
