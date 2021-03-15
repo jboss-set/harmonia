@@ -15,6 +15,22 @@ usage() {
   echo 'Warning: This script also set several mvn args. Please refer to its content before adding some extra maven arguments.'
 }
 
+record_build_properties() {
+  readonly PROPERTIES_FILE='umb-build.properties'
+  readonly EAP_VERSION=$(grep -r '<full.dist.product.release.version>' $EAP_SOURCES_DIR/pom.xml | sed 's/.*>\(.*\)<.*/\1/')
+
+  echo "BUILD_URL=${BUILD_URL}" >> ${PROPERTIES_FILE}
+  echo "SERVER_URL=${BUILD_URL}/artifact/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "SOURCE_URL=${BUILD_URL}/artifact/jboss-eap-src-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "VERSION=${EAP_VERSION}-${GIT_COMMIT:0:7}" >> ${PROPERTIES_FILE}
+  echo "BASE_VERSION=${EAP_VERSION}" >> ${PROPERTIES_FILE}
+  echo "BUILD_ID=${BUILD_ID}" >> ${PROPERTIES_FILE}
+  echo "SCM_URL=${GIT_URL}" >> ${PROPERTIES_FILE}
+  echo "SCM_REVISION=${GIT_COMMIT}" >> ${PROPERTIES_FILE}
+
+  cat ${PROPERTIES_FILE}
+}
+
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -133,6 +149,7 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   cd "${WORKSPACE}"
   zip -qr jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip "${EAP_LOCAL_MAVEN_REPO_FOLDER}"
 
+  record_build_properties
 else
   unset JBOSS_HOME
 
