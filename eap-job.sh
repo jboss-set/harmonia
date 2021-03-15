@@ -31,6 +31,22 @@ is_dirpath_defined_and_exists() {
   fi
 }
 
+record_build_properties() {
+  readonly PROPERTIES_FILE='umb-build.properties'
+  readonly EAP_VERSION=$(grep -r '<full.dist.product.release.version>' $EAP_SOURCES_DIR/pom.xml | sed 's/.*>\(.*\)<.*/\1/')
+
+  echo "BUILD_URL=${BUILD_URL}" >> ${PROPERTIES_FILE}
+  echo "SERVER_URL=${BUILD_URL}/artifact/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "SOURCE_URL=${BUILD_URL}/artifact/jboss-eap-src-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "VERSION=${EAP_VERSION}-${GIT_COMMIT:0:7}" >> ${PROPERTIES_FILE}
+  echo "BASE_VERSION=${EAP_VERSION}" >> ${PROPERTIES_FILE}
+  echo "BUILD_ID=${BUILD_ID}" >> ${PROPERTIES_FILE}
+  echo "SCM_URL=${GIT_URL}" >> ${PROPERTIES_FILE}
+  echo "SCM_REVISION=${GIT_COMMIT}" >> ${PROPERTIES_FILE}
+
+  cat ${PROPERTIES_FILE}
+}
+
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -52,16 +68,17 @@ if [ -n "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
-# IS_CCI is env variable set by CCI Jenkins during VM creation
-if [ -n "${IS_CCI}" ]; then
+readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
+
+# check if we're runnig in CCI. hostname will always by in 'large-cloud-node-\\d+' format
+if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
+  readonly IS_CCI=true
   echo "Running on CCI VM"
 else
   echo "Running on Olympus"
 fi
 
-readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
-
-if [[ -z "${IS_CCI}" ]]; then
+if [ -z "${IS_CCI}" ]; then
   readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
 
   readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
@@ -69,7 +86,7 @@ else
   readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
   readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
 
-  # no default settings.xml
+  # no default settings.xml on CCI
 fi
 
 readonly EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
@@ -178,6 +195,10 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
     cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip "maven-local-repository"
+
+    cd "${WORKSPACE}"
+
+    record_build_properties
   fi
 else
   if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
