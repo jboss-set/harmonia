@@ -35,3 +35,13 @@ createDummyCommand() {
   echo 'echo ${@}' > "${command}"
   chmod +x "${command}"
 }
+
+createDummyBackgroundCommand() {
+  local command=${1}
+  echo '#! /bin/bash' > "${command}"
+  echo "echo \"${command} \${@}\"" >> "${command}"
+  # simple sleep 20 waits until end of sleep before being killed
+  echo 'for i in `seq 1 20`; do sleep 1; done' >> "${command}"
+  echo 'echo done' >> "${command}"
+  chmod +x "${command}"
+}
