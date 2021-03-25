@@ -62,7 +62,8 @@ readonly CONFIG=${CONFIG:-"${JBOSS_USER_HOME}/dependency-alignment-configs/rules
 readonly TARGET="${TARGET_DIR}/pom.xml"
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
-readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component-alignment.int.open.paas.redhat.com/api'}
+readonly LOGGER_URI=${LOGGER_URI:-'https://component-upgrade-logger-jboss-set-psi.apps.ocp4.prod.psi.redhat.com/api'}
+readonly JAVA_HOME=${JAVA_HOME:-'/opt/oracle/jdk1.8.0_181'}
 
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
@@ -89,7 +90,7 @@ if [ -e "${REPORT_FILE}" ]; then
   rm "${REPORT_FILE}"
 fi
 
-java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
+"$JAVA_HOME/bin/java" -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
      -Dlogger.uri="${LOGGER_URI}" \
      -jar "${CLI}" 'generate-html-report' \
      -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
