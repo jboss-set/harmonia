@@ -9,7 +9,11 @@ readonly PR_PROCESSOR_WRITE_MODE=${PR_PROCESSOR_WRITE_MODE:-'true'}
 readonly PR_PROCESSOR_HTML_REPORT="${WORKSPACE}/report.html"
 readonly CACHE_NAME=${CACHE_NAME:-'github-cache'}
 readonly CACHE_SIZE=${CACHE_SIZE:-'20'}
-readonly ACTIVES_STREAMS=${ACTIVES_STREAMS:-'jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core], jboss-eap-7.3.z[wildfly-wildfly, wildfly-wildfly-core]'}
+
+declare -a ACTIVES_STREAMS
+ACTIVES_STREAMS[0]='jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core]'
+ACTIVES_STREAMS[1]='jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
+
 set -u
 
 
@@ -49,7 +53,7 @@ java -jar \
      -DcacheName="${CACHE_NAME}" \
      -DcacheSize="${CACHE_SIZE}" \
      "${PATH_TO_JAR}" \
-         -s "${ACTIVES_STREAMS}" \
-         -p "${ACTIVES_STREAMS}" \
+         -s "${ACTIVES_STREAMS[@]}" \
+         -p "${ACTIVES_STREAMS[@]}" \
          -f "${PR_PROCESSOR_HTML_REPORT}" \
          -w "${PR_PROCESSOR_WRITE_MODE}"
