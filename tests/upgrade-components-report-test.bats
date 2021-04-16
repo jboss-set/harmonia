@@ -2,8 +2,6 @@
 readonly SCRIPT_NAME='upgrade-components-report.sh'
 source ./tests/tests-common.sh
 
-readonly INTEGRATION_TESTS_SCRIPT='integration-tests.sh'
-
 readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
 
 createDummyJavaCommand() {
