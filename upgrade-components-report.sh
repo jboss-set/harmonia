@@ -67,6 +67,8 @@ readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
   readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
+else
+  readonly SMTP_PASSWORD=""
 fi
 set -u
 
