@@ -3,6 +3,7 @@ readonly SCRIPT_NAME='upgrade-components-report.sh'
 source ./tests/tests-common.sh
 
 readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
+readonly MAIL_COMMAND='mutt'
 
 createDummyJavaCommand() {
   # created dummy command creates a report file and prints arguments to stdout
@@ -18,7 +19,7 @@ setup() {
 
   # dummy java cmd, just printing the args
   createDummyJavaCommand
-  createDummyCommand 'mutt'
+  createDummyCommand "${MAIL_COMMAND}"
   export PATH=.:${PATH}
   # override env
   export JBOSS_USER_HOME="$(mktemp -d)"
@@ -28,7 +29,7 @@ setup() {
 
 teardown() {
   deleteIfExist './java'
-  deleteIfExist './mail'
+  deleteIfExist "${MAIL_COMMAND}"
   deleteIfExist "${REPORT_FILE}"
   deleteIfExist "${CLI}"
   deleteIfExist "${JBOSS_USER_HOME}"
