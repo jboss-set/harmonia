@@ -23,6 +23,7 @@ emailWithGMail() {
 }
 
 readonly TO_ADDRESS="${TO_ADDRESS:-${1}}"
+readonly PRINT_CONFIG=${PRINT_CONFIG:-''}
 
 if [ -z "${TO_ADDRESS}" ]; then
   echo 'Missing email adress.'
@@ -66,6 +67,8 @@ readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
   readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
+else
+  readonly SMTP_PASSWORD=""
 fi
 
 set -u
@@ -75,14 +78,16 @@ if [ ! -e "${CLI}" ]; then
   exit 4
 fi
 
-echo '==== REPORT CONFIGURATION ==='
-cat "${CONFIG}"
-echo '===='
+if [ -n "${PRINT_CONFIG}" ]; then
+  echo '==== REPORT CONFIGURATION ==='
+  cat "${CONFIG}"
+  echo '===='
+fi
 
 # delete old report file
 if [ -e "${REPORT_FILE}" ]; then
   echo "Deleting ${REPORT_FILE}"
-  rm "${REPORT_FILE}"
+  rm  "${REPORT_FILE}"
 fi
 
 java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
