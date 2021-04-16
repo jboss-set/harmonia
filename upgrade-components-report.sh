@@ -1,6 +1,6 @@
 #!/bin/bash
-set -ex
-
+set -eo pipefail
+set +u
 usage() {
   echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title] [project-code]"
 }
