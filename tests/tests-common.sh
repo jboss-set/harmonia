@@ -35,3 +35,13 @@ createDummyCommand() {
   echo 'echo ${@}' > "${command}"
   chmod +x "${command}"
 }
+
+createDummyJavaCommand() {
+  # created dummy command creates a report file and prints arguments to stdout
+  local command="java"
+  echo 'echo ${@}' > "${command}"
+  if [ -n "${REPORT_FILE}" ]; then
+    echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
+  fi
+  chmod +x "${command}"
+}

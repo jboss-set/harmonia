@@ -1,9 +1,9 @@
 #!/bin/bash
-
 readonly SCRIPT_NAME='upgrade-components-report.sh'
 source ./tests/tests-common.sh
 
-readonly INTEGRATION_TESTS_SCRIPT='integration-tests.sh'
+readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
+readonly MAIL_COMMAND='mutt'
 
 createDummyJavaCommand() {
   # created dummy command creates a report file and prints arguments to stdout
@@ -19,7 +19,7 @@ setup() {
 
   # dummy java cmd, just printing the args
   createDummyJavaCommand
-  createDummyCommand 'mail'
+  createDummyCommand "${MAIL_COMMAND}"
   export PATH=.:${PATH}
   # override env
   export JBOSS_USER_HOME="$(mktemp -d)"
@@ -29,7 +29,7 @@ setup() {
 
 teardown() {
   deleteIfExist './java'
-  deleteIfExist './mail'
+  deleteIfExist "${MAIL_COMMAND}"
   deleteIfExist "${REPORT_FILE}"
   deleteIfExist "${CLI}"
   deleteIfExist "${JBOSS_USER_HOME}"
@@ -42,38 +42,42 @@ run_test_case() {
   local target_dir=${3}
   local report_title=${4}
   local from_address=${5}
+  local project_code=${6}
 
-  run "${SCRIPT}" "${email}" "${rule_name}" "${target_dir}" "${report_title}"
+  export LOGGER_URI='URI'
+  local expected_result="-Dlogger.projectCode=${project_code} -Dlogger.uri=${LOGGER_URI} -jar ${CLI} generate-html-report -c ${CONFIG} -f ${target_dir}/pom.xml -o ${REPORT_FILE}"
+  run "${SCRIPT}" "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${project_code}"
+  echo "${lines[1]}"
+  echo "${expected_result}"
   [ "${status}" -eq 0 ]
-  [ "${lines[3]}" = "-jar ${CLI} generate-report -c ${CONFIG} -f ${target_dir}/pom.xml -o ${REPORT_FILE}" ]
-  [ "${lines[4]}" = "-s Possible component upgrades report - ${report_title} -r ${from_address} ${email}" ]
+  [ "${lines[1]}" = "${expected_result}" ]
 }
 
 @test "Test usage" {
   run "${SCRIPT}" -h
   [ "${status}" -eq 0 ]
-  [ "${lines[0]}" = "${SCRIPT_NAME} [email] [rule-name] [target-dir] [report-title]" ]
+  [ "${lines[0]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
 }
 
 @test "Test missing email" {
   run "${SCRIPT}"
   [ "${status}" -eq 1 ]
   [ "${lines[0]}" = 'Missing email adress.' ]
-  [ "${lines[1]}" = "${SCRIPT_NAME} [email] [rule-name] [target-dir] [report-title]" ]
+  [ "${lines[1]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
 }
 
 @test "Test missing rule name" {
   run "${SCRIPT}" bob@mike.com
   [ "${status}" -eq 2 ]
   [ "${lines[0]}" = 'Missing rule name.'  ]
-  [ "${lines[1]}" = "${SCRIPT_NAME} [email] [rule-name] [target-dir] [report-title]" ]
+  [ "${lines[1]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
 }
 
 @test "Test missing target dir" {
   run "${SCRIPT}" bob@mike.com rule-name
   [ "${status}" -eq 3 ]
   [ "${lines[0]}" = 'Missing target dir.' ]
-  [ "${lines[1]}" = "${SCRIPT_NAME} [email] [rule-name] [target-dir] [report-title]" ]
+  [ "${lines[1]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
 }
 
 @test "Test case: Wildfly Core" {
@@ -82,8 +86,9 @@ run_test_case() {
   local target_dir='wildfly-core'
   local report_title='Wildfly Core'
   local from_address='thofman@redhat.com'
+  local project_code='project-code'
 
-  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}"
+  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}" "${project_code}"
 }
 
 @test "Test case: Elytron Web" {

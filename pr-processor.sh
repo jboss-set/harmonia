@@ -32,13 +32,18 @@ if [ -z "${APHRODITE_CONFIG}" ]; then
 fi
 
 if [  ! -e "${APHRODITE_CONFIG}" ]; then
-  echo "APHRODITE_CONFIG does not exist (${APHRODITE_CONFIG})."
+  echo "APHRODITE_CONFIG does not exist (${APHRODITE_CONFIG}) abort."
   exit 4
+fi
+
+if [ -d "${APHRODITE_CONFIG}" ]; then
+  echo "APHRODITE_CONFIG is a directory: ${APHRODITE_CONFIG} - abort."
+  exit 5
 fi
 
 if [ ! -e "${PATH_TO_JAR}" ]; then
   echo "Missing Pull Processor JAR (${PATH_TO_JAR}) - abort."
-  exit 5
+  exit 6
 fi
 
 java -jar \
