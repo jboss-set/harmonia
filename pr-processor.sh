@@ -33,9 +33,14 @@ if [  ! -e "${APHRODITE_CONFIG}" ]; then
   exit 4
 fi
 
+if [ -d "${APHRODITE_CONFIG}" ]; then
+  echo "APHRODITE_CONFIG is not a file (${APHRODITE_CONFIG})."
+  exit 5
+fi
+
 if [ ! -e "${PATH_TO_JAR}" ]; then
   echo "Missing Pull Processor JAR (${PATH_TO_JAR}) - abort."
-  exit 5
+  exit 6
 fi
 
 java -jar \
