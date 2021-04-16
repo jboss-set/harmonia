@@ -6,7 +6,7 @@ usage() {
 }
 
 emailWithSMTP() {
-    mutt -e "set from = '${FROM_ADDRESS}'"
+    mutt -e "set from = '${FROM_ADDRESS}'" \
          -e 'set content_type=text/html' \
          -s "Possible component upgrades report - ${REPORT_TITLE}" \
          "${TO_ADDRESS}" < "${REPORT_FILE}"
