@@ -5,16 +5,6 @@ source ./tests/tests-common.sh
 
 readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
 
-createDummyJavaCommand() {
-  # created dummy command creates a report file and prints arguments to stdout
-  local command="java"
-  echo 'echo ${@}' > "${command}"
-  if [ -n "${REPORT_FILE}" ]; then
-    echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
-  fi
-  chmod +x "${command}"
-}
-
 setup() {
   export PULL_REQUEST_PROCESSOR_HOME="$(mktemp -d)"
   export APHRODITE_CONFIG="$(mktemp)"

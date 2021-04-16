@@ -5,14 +5,6 @@ source ./tests/tests-common.sh
 readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
 readonly MAIL_COMMAND='mutt'
 
-createDummyJavaCommand() {
-  # created dummy command creates a report file and prints arguments to stdout
-  local command="java"
-  echo 'echo ${@}' > "${command}"
-  echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
-  chmod +x "${command}"
-}
-
 setup() {
   export REPORT_FILE="$(mktemp)"
   export CONFIG="$(mktemp)"
