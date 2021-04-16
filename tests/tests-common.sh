@@ -36,6 +36,15 @@ createDummyCommand() {
   chmod +x "${command}"
 }
 
+createDummyJavaHomeIfDefined() {
+  path2java=${1}
+
+  if [ -n "${JAVA_HOME}" ]; then
+    mkdir -p "${JAVA_HOME}/bin"
+    mv "${path2java}" "${JAVA_HOME}/bin/"
+  fi
+}
+
 createDummyJavaCommand() {
   # created dummy command creates a report file and prints arguments to stdout
   local command="java"
@@ -44,4 +53,5 @@ createDummyJavaCommand() {
     echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
   fi
   chmod +x "${command}"
+  createDummyJavaHomeIfDefined "${command}"
 }

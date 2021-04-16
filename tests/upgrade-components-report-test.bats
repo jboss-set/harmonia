@@ -6,8 +6,9 @@ readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-
 readonly MAIL_COMMAND='mutt'
 
 setup() {
-  export REPORT_FILE="$(mktemp)"
-  export CONFIG="$(mktemp)"
+  export REPORT_FILE=$(mktemp)
+  export CONFIG=$(mktemp)
+  export JAVA_HOME=$(mktemp -d)
 
   # dummy java cmd, just printing the args
   createDummyJavaCommand

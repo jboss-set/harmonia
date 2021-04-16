@@ -90,7 +90,7 @@ if [ -e "${REPORT_FILE}" ]; then
   rm "${REPORT_FILE}"
 fi
 
-"$JAVA_HOME/bin/java" -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
+"${JAVA_HOME}/bin/java" -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
      -Dlogger.uri="${LOGGER_URI}" \
      -jar "${CLI}" 'generate-html-report' \
      -c "${CONFIG}" -f "${TARGET}" -o "${REPORT_FILE}"
