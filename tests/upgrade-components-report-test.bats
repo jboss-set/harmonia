@@ -87,8 +87,9 @@ run_test_case() {
   local target_dir='wildfly-core'
   local report_title='Wildfly Core'
   local from_address='thofman@redhat.com'
+  local project_code='project-code'
 
-  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}"
+  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}" "${project_code}"
 }
 
 @test "Test case: Elytron Web" {
@@ -107,10 +108,11 @@ run_test_case() {
   local target_dir='wildfly-elytron'
   local report_title='Wildfly Elytron'
   local from_address='thofman@redhat.com'
+  local project_code='project-code'
 
-  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}"
+  run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}" "${project_code}"
 }
-
+#
 @test "Test case: Wildfly Master" {
   local email='jboss-set@redhat.com'
   local rule_name='wildfly-master'
@@ -132,4 +134,3 @@ run_test_case() {
 
   run_test_case "${email}" "${rule_name}" "${target_dir}" "${report_title}" "${from_address}"
 }
-
