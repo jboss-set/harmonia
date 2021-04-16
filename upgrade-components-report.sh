@@ -100,7 +100,7 @@ readonly CLI="${PATH_TO_CLI:-/opt/tools/alignment-cli-0.6.jar}"
 readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
-readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger-jvm-component-alignment.int.open.paas.redhat.com/api'}
+readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger/api'} # defined in /etc/hosts
 
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
