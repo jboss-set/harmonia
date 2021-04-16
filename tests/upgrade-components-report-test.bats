@@ -19,7 +19,7 @@ setup() {
 
   # dummy java cmd, just printing the args
   createDummyJavaCommand
-  createDummyCommand 'mail'
+  createDummyCommand 'mutt'
   export PATH=.:${PATH}
   # override env
   export JBOSS_USER_HOME="$(mktemp -d)"
