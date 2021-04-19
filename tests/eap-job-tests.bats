@@ -31,7 +31,6 @@ teardown() {
 @test "Test usage" {
   run "${SCRIPT}" -h
   [ "${status}" -eq 0 ]
-  echo ${lines[0]}
   [ "${lines[0]}" = 'eap-job.sh <build|testsuite> [extra-args]' ]
 }
 

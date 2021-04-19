@@ -33,7 +33,7 @@ is_dirpath_defined_and_exists() {
 
 record_build_properties() {
   readonly PROPERTIES_FILE='umb-build.properties'
-  readonly EAP_VERSION=$(grep -r '<full.dist.product.release.version>' $EAP_SOURCES_DIR/pom.xml | sed 's/.*>\(.*\)<.*/\1/')
+  readonly EAP_VERSION=$(grep -r '<full.dist.product.release.version>' "$EAP_SOURCES_DIR/pom.xml" | sed 's/.*>\(.*\)<.*/\1/')
 
   echo "BUILD_URL=${BUILD_URL}" >> ${PROPERTIES_FILE}
   echo "SERVER_URL=${BUILD_URL}/artifact/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
@@ -85,7 +85,6 @@ if [ -z "${IS_CCI}" ]; then
 else
   readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
   readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
-
   # no default settings.xml on CCI
 fi
 
@@ -93,7 +92,6 @@ readonly EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
 
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
-
 
 readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
 readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
@@ -172,7 +170,7 @@ unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
 
   if [ -n "${IS_CCI}" ]; then
-    zip -qr jboss-eap-src-${GIT_COMMIT:0:7}.zip "${EAP_SOURCES_FOLDER}"
+    zip -qr "jboss-eap-src-${GIT_COMMIT:0:7}.zip" "${EAP_SOURCES_FOLDER}"
     cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   fi
 
@@ -194,7 +192,8 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
     cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip "maven-local-repository"
+    zip -qr "${WORKSPACE}/jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip" "maven-local-repository"
+
 
     cd "${WORKSPACE}"
 
@@ -210,7 +209,7 @@ else
     # unzip artifacts from build job
     find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
 
-    TEST_JBOSS_DIST=$(find -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
+    TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
     if [ -z "$TEST_JBOSS_DIST" ]; then
       echo "No EAP distribution to be tested"
       exit 2
