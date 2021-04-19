@@ -11,7 +11,7 @@ fi
 MISSING_VARS=""
 for var in "${REQUIRED_VARS[@]}"
 do
-  if [ -z ${!var} ]; then
+  if [ -z "${!var}" ]; then
     if [ -n "${MISSING_VARS}" ]; then
       MISSING_VARS="${MISSING_VARS} ${var}"
     else
@@ -26,29 +26,29 @@ if [ -n "${MISSING_VARS}" ]; then
 fi
 
 server=$( jq -n '{ server: $ARGS.named }' \
-      --arg url $SERVER_URL \
+      --arg url "${SERVER_URL}" \
       --arg build-type "jenkins" \
-      --arg build-id $BUILD_ID \
-      --arg build-url $BUILD_URL \
+      --arg build-id "${BUILD_ID}" \
+      --arg build-url "${BUILD_URL}" \
       --arg scm-type: "git" \
-      --arg scm-url: $SCM_URL \
-      --arg scm-revision: $SCM_REVISION )
+      --arg scm-url: "${SCM_URL}" \
+      --arg scm-revision: "${SCM_REVISION}" )
  
 sources=$( jq -n '{ "server-name": $ARGS.named }' \
-      --arg url $SOURCE_URL \
+      --arg url "${SOURCE_URL}" \
       --arg build-type "jenkins" \
-      --arg build-id $BUILD_ID \
-      --arg build-url $BUILD_URL \
+      --arg build-id "${BUILD_ID}" \
+      --arg build-url "${BUILD_URL}" \
       --arg scm-type: "git" \
-      --arg scm-url: $SCM_URL \
-      --arg scm-revision: $SCM_REVISION )
+      --arg scm-url: "${SCM_URL}" \
+      --arg scm-revision: "${SCM_REVISION}" )
 
-server=$( echo $server | jq '.server' )
-sources=$( echo $sources | jq '."server-name"' )
+server=$( echo "${server}" | jq '.server' )
+sources=$( echo "${sources}" | jq '."server-name"' )
 
 bits=$( jq -n '{bits: $ARGS.named}' \
   --argjson server "$server" --argjson server-sources "$sources" )
-bits=$( echo $bits | jq '.bits' )
+bits=$( echo "${bits}" | jq '.bits' )
 
 msg=$( jq -n '{release: $ARGS.named}' \
   --arg name "$RELEASE_NAME" \
@@ -60,8 +60,8 @@ msg=$( jq -n '{release: $ARGS.named}' \
   --arg url "$BUILD_URL" \
   --argjson bits "$bits" )
 
-echo $msg | jq > message_body.json
+echo "${msg}" | jq > message_body.json
 
-echo MESSAGE_CONTENT=$msg >> MESSAGE.txt
+echo "MESSAGE_CONTENT=${msg}" >> MESSAGE.txt
 
 cat message_body.json

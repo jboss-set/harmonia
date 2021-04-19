@@ -75,7 +75,7 @@ create_dummy_repo() {
     
     [ $status -eq 0 ]
     [ "${lines[${#lines[@]}-2]}" = 'Xvfb :1' ]
-    [ "${lines[${#lines[@]}-1]}" = "mvn clean test -B -Dci.build=true -Deap.installer=jboss-eap-7.4.0-installer.jar -Deap.install.timeout=1000 -Deap.start.timeout=120 -Deap.stop.timeout=20 -fn -fae -Dtests.gui.functional -Dgui.test.timeout=1000" ]
+    [ "${lines[${#lines[@]}-1]}" = "mvn clean test -B -Deap.installer=jboss-eap-7.4.0-installer.jar -Deap.install.timeout=1000 -Deap.start.timeout=120 -Deap.stop.timeout=20 -fn -fae -Dtests.gui.functional -Dgui.test.timeout=1000" ]
 }
 
 @test "Unknown action causes error" {
