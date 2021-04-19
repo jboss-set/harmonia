@@ -58,7 +58,7 @@ createDummyBackgroundCommand() {
   echo '#! /bin/bash' > "${command}"
   echo "echo \"${command} \${@}\"" >> "${command}"
   # simple sleep 20 waits until end of sleep before being killed
-  echo 'for i in `seq 1 20`; do sleep 1; done' >> "${command}"
+  echo 'for i in {1...20}; do sleep 1; done' >> "${command}"
   echo 'echo done' >> "${command}"
   chmod +x "${command}"
 }

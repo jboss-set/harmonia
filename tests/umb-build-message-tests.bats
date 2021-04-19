@@ -24,7 +24,7 @@ setDefaultProperties() {
 @test "Create json file" {
     setDefaultProperties
 
-    run ${SCRIPT}
+    run "${SCRIPT}"
 
     [ ${status} -eq 0 ]
     [ -f "message_body.json" ]
@@ -33,7 +33,7 @@ setDefaultProperties() {
 @test "Test created json has correct build data" {
     setDefaultProperties
 
-    run ${SCRIPT}
+    run "${SCRIPT}"
 
     [ ${status} -eq 0 ]
     [ $(jq .release.bits.server.url message_body.json) = '"http://foo.bar/server"' ]
@@ -44,7 +44,7 @@ setDefaultProperties() {
     setDefaultProperties
     unset RELEASE_NAME
 
-    run ${SCRIPT}
+    run "${SCRIPT}"
     [ ${status} -eq 2 ]
     [ "${lines[0]}" = 'Required properties are not found: RELEASE_NAME' ]
 }
@@ -54,8 +54,7 @@ setDefaultProperties() {
     unset RELEASE_NAME
     unset SCM_URL
 
-    run ${SCRIPT}
+    run "${SCRIPT}"
     [ ${status} -eq 2 ]
-    echo ${lines[0]}
     [ "${lines[0]}" = 'Required properties are not found: SCM_URL RELEASE_NAME' ]
 }
