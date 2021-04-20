@@ -13,7 +13,7 @@ checkEnvVar() {
   if [ -z "${envVarValue}" ]; then
     echo "Environnement variable ${envVarName} is not defined."
     usage
-    exit ${exitCode}
+    exit "${exitCode}"
   else
     if [ -n "${DEBUG}" ]; then
       echo "${envVarName}: ${envVarValue}"
