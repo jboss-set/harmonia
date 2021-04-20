@@ -18,7 +18,7 @@ setup() {
 }
 
 teardown() {
-  deleteIfExist './java'
+  deleteDummyJavaCommand
   deleteIfExist "${REPORT_FILE}"
   deleteIfExist "${CLI}"
   deleteIfExist "${JBOSS_USER_HOME}"

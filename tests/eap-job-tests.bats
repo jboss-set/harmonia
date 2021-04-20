@@ -4,10 +4,12 @@ readonly SCRIPT_NAME='eap-job.sh'
 source ./tests/tests-common.sh
 
 readonly INTEGRATION_TESTS_SCRIPT='integration-tests.sh'
+
 setup() {
   export MAVEN_HOME=$(mktemp -d)
   mkdir ${MAVEN_HOME}/bin
   cp "${DUMMY_MVN}" "${MAVEN_HOME}/bin/"
+  createDummyJavaCommand
   export JBOSS_FOLDER=$(mktemp -d)
   export WORKSPACE=$(mktemp -d)
 
@@ -15,6 +17,7 @@ setup() {
 }
 
 teardown() {
+  deleteDummyJavaCommand
   deleteIfExist "${MAVEN_HOME}"
   deleteIfExist "${JBOSS_FOLDER}"
   deleteIfExist "${WORKSPACE}"
