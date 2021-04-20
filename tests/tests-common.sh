@@ -22,6 +22,15 @@ if [ ! -e "${SCRIPT}" ]; then
   exit 3
 fi
 
+debugBatsTest() {
+
+  for i in "${!lines[@]}"
+  do
+    echo "${lines[${i}]}"
+  done
+  echo "${status}"
+}
+
 deleteIfExist() {
   local file=${1}
 
@@ -34,7 +43,7 @@ createDummyCommand() {
   local command=${1}
   echo 'echo ${@}' > "${command}"
   chmod +x "${command}"
-  export PATH=${PATH}:$(pwd)/${command}
+  export PATH=${PATH}:$(pwd)/tests/${command}
 }
 
 deleteDummyCommand() {
