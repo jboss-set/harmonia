@@ -52,12 +52,32 @@ if [ -n "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
+# IS_CCI is env variable set by CCI Jenkins during VM creation
+if [ -n "${IS_CCI}" ]; then
+  echo "Running on CCI VM"
+else
+  echo "Running on Olympus"
+fi
+
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
+
+if [[ -z "${IS_CCI}" ]]; then
+  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
+
+  readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
+else
+  readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
+  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
+
+  # no default settings.xml
+fi
+
+readonly EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
 
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/workdir/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
 
-readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
+
 readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
 readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
 readonly SUREFIRE_FORKED_PROCESS_TIMEOUT=${SUREFIRE_FORKED_PROCESS_TIMEOUT:-'90000'}
@@ -133,10 +153,16 @@ fi
 
 unset JBOSS_HOME
 if [ "${BUILD_COMMAND}" = 'build' ]; then
+
+  if [ -n "${IS_CCI}" ]; then
+    zip -qr jboss-eap-src-${GIT_COMMIT:0:7}.zip "${EAP_SOURCES_FOLDER}"
+    cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  fi
+
   # shellcheck disable=SC2086,SC2068
-  echo mvn clean install ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   # shellcheck disable=SC2086,SC2068
-  mvn clean install ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
@@ -146,11 +172,32 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   if [ -n "${ZIP_WORKSPACE}" ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
+
+  if [ -n "${IS_CCI}" ]; then
+    cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+    zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
+    cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+    zip -qr jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip "maven-local-repository"
+  fi
 else
   if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
     echo "Invalid directory for old_releases: ${OLD_RELEASES_FOLDER}. Testsuite will fails to run, aborting."
     exit 3
   fi
+
+  if [ -n "${IS_CCI}" ]; then
+    # unzip artifacts from build job
+    find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
+
+    TEST_JBOSS_DIST=$(find -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
+    if [ -z "$TEST_JBOSS_DIST" ]; then
+      echo "No EAP distribution to be tested"
+      exit 2
+    else
+      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
+    fi
+  fi
+
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
@@ -162,7 +209,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
 
   export TEST_TO_RUN=${TEST_TO_RUN:-'-DallTests'}
-  cd testsuite || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  cd "${EAP_SOURCES_DIR}/testsuite" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
   mvn clean
   cd ..
 
