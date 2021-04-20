@@ -34,6 +34,7 @@ createDummyCommand() {
   local command=${1}
   echo 'echo ${@}' > "${command}"
   chmod +x "${command}"
+  export PATH=${PATH}:$(pwd)/${command}
 }
 
 deleteDummyCommand() {
