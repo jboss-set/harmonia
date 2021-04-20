@@ -18,7 +18,6 @@ runTests() {
   done
 }
 
-
 echo -n 'Run Tests...'
 runTests
 cd perun || exit 1
@@ -27,8 +26,15 @@ cd .. || exit 1
 echo 'Done.'
 echo ''
 echo -n 'Run Shellcheck on scripts...'
+shellcheck_report='shellcheck.html'
+echo '<html><title>Shellcheck report</title><body>' > "${shellcheck_report}"
 for script_file in *.sh perun/*.sh
 do
-  shellcheck "${script_file}"
+  echo "<h1>${script_file}</h1>" >> "${shellcheck_report}"
+  shellcheck --format=quiet "${script_file}"
+  if [ "${?}" -ne 0 ] ; then
+      echo "Violations found" >> "${shellcheck_report}"
+  fi
 done
+echo '</body></html>' >> "${shellcheck_report}"
 echo 'Done.'
