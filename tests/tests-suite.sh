@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Run testsuite from directory: $(pwd)"
 echo "Run Tests..."
 bats -t tests/eap-job-tests.bats > eap.tap
 bats -t tests/eat-job-tests.bats > eat.tap
