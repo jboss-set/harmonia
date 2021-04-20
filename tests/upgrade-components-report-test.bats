@@ -30,7 +30,7 @@ setup() {
 }
 
 teardown() {
-  deleteIfExist './java'
+  deleteDummyJavaCommand
   deleteIfExist "${MAIL_COMMAND}"
   deleteIfExist "${JOBS_SETTINGS}"
   deleteIfExist "${REPORT_FILE}"
