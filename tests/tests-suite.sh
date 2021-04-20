@@ -1,4 +1,15 @@
 #!/bin/bash
+readonly WORKDIR="${WORKDIR}"
+
+if [ -n "${WORKDIR}" ]; then
+  if [ -d "${WORKDIR}" ]; then
+    cd "${WORKDIR}" || exit 1
+    echo "Run testsuite from provided WORKDIR: $(pwd)"
+  else
+    echo "Invalid WORKDIR provided: ${WORKDIR}."
+  fi
+fi
+
 echo "Run Tests..."
 bats -t tests/eap-job-tests.bats > eap.tap
 bats -t tests/eat-job-tests.bats > eat.tap
