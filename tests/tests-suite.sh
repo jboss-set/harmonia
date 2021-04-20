@@ -10,20 +10,25 @@ if [ -n "${WORKDIR}" ]; then
   fi
 fi
 
-echo "Run Tests..."
-bats -t tests/eap-job-tests.bats > eap.tap
-bats -t tests/pr-processor-test.bats > pr-processor.tap
-bats -t tests/upgrade-components-report-test.bats > upgrade-components-report.tap
+runTests() {
+  for tests in tests/*.bats
+  do
+    local tests_file=$(basename "${1}")
+    bats -t "${tests}" > "${tests_file%.bats}.tap"
+  done
+}
+
+
+echo -n 'Run Tests...'
+runTests
 cd perun || exit 1
-bats -t tests/run-test-unit-tests.bats > ../perun-run-test.tap
-bats -t tests/perun-unit-tests.bats > ../perun-unit-tests.tap
+runTests
 cd .. || exit 1
 echo 'Done.'
 echo ''
-echo 'Run Shellcheck on scripts...'
-for script_file in *.sh
+echo -n 'Run Shellcheck on scripts...'
+for script_file in *.sh perun/*.sh
 do
-  echo "===== ${script_file} ===="
   shellcheck "${script_file}"
 done
 echo 'Done.'

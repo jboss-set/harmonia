@@ -5,24 +5,13 @@ source ./tests/tests-common.sh
 readonly USAGE_OUTPUT='[email] [rule-name] [target-dir] [report-title] [project-code]'
 readonly MAIL_COMMAND='mutt'
 
-createDummyJavaCommand() {
-  # created dummy command creates a report file and prints arguments to stdout
-  local command="java"
-  echo 'echo ${@}' > "${command}"
-  echo 'echo "Dummy content" > ${REPORT_FILE}' >> "${command}"
-  chmod +x "${command}"
-}
-
 setup() {
   export REPORT_FILE="$(mktemp)"
   export CONFIG="$(mktemp)"
   export JOBS_SETTINGS=$(mktemp)
   export JOB_NAME='jobname'
 
-  # dummy java cmd, just printing the args
-  createDummyJavaCommand
   createDummyCommand "${MAIL_COMMAND}"
-  export PATH=.:${PATH}
   # override env
   export JBOSS_USER_HOME="$(mktemp -d)"
   readonly CLI="${JBOSS_USER_HOME}/alignment-cli.jar"
@@ -30,8 +19,6 @@ setup() {
 }
 
 teardown() {
-  deleteDummyJavaCommand
-  deleteIfExist "${MAIL_COMMAND}"
   deleteIfExist "${JOBS_SETTINGS}"
   deleteIfExist "${REPORT_FILE}"
   deleteIfExist "${CLI}"
@@ -79,19 +66,19 @@ run_test_case() {
   [ "${lines[2]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
 }
 
-@test "Test missing target dir" {
-  skip # needs to be rework to test parsing logic
-  export TO_ADDRESS='bob@mike.com'
-  export RULE_NAME='rule-name'
-  run "${SCRIPT}"
-  echo STATUS:${status}
-  echo ${lines[0]}
-  echo ${lines[1]}
-  [ "${status}" -eq 3 ]
-  [ "${lines[0]}" = 'Missing target dir.' ]
-  [ "${lines[1]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
-}
-
+#@test "Test missing target dir" {
+#  skip # needs to be rework to test parsing logic
+#  export TO_ADDRESS='bob@mike.com'
+#  export RULE_NAME='rule-name'
+#  run "${SCRIPT}"
+#  echo STATUS:${status}
+#  echo ${lines[0]}
+#  echo ${lines[1]}
+#  [ "${status}" -eq 3 ]
+#  [ "${lines[0]}" = 'Missing target dir.' ]
+#  [ "${lines[1]}" = "${SCRIPT_NAME} ${USAGE_OUTPUT}" ]
+#}
+#
 #@test "Test case: Wildfly Core" {
 #  local email='rpelisse@redhat.com'
 #  local rule_name='wildfly-master'

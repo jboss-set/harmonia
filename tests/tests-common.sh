@@ -1,27 +1,5 @@
 #!/bin/bash
 
-if [ -z "${SCRIPT_NAME}" ]; then
-  echo "No script name provided."
-  exit 1
-fi
-
-readonly SCRIPT_HOME=${SCRIPT_HOME:-$(pwd)}
-# ensure dummy 'mvn' command is on the path
-export DUMMY_MVN=${DUMMY_MVN:-"$(pwd)/tests/mvn"}
-export PATH=${DUMMY_MVN}:${PATH}
-
-readonly SCRIPT="${SCRIPT_HOME}/${SCRIPT_NAME}"
-
-if [ ! -d "${SCRIPT_HOME}" ]; then
-  echo "Invalid home for ${SCRIPT_NAME}: ${SCRIPT_HOME}."
-  exit 2
-fi
-
-if [ ! -e "${SCRIPT}" ]; then
-  echo "Invalid path to script: ${SCRIPT}."
-  exit 3
-fi
-
 debugBatsTest() {
 
   for i in "${!lines[@]}"
@@ -39,16 +17,32 @@ deleteIfExist() {
   fi
 }
 
-createDummyCommand() {
-  local command=${1}
-  echo 'echo ${@}' > "${command}"
-  chmod +x "${command}"
-  export PATH=${PATH}:$(pwd)/tests/${command}
+setupDummyCommandHomeDir() {
+
+  readonly DUMMY_COMMAND_DIR=${DUMMY_COMMAND_DIR:-$(mktemp -d)}
+  export DUMMY_COMMAND_DIR
+  trap "deleteIfExist ${DUMMY_COMMAND_DIR}" EXIT
+  export PATH=${DUMMY_COMMAND_DIR}:${PATH}
+
 }
 
-deleteDummyCommand() {
+setupDummyMvn() {
+  export DUMMY_MVN=${DUMMY_MVN:-"$(pwd)/tests/mvn"}
+  export PATH=${DUMMY_MVN}:${PATH}
+}
+
+createDummyCommand() {
   local command=${1}
-  deleteIfExist "${command}"
+
+  if [ -z "${command}" ]; then
+    echo "No command provided - abort."
+    exit 1
+  fi
+  local path_to_command="${DUMMY_COMMAND_DIR}/${command}"
+
+  echo 'echo ${@}' > "${path_to_command}"
+  chmod +x "${path_to_command}"
+  trap 'deleteIfExist ${path_to_command}' EXIT
 }
 
 createDummyJavaCommand() {
@@ -59,16 +53,35 @@ createDummyJavaCommand() {
   fi
 }
 
-deleteDummyJavaCommand() {
-  deleteIfExist './java'
-}
-
 createDummyBackgroundCommand() {
   local command=${1}
   echo '#! /bin/bash' > "${command}"
   echo "echo \"${command} \${@}\"" >> "${command}"
   # simple sleep 20 waits until end of sleep before being killed
-  echo 'for i in `seq 1 20`; do sleep 1; done' >> "${command}"
+  echo 'for i in {1...20}; do sleep 1; done' >> "${command}"
   echo 'echo done' >> "${command}"
   chmod +x "${command}"
+  trap 'deleteIfExist ${command}' EXIT
 }
+
+setupDummyCommandHomeDir
+createDummyJavaCommand
+setupDummyMvn
+
+if [ -z "${SCRIPT_NAME}" ]; then
+  echo "No script name provided."
+  exit 1
+fi
+
+readonly SCRIPT_HOME=${SCRIPT_HOME:-$(pwd)}
+readonly SCRIPT="${SCRIPT_HOME}/${SCRIPT_NAME}"
+
+if [ ! -d "${SCRIPT_HOME}" ]; then
+  echo "Invalid home for ${SCRIPT_NAME}: ${SCRIPT_HOME}."
+  exit 2
+fi
+
+if [ ! -e "${SCRIPT}" ]; then
+  echo "Invalid path to script: ${SCRIPT}."
+  exit 3
+fi

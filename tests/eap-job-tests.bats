@@ -9,7 +9,6 @@ setup() {
   export MAVEN_HOME=$(mktemp -d)
   mkdir ${MAVEN_HOME}/bin
   cp "${DUMMY_MVN}" "${MAVEN_HOME}/bin/"
-  createDummyJavaCommand
   export JBOSS_FOLDER=$(mktemp -d)
   export WORKSPACE=$(mktemp -d)
 
@@ -20,15 +19,14 @@ setup() {
 }
 
 teardown() {
-  deleteDummyJavaCommand
   deleteIfExist "${MAVEN_HOME}"
   deleteIfExist "${JBOSS_FOLDER}"
   deleteIfExist "${WORKSPACE}"
   deleteIfExist "${WORKSPACE}/${INTEGRATION_TESTS_SCRIPT}"
   deleteIfExist "${WORKSPACE}/eap-sources"
+  unset WORKSPACE
   unset MAVEN_HOME
   unset JBOSS_FOLDER
-
 }
 
 @test "Test usage" {
