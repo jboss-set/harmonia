@@ -9,7 +9,6 @@ setup() {
   export PULL_REQUEST_PROCESSOR_HOME="$(mktemp -d)"
   export APHRODITE_CONFIG="$(mktemp)"
 
-  createDummyJavaCommand
   export PATH=.:${PATH}
   # override env
   export CLI_HOME="$(mktemp -d)"
@@ -18,13 +17,11 @@ setup() {
 }
 
 teardown() {
-  deleteDummyJavaCommand
-  deleteIfExist "${REPORT_FILE}"
-  deleteIfExist "${CLI}"
-  deleteIfExist "${JBOSS_USER_HOME}"
-  deleteIfExist "${CONFIG}"
+  deleteIfExist "${PULL_REQUEST_PROCESSOR_HOME}"
+  deleteIfExist "${PATH_TO_JAR}"
+  deleteIfExist "${CLI_HOME}"
+  deleteIfExist "${APHRODITE_CONFIG}"
 }
-
 
 @test "Undefined PULL_REQUEST_PROCESSOR_HOME" {
   unset PULL_REQUEST_PROCESSOR_HOME
@@ -69,7 +66,6 @@ teardown() {
   [ "${status}" -eq 5 ]
   rmdir "${APHRODITE_CONFIG}"
 }
-
 
 @test "Simple working test case" {
   local expected_streams='-s jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core] jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core] -p jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core] jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
