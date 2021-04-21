@@ -40,7 +40,7 @@ createDummyCommand() {
   fi
   local path_to_command="${DUMMY_COMMAND_DIR}/${command}"
 
-  echo 'echo ${@}' > "${path_to_command}"
+  echo "echo ${command} \${@}" > "${path_to_command}"
   chmod +x "${path_to_command}"
   trap 'deleteIfExist ${path_to_command}' EXIT
 }
@@ -54,13 +54,13 @@ createDummyJavaCommand() {
 }
 
 createDummyBackgroundCommand() {
-  local command=${1}
-  echo '#! /bin/bash' > "${command}"
-  echo "echo \"${command} \${@}\"" >> "${command}"
+  createDummyCommand ${@}
+
+  local path_to_command="${DUMMY_COMMAND_DIR}/${1}"
   # simple sleep 20 waits until end of sleep before being killed
-  echo 'for i in {1...20}; do sleep 1; done' >> "${command}"
-  echo 'echo done' >> "${command}"
-  chmod +x "${command}"
+  echo 'for i in {1...20}; do sleep 1; done' >> "${path_to_command}"
+  echo 'echo done' >> "${path_to_command}"
+
 }
 
 setupDummyCommandHomeDir
