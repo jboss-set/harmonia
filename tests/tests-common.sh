@@ -21,7 +21,7 @@ setupDummyCommandHomeDir() {
 
   readonly DUMMY_COMMAND_DIR=${DUMMY_COMMAND_DIR:-$(mktemp -d)}
   export DUMMY_COMMAND_DIR
-  #trap "deleteIfExist ${DUMMY_COMMAND_DIR}" EXIT
+  trap 'deleteIfExist ${DUMMY_COMMAND_DIR}' EXIT
   export PATH=${DUMMY_COMMAND_DIR}:${PATH}
 
 }
@@ -42,7 +42,7 @@ createDummyCommand() {
 
   echo 'echo ${@}' > "${path_to_command}"
   chmod +x "${path_to_command}"
- # trap "deleteIfExist ${path_to_command}" EXIT
+  trap 'deleteIfExist ${path_to_command}' EXIT
 }
 
 createDummyJavaCommand() {
