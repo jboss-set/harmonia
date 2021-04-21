@@ -69,7 +69,7 @@ teardown() {
 
 @test "Simple working test case" {
   local expected_streams='-s jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core] jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core] -p jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core] jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
-  local expected_result="-jar -Daphrodite.config=${APHRODITE_CONFIG} -DcacheDir=${PULL_REQUEST_PROCESSOR_HOME}/cache -DcacheName=github-cache -DcacheSize=20 ${PATH_TO_JAR} ${expected_streams} -f /report.html -w false"
+  local expected_result="java -jar -Daphrodite.config=${APHRODITE_CONFIG} -DcacheDir=${PULL_REQUEST_PROCESSOR_HOME}/cache -DcacheName=github-cache -DcacheSize=20 ${PATH_TO_JAR} ${expected_streams} -f /report.html -w false"
 
   run "${SCRIPT}"
   [ "${status}" -eq 0 ]
