@@ -25,7 +25,7 @@ runComponentAlignment() {
   local target="${TARGET_DIR}/pom.xml"
 
   java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
-       -Dlogger.uri="${LOGGER_URI}" \
+       -Dlogger.uri="${COMPONENT_UPGRADE_LOGGER}" \
        -jar "${CLI}" 'generate-html-report' \
        -c "${CONFIG}" -f "${target}/" -o "${REPORT_FILE}"
 }
@@ -100,7 +100,6 @@ readonly CLI=${PATH_TO_CLI:-'/opt/tools/component_alignment/alignment-cli-0.7.ja
 readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
-readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger/api'} # defined in /etc/hosts
 readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
 
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
