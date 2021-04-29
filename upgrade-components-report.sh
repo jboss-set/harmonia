@@ -101,6 +101,7 @@ readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-t
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly LOGGER_URI=${LOGGER_URI:-'http://component-upgrade-logger/api'} # defined in /etc/hosts
+readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
 
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
@@ -127,6 +128,11 @@ readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
 readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f3 -d, )
 
 readonly CONFIG=${CONFIG:-"/opt/tools/component_alignment/dependency-alignment-configs/rules-${RULE_NAME}.json"}
+
+if [ ! -e "${CONFIG}" ]; then
+  echo "No such file: ${CONFIG} - abort"
+  exit 3
+fi
 
 set -u
 
