@@ -126,7 +126,8 @@ readonly RULE_NAME=$(echo "${JOB_CONFIG}" | cut -f2 -d, )
 readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
 readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f3 -d, )
 
-readonly CONFIG=${CONFIG:-"/opt/tools/component_alignment/dependency-alignment-configs/rules-${RULE_NAME}.json"}
+readonly CONFIG_HOME=${CONFIG_HOME:-'/opt/tools/component_alignment/dependency-alignment-configs'}
+readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
 
 if [ ! -e "${CONFIG}" ]; then
   echo "No such file: ${CONFIG} - abort"
