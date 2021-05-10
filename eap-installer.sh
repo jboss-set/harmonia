@@ -70,6 +70,13 @@ else
     readonly INSTALLER="jboss-eap-${VERSION}-installer.jar"
     mv "${ORIGINAL_JARS[0]}" "${INSTALLER}"
     
+    if [ -n "${EAP_QUICKSTART_LINK}" ]; then
+        BUILD_OPTS="${BUILD_OPTS} -Deap.bits.url.quickstarts=${EAP_QUICKSTART_LINK}"
+    fi
+
+    if [ -n "${EAP_BUILD_LINK}" ]; then
+        BUILD_OPTS="${BUILD_OPTS} -Deap.bits.url.zip=${EAP_BUILD_LINK}"
+    fi
     
     export MAVEN_OPTS="-Xms1968m -Xmx1968m -XX:MaxPermSize=256m"
     export DISPLAY=:1
