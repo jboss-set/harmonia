@@ -216,6 +216,11 @@ else
     else
       export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
     fi
+
+    if [ "${ip}" == "ipv6" ];
+    then
+      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dipv6"
+    fi
   fi
 
   unset JBOSS_HOME
