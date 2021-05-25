@@ -1,8 +1,20 @@
 #!/bin/bash
-set -eou pipefail
+set -ueo pipefail
 
 usage() {
-  echo "$(basename "${0}") [email] [rule-name] [target-dir] [report-title] [project-code]"
+  echo
+  echo Usage:
+  echo
+  echo Create following mandatory env variables:
+  echo '* TARGET_DIR - path to maven project directory which should be analyzed'
+  echo '* JOB_NAME - id which will be used to lookup a job configuration in the settings CSV file'
+  echo '* TO_ADDRESS - an email address to send the report to'
+  echo
+  echo Optional env variables:
+  echo '* JOBS_SETTINGS - path to job settings CSV file'
+  echo '* CONFIG - path to JSON configuration file with upgrade rules'
+  echo
+  echo "$(basename "${0}")"
 }
 
 checkEnvVar() {
@@ -24,10 +36,14 @@ checkEnvVar() {
 runComponentAlignment() {
   local target="${TARGET_DIR}/pom.xml"
 
-  java -Dlogger.projectCode="${LOGGER_PROJECT_CODE}" \
-       -Dlogger.uri="${COMPONENT_UPGRADE_LOGGER}" \
+  local loggerParams=''
+  if [ -n "${COMPONENT_UPGRADE_LOGGER}" ]; then
+    loggerParams="-Dlogger.projectCode="${LOGGER_PROJECT_CODE}" -Dlogger.uri=${COMPONENT_UPGRADE_LOGGER}"
+  fi
+
+  java $loggerParams \
        -jar "${CLI}" 'generate-html-report' \
-       -c "${CONFIG}" -f "${target}/" -o "${REPORT_FILE}"
+       -c "${CONFIG}" -f "${target}" -o "${REPORT_FILE}"
 }
 
 ifRequestedPrintUsageAndExit() {
@@ -42,16 +58,14 @@ ifRequestedPrintUsageAndExit() {
 sendReportByEmail() {
   local report_file=${1}
 
-  if [ -n "${SMTP_PASSWORD}" ]; then
-    if [ -e "${report_file}" ] && [ -s "${report_file}" ]; then
-      if [ -z "${SMTP_PASSWORD}" ]; then
-        emailWithSMTP
-      else
-        emailWithGMail
-      fi
+  if [ -e "${report_file}" ] && [ -s "${report_file}" ]; then
+    if [ "${USE_SMTP_PASSWORD}" = 0 ]; then
+      emailWithSMTP
     else
-      echo "No report generated"
+      emailWithGMail
     fi
+  else
+    echo "No report generated"
   fi
 }
 
@@ -75,20 +89,40 @@ deleteOldReportFile() {
 }
 
 emailWithSMTP() {
-    mutt -e "set from = '${FROM_ADDRESS}'" \
-         -e 'set content_type=text/html' \
-         -s "Possible component upgrades report - ${REPORT_TITLE}" \
-         "${TO_ADDRESS}" < "${REPORT_FILE}"
+  mutt -e "set from = '${FROM_ADDRESS}'" \
+       -e 'set content_type=text/html' \
+       -s "Possible component upgrades report - ${REPORT_TITLE}" \
+       "${TO_ADDRESS}" < "${REPORT_FILE}"
 }
 
 emailWithGMail() {
-    mutt -e 'set content_type = text/html' \
-         -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
-         -e "set smtp_pass = '${SMTP_PASSWORD}'" \
-         -e "set ssl_starttls = yes" \
-         -e "set ssl_force_tls = yes" \
-         -s "Possible component upgrades report - ${REPORT_TITLE}" \
-         "${TO_ADDRESS}" < "${REPORT_FILE}"
+  # disable debugging if enabled, to avoid revealing password when debugging is enabled
+  local debug=0;
+  if [[ $- =~ x ]]; then debug=1; set +x; fi
+
+  # print the mutt command without a password for debugging purposes
+  echo mutt -e 'set content_type = text/html' \
+       -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
+       -e "set smtp_pass = '***'" \
+       -e "set ssl_starttls = yes" \
+       -e "set ssl_force_tls = yes" \
+       -s "Possible component upgrades report - ${REPORT_TITLE}" \
+       "${TO_ADDRESS}" \< "${REPORT_FILE}"
+  
+  mutt -e 'set content_type = text/html' \
+       -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
+       -e "set smtp_pass = '$(unpackSmtpPassword)'" \
+       -e "set ssl_starttls = yes" \
+       -e "set ssl_force_tls = yes" \
+       -s "Possible component upgrades report - ${REPORT_TITLE}" \
+       "${TO_ADDRESS}" < "${REPORT_FILE}"
+
+  # reset debugging
+  [[ $debug == 1 ]] && set -x
+}
+
+unpackSmtpPassword() {
+  gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null
 }
 
 set +u
@@ -105,9 +139,9 @@ readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
 
 readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
 if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
-  readonly SMTP_PASSWORD=$(gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null)
+  readonly USE_SMTP_PASSWORD=1
 else
-  readonly SMTP_PASSWORD="${SMTP_PASSWORD}"
+  readonly USE_SMTP_PASSWORD=0
 fi
 
 if [ ! -e "${JOBS_SETTINGS}" ]; then
@@ -118,6 +152,7 @@ fi
 readonly JOB_NAME=${JOB_NAME}
 if [ -z "${JOB_NAME}" ]; then
   echo "No JOB_NAME provided - aborting".
+  usage
   exit 2
 else
   readonly JOB_CONFIG=$(grep -e "^${JOB_NAME}," "${JOBS_SETTINGS}")
@@ -125,13 +160,14 @@ fi
 
 readonly RULE_NAME=$(echo "${JOB_CONFIG}" | cut -f2 -d, )
 readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
-readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f3 -d, )
+readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f4 -d, )
 
 readonly CONFIG_HOME=${CONFIG_HOME:-"${COMPONENT_ALIGNMENT_HOME}/dependency-alignment-configs/"}
 readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
 
 if [ ! -e "${CONFIG}" ]; then
   echo "No such file: ${CONFIG} - abort"
+  usage
   exit 3
 fi
 
