@@ -96,7 +96,7 @@ ifRequestedPrintUsageAndExit "${1}"
 
 readonly DEBUG=${DEBUG:-true}
 readonly TARGET_DIR=${TARGET_DIR:-'.'}
-readonly CLI=${PATH_TO_CLI:-'/opt/tools/component_alignment/alignment-cli-0.7.jar'}
+readonly CLI=${PATH_TO_CLI:-'/opt/tools/component-alignment/alignment-cli-0.7.jar'}
 readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
 readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
@@ -126,7 +126,7 @@ readonly RULE_NAME=$(echo "${JOB_CONFIG}" | cut -f2 -d, )
 readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
 readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f3 -d, )
 
-readonly CONFIG_HOME=${CONFIG_HOME:-'/opt/tools/component_alignment/dependency-alignment-configs'}
+readonly CONFIG_HOME=${CONFIG_HOME:-'/opt/tools/component-alignment/dependency-alignment-configs/'}
 readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
 
 if [ ! -e "${CONFIG}" ]; then
