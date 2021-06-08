@@ -62,6 +62,7 @@ msg=$( jq -n '{release: $ARGS.named}' \
 
 echo "${msg}" | jq > message_body.json
 
-echo "MESSAGE_CONTENT=${msg}" >> MESSAGE.txt
+EOL=$'\n'
+echo "MESSAGE_CONTENT=${msg//$EOL/}" >> MESSAGE.txt
 
 cat message_body.json
