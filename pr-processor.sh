@@ -11,8 +11,8 @@ readonly CACHE_NAME=${CACHE_NAME:-'github-cache'}
 readonly CACHE_SIZE=${CACHE_SIZE:-'20'}
 
 declare -a ACTIVES_STREAMS
-ACTIVES_STREAMS[0]='jboss-eap-7.2.z[wildfly-wildfly,wildfly-wildfly-core]'
-ACTIVES_STREAMS[1]='jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
+ACTIVES_STREAMS[0]='jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
+ACTIVES_STREAMS[1]='jboss-eap-7.4.z[wildfly-wildfly,wildfly-wildfly-core]'
 
 set -u
 
