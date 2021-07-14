@@ -88,10 +88,10 @@ else
   # no default settings.xml on CCI
 fi
 
-readonly EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
-
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
+
+readonly EXTRA_BUILD_OPTS=${EXTRA_BUILD_OPTS:-'-Drelease'}
 
 readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
 readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
@@ -175,9 +175,9 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   # shellcheck disable=SC2086,SC2068
-  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${EXTRA_BUILD_OPTS} ${@}
   # shellcheck disable=SC2086,SC2068
-  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${EXTRA_BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
@@ -189,6 +189,14 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   if [ -n "${IS_CCI}" ]; then
+    if [ -d "ee-dist/target" ]; then
+      echo "using ee-dist/target"
+      EAP_DIST_DIR="${EAP_SOURCES_DIR}/ee-dist/target"
+    else
+      echo "using dist/target"
+      EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
+    fi
+
     cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
     cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
