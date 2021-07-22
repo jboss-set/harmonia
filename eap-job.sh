@@ -63,6 +63,92 @@ record_build_properties() {
   cat ${PROPERTIES_FILE}
 }
 
+build_command() {
+  # shellcheck disable=SC2086,SC2068
+  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  # shellcheck disable=SC2086,SC2068
+  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  status=${?}
+  if [ "${status}" -ne 0 ]; then
+    echo "Compilation failed"
+    exit "${GIT_SKIP_BISECT_ERROR_CODE}"
+  fi
+
+  if [ -n "${ZIP_WORKSPACE}" ]; then
+    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
+  fi
+}
+
+testsuite_command() {
+
+  unset JBOSS_HOME
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=${RERUN_FAILING_TESTS}"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.memory.args=-Xmx1024m"
+
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
+
+  export TEST_TO_RUN=${TEST_TO_RUN:-'-DallTests'}
+  cd "${EAP_SOURCES_DIR}/testsuite" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+  mvn clean
+  cd ..
+
+  # shellcheck disable=SC2086,SC2068
+  bash -x ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
+  exit "${?}"
+}
+
+check_if_old_releases_exists() {
+  if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
+    echo "Invalid directory for old_releases: ${OLD_RELEASES_FOLDER}. Testsuite will fails to run, aborting."
+    exit 3
+  fi
+}
+
+check_running_env() {
+  # TODO this could probably be reverse, using olympus shortname or FQDN for simplicity sake
+  # check if we're runnig in CCI. hostname will always by in 'large-cloud-node-\\d+' format
+  if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
+    readonly IS_CCI=true
+    export IS_CCI
+    echo "Running on CCI VM"
+  else
+    echo "Running on Olympus"
+  fi
+}
+
+configure_mvn_settings() {
+  if [ -n "${MAVEN_SETTINGS_XML}" ]; then
+    readonly MAVEN_SETTINGS_XML_OPTION="-s ${MAVEN_SETTINGS_XML}"
+  else
+    readonly MAVEN_SETTINGS_XML_OPTION=''
+  fi
+  export MAVEN_SETTINGS_XML_OPTION
+}
+
+configure_mvn_home() {
+  if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
+    echo "No Maven Home defined - setting to default: ${DEFAULT_MAVEN_HOME}"
+    export MAVEN_HOME=${DEFAULT_MAVEN_HOME}
+    if [ ! -d  "${DEFAULT_MAVEN_HOME}" ]; then
+      echo "No maven install found (${DEFAULT_MAVEN_HOME}) - downloading one:"
+      cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+      MAVEN_HOME="$(pwd)/maven"
+      export MAVEN_HOME
+      export PATH=${MAVEN_HOME}/bin:${PATH}
+      bash ./download-maven.sh
+      chmod +x ./*/bin/*
+      cd - || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+    fi
+
+    command -v mvn
+    mvn -version
+  fi
+}
+
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -85,24 +171,6 @@ if [ -n "${JAVA_HOME}" ]; then
 fi
 
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
-
-# check if we're runnig in CCI. hostname will always by in 'large-cloud-node-\\d+' format
-if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
-  readonly IS_CCI=true
-  echo "Running on CCI VM"
-else
-  echo "Running on Olympus"
-fi
-
-if [ -z "${IS_CCI}" ]; then
-  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
-
-  readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
-else
-  readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
-  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
-  # no default settings.xml on CCI
-fi
 
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
@@ -129,23 +197,7 @@ if [ -n "${WORKSPACE}" ]; then
 fi
 echo '.'
 
-if [ -z "${MAVEN_HOME}" ] || [ ! -e "${MAVEN_HOME}/bin/mvn" ]; then
-    echo "No Maven Home defined - setting to default: ${DEFAULT_MAVEN_HOME}"
-    export MAVEN_HOME=${DEFAULT_MAVEN_HOME}
-    if [ ! -d  "${DEFAULT_MAVEN_HOME}" ]; then
-      echo "No maven install found (${DEFAULT_MAVEN_HOME}) - downloading one:"
-      cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-      MAVEN_HOME="$(pwd)/maven"
-      export MAVEN_HOME
-      export PATH=${MAVEN_HOME}/bin:${PATH}
-      bash ./download-maven.sh
-      chmod +x ./*/bin/*
-      cd - || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    fi
-
-    command -v mvn
-    mvn -version
-fi
+configure_mvn_home
 
 readonly MAVEN_BIN_DIR=${MAVEN_HOME}/bin
 echo "Adding ${MAVEN_BIN_DIR} to PATH:${PATH}."
@@ -176,89 +228,11 @@ export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.httpconnectionManager.maxPerRoute
 # using project's maven repository
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.repo.local=${LOCAL_REPO_DIR}"
 
-if [ -n "${MAVEN_SETTINGS_XML}" ]; then
-  readonly MAVEN_SETTINGS_XML_OPTION="-s ${MAVEN_SETTINGS_XML}"
-else
-  readonly MAVEN_SETTINGS_XML_OPTION=''
-fi
+configure_mvn_settings
 
 unset JBOSS_HOME
-if [ "${BUILD_COMMAND}" = 'build' ]; then
-
-  if [ -n "${IS_CCI}" ]; then
-    zip -qr "jboss-eap-src-${GIT_COMMIT:0:7}.zip" "${EAP_SOURCES_FOLDER}"
-    cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-  fi
-
-  # shellcheck disable=SC2086,SC2068
-  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
-  # shellcheck disable=SC2086,SC2068
-  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
-  status=${?}
-  if [ "${status}" -ne 0 ]; then
-    echo "Compilation failed"
-    exit "${GIT_SKIP_BISECT_ERROR_CODE}"
-  fi
-
-  if [ -n "${ZIP_WORKSPACE}" ]; then
-    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
-  fi
-
-  if [ -n "${IS_CCI}" ]; then
-    # on a 7.4 build, EAP_DIST_DIR would be defined in the vars/7.4.sh file, thus overriding the default
-    readonly EAP_DIST_DIR=${EAP_DIST_DIR:-"${EAP_SOURCES_DIR}//dist/target"}
-    # when we drop jobs <= 7.3, we can invert this logic, default becomes /ee-dist/target
-
-    cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
-    cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr "${WORKSPACE}/jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip" "maven-local-repository"
-
-
-    cd "${WORKSPACE}"
-
-    record_build_properties
-  fi
+if [ -n "${IS_CCI}" ]; then
+  ./cci.sh
 else
-  if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
-    echo "Invalid directory for old_releases: ${OLD_RELEASES_FOLDER}. Testsuite will fails to run, aborting."
-    exit 3
-  fi
-
-  if [ -n "${IS_CCI}" ]; then
-    # unzip artifacts from build job
-    find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
-
-    TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
-    if [ -z "$TEST_JBOSS_DIST" ]; then
-      echo "No EAP distribution to be tested"
-      exit 2
-    else
-      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
-    fi
-
-    if [ "${ip}" == "ipv6" ];
-    then
-      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dipv6"
-    fi
-  fi
-
-  unset JBOSS_HOME
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=${RERUN_FAILING_TESTS}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.memory.args=-Xmx1024m"
-
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
-
-  export TEST_TO_RUN=${TEST_TO_RUN:-'-DallTests'}
-  cd "${EAP_SOURCES_DIR}/testsuite" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-  mvn clean
-  cd ..
-
-  # shellcheck disable=SC2086,SC2068
-  bash -x ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
-  exit "${?}"
+  ./olympus.sh
 fi
