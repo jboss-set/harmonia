@@ -47,6 +47,30 @@ record_build_properties() {
   cat ${PROPERTIES_FILE}
 }
 
+function get_dist_folder() {
+    dist_folder="ee-dist/target"
+    eap_version=$(xmllint pom.xml --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='jboss.eap.release.version']/text()")
+    if [ -n "${eap_version}" ]; then
+        major="${eap_version%.*}"
+        minor="${eap_version##*.}"
+        if [ -n "${major}" ] && [ "${major}" = "7" ]; then
+            if [ -n "${minor}" ] && [ "${minor}" -lt "4" ]; then
+                dist_folder="dist/target"
+            else
+                dist_folder="ee-dist/target"
+            fi
+        else
+            echo "Unsupported major version: ${major}"
+            exit 1
+        fi
+    else
+        # TODO: verify we're building WFLY
+        dist_folder="ee-dist/target"
+    fi
+
+    echo "${dist_folder}"
+}
+
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -189,14 +213,8 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   if [ -n "${IS_CCI}" ]; then
-    if [ -d "ee-dist/target" ]; then
-      echo "using ee-dist/target"
-      EAP_DIST_DIR="${EAP_SOURCES_DIR}/ee-dist/target"
-    else
-      echo "using dist/target"
-      EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
-    fi
-    readonly EAP_DIST_DIR
+    readonly EAP_DIST_DIR=$(get_dist_folder)
+    echo "Using ${EAP_DIST_DIR}"
 
     cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
