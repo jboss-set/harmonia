@@ -16,6 +16,22 @@ usage() {
   echo 'Warning: This script also set several mvn args. Please refer to its content before adding some extra maven arguments.'
 }
 
+get_eap_version() {
+
+# This needs to be implemented, but let's assume it will return '7.4' if you are building 7.4
+}
+
+load_version_specifics_properties() {
+  local eap_version=${1} # so 7.4 for a 7.4 build
+  local version_specific_vars_file="vars/${eap_version}.sh"
+
+  if [ -e "${version_specific_vars_file}" ]; then
+    # this is run only if we added a file, so 7.3 in our current scenario, it won't be run
+    source "${version_specific_vars_file}"
+  fi
+}
+
+
 is_dirpath_defined_and_exists() {
   local dir_path=${1}
   local var_name=${2}
@@ -189,14 +205,9 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   if [ -n "${IS_CCI}" ]; then
-    if [ -d "ee-dist/target" ]; then
-      echo "using ee-dist/target"
-      EAP_DIST_DIR="${EAP_SOURCES_DIR}/ee-dist/target"
-    else
-      echo "using dist/target"
-      EAP_DIST_DIR="${EAP_SOURCES_DIR}/dist/target"
-    fi
-    readonly EAP_DIST_DIR
+    # on a 7.4 build, EAP_DIST_DIR would be defined in the vars/7.4.sh file, thus overriding the default
+    readonly EAP_DIST_DIR=${EAP_DIST_DIR:-"${EAP_SOURCES_DIR}//dist/target"}
+    # when we drop jobs <= 7.3, we can invert this logic, default becomes /ee-dist/target
 
     cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
