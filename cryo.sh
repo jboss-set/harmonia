@@ -8,22 +8,25 @@ set -eox pipefail
 
 readonly PARENT_JOB_DIR=${PARENT_JOB_DIR:-'/parent_job'}
 readonly APHRODITE_CONFIG=${APHRODITE_CONFIG:-'/opt/tools/aphrodite.json'}
-
-# java & maven settings
-readonly JAVA_HOME=${JAVA_HOME:-'/opt/oracle/java'}
-readonly MAVEN_HOME=${MAVEN_HOME:-'/opt/apache/maven'}
 readonly MAVEN_LOCAL_REPO=${MAVEN_LOCAL_REPO:-${WORKSPACE}/maven-local-repository}
-readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
-readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML:-'/opt/tools/settings.xml'}
+
+export MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
+export MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML:-'/opt/tools/settings.xml'}
 
 export MAVEN_OPTS="${MAVEN_OPTS} ${MEMORY_SETTINGS}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dmaven.wagon.http.ssl.insecure=true -Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=${MAVEN_LOCAL_REPO}"
 export MAVEN_OPTS="${MAVEN_OPTS} -Dskip-download-sources -DskipSources -Dmaven.source.skip -Dsource.skip -Dproject.src.skip"
 
+readonly PARAMS_FILE=${PARAMS_FILE:-${WORKSPACE}/../cryo-params.sh}
+if [ -f "${PARAMS_FILE}" ]; then
+  . "${PARAMS_FILE}"
+fi
+
 if [ -n "${MAVEN_HOME}" ]; then
   export PATH=${MAVEN_HOME}/bin:${PATH}
 fi
 
+readonly ARCHIVE_LAST=${ARCHIVE_LAST:-''}
 # cryo.jar arguments
 readonly INCLUDE_LIST=${INCLUDE_LIST:-''}
 readonly EXCLUDE_LIST=${EXCLUDE_LIST:-''}
@@ -46,7 +49,7 @@ fi
 if [[ -n "${SUFFIX}" ]]; then
     CRYO_COMMAND_ARGS="$CRYO_COMMAND_ARGS -s ${SUFFIX}"
 fi
-if [[ "${DRY_RUN}" = "true" ]]; then
+if [[ "${DRY_RUN}" != "false" ]]; then
     CRYO_COMMAND_ARGS="$CRYO_COMMAND_ARGS -d"
 fi
 if [[ "${FLIP}" = "true" ]]; then
@@ -96,7 +99,9 @@ ${CRYO_COMMAND}
 
 #Create archive to avoid default excludes. Cleanup, tar and compress in place
 mvn clean -DallTests
-EAP_FILE_ARCHIVE="eap_$(git rev-parse --abbrev-ref HEAD).tar.gz"
-touch "$EAP_FILE_ARCHIVE"
-tar -czf "$EAP_FILE_ARCHIVE" --exclude="$EAP_FILE_ARCHIVE" --exclude="workspace.zip" .
 
+if  [[ -n "${ARCHIVE_LAST}" ]]; then
+  EAP_FILE_ARCHIVE="eap_$(git rev-parse --abbrev-ref HEAD).tar.gz"
+  touch "$EAP_FILE_ARCHIVE"
+  tar -czf "$EAP_FILE_ARCHIVE" --exclude="$EAP_FILE_ARCHIVE" --exclude="workspace.zip" .
+fi
