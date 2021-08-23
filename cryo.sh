@@ -98,7 +98,8 @@ echo "CRYO_JAR: ${CRYO_JAR}"
 # do not zip workspace.zip when running eap-job.sh
 unset ZIP_WORKSPACE
 
-java "${CRYO_COMMAND_OPTS}" -jar "${CRYO_JAR}" "${CRYO_COMMAND_ARGS}"
+# shellcheck disable=SC2086
+java ${CRYO_COMMAND_OPTS} -jar "${CRYO_JAR}" ${CRYO_COMMAND_ARGS}
 
 #Create archive to avoid default excludes. Cleanup, tar and compress in place
 mvn clean -DallTests
