@@ -208,7 +208,7 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
     exit "${GIT_SKIP_BISECT_ERROR_CODE}"
   fi
 
-  if [ -n "${ZIP_WORKSPACE}" ]; then
+  if [ "${ZIP_WORKSPACE}" == "true" ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
 
