@@ -252,7 +252,7 @@ else
 
   unset JBOSS_HOME
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.forked.process.timeout=${SUREFIRE_FORKED_PROCESS_TIMEOUT}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dskip-download-sources -B -Dci-cleanup"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=${RERUN_FAILING_TESTS}"
