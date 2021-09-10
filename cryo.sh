@@ -5,7 +5,11 @@
 # a git bisect implementation based on github pull requests
 #
 set -eo pipefail
-
+echo "-------------------XXXXXXXXXXX------------------------"
+echo $@
+echo $CRYO_HARMONIA_SH
+env
+echo "------------------------------------------------------"
 readonly PARENT_JOB_DIR=${PARENT_JOB_DIR:-'/parent_job'}
 readonly APHRODITE_CONFIG=${APHRODITE_CONFIG:-'/opt/tools/aphrodite.json'}
 readonly MAVEN_LOCAL_REPO=${MAVEN_LOCAL_REPO:-${WORKSPACE}/maven-local-repository}
@@ -69,7 +73,7 @@ fi
 
 # use HarmoniaOperationCenter which requires env.ENV_HARMONIA_BUILD_SH pointing to eap-job.sh
 HARMONIA_HOME="$(cd "${WORKSPACE}/../harmonia" && pwd)"
-export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/${CRYO_HARMONIA_SH:eap-job.sh}
+export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/${CRYO_HARMONIA_SH:-'eap-job.sh'}
 
 # disable interactive mode in pr-merge
 export NO_STOP_BEFORE_MERGE="true"
