@@ -69,7 +69,7 @@ fi
 
 # use HarmoniaOperationCenter which requires env.ENV_HARMONIA_BUILD_SH pointing to eap-job.sh
 HARMONIA_HOME="$(cd "${WORKSPACE}/../harmonia" && pwd)"
-export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/eap-job.sh
+export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/${CRYO_HARMONIA_SH:eap-job.sh}
 
 # disable interactive mode in pr-merge
 export NO_STOP_BEFORE_MERGE="true"
