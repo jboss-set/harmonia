@@ -1,6 +1,8 @@
 #!/bin/bash
 set -ueo pipefail
 
+source /opt/tools/smtp-settings.sh
+
 usage() {
   echo
   echo Usage:
@@ -89,13 +91,18 @@ deleteOldReportFile() {
 }
 
 emailWithSMTP() {
+  echo Sending a report via the corporate SMTP server.
+
   mutt -e "set from = '${FROM_ADDRESS}'" \
+       -e "set smtp_url = '${SMTP_URL}'" \
        -e 'set content_type=text/html' \
        -s "Possible component upgrades report - ${REPORT_TITLE}" \
        "${TO_ADDRESS}" < "${REPORT_FILE}"
 }
 
 emailWithGMail() {
+  echo Sending a report via the Gmail SMTP server.
+
   # disable debugging if enabled, to avoid revealing password when debugging is enabled
   local debug=0;
   if [[ $- =~ x ]]; then debug=1; set +x; fi
