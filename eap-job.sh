@@ -99,11 +99,6 @@ configure_mvn_settings() {
 
 build() {
 
-  if [ -n "${IS_CCI}" ]; then
-    zip -qr "jboss-eap-src-${GIT_COMMIT:0:7}.zip" "${EAP_SOURCES_FOLDER}"
-    cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-  fi
-
   # shellcheck disable=SC2086,SC2068
   echo mvn clean install ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   # shellcheck disable=SC2086,SC2068
@@ -117,22 +112,6 @@ build() {
   if [ -n "${ZIP_WORKSPACE}" ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
-
-  if [ -n "${IS_CCI}" ]; then
-    # shellcheck disable=SC2155
-    readonly EAP_DIST_DIR=$(get_dist_folder)
-    echo "Using ${EAP_DIST_DIR}"
-
-    cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
-    cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr "${WORKSPACE}/jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip" "maven-local-repository"
-
-
-    cd "${WORKSPACE}"
-
-    record_build_properties
-  fi
 }
 
 testsuite() {
@@ -140,25 +119,6 @@ testsuite() {
   if ! is_dirpath_defined_and_exists "${OLD_RELEASES_FOLDER}" 'OLD_RELEASES_FOLDER'; then
     echo "Invalid directory for old_releases: ${OLD_RELEASES_FOLDER}. Testsuite will fails to run, aborting."
     exit 3
-  fi
-
-  if [ -n "${IS_CCI}" ]; then
-    # unzip artifacts from build job
-    find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
-
-    TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
-    if [ -z "$TEST_JBOSS_DIST" ]; then
-      echo "No EAP distribution to be tested"
-      exit 2
-    else
-      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
-    fi
-
-    # shellcheck disable=SC2154
-    if [ "${ip}" == "ipv6" ];
-    then
-      export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dipv6"
-    fi
   fi
 
   unset JBOSS_HOME
@@ -290,10 +250,8 @@ configure_mvn_opts
 configure_mvn_settings
 
 unset JBOSS_HOME
-if [ "${BUILD_COMMAND}" = 'build' ]; then
-  # shellcheck disable=SC2068
-  build ${@}
+if [ -n "${IS_CCI}" ]; then
+  ./cci.sh
 else
-  # shellcheck disable=SC2068
-  testsuite ${@}
+  ./olympus.sh
 fi
