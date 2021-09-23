@@ -36,16 +36,24 @@ checkEnvVar() {
 }
 
 runComponentAlignment() {
+  set -x
+
   local target="${TARGET_DIR}/pom.xml"
 
-  local loggerParams=''
+  local jvmParams=''
   if [ -n "${COMPONENT_UPGRADE_LOGGER}" ]; then
-    loggerParams="-Dlogger.projectCode="${LOGGER_PROJECT_CODE}" -Dlogger.uri=${COMPONENT_UPGRADE_LOGGER}"
+    jvmParams="${jvmParams} -Dlogger.projectCode=${LOGGER_PROJECT_CODE} -Dlogger.uri=${COMPONENT_UPGRADE_LOGGER}"
   fi
 
-  java $loggerParams \
-       -jar "${CLI}" 'generate-html-report' \
-       -c "${CONFIG}" -f "${target}" -o "${REPORT_FILE}"
+  $JAVA_HOME/bin/java ${jvmParams} \
+       -jar "${CLI}" 'send-html-report' \
+       -c "${CONFIG}" \
+       -f "${target}" \
+       --email-smtp-host "${SMTP_HOST}" \
+       --email-smtp-port "${SMTP_PORT}" \
+       --email-subject "Possible component upgrades report - ${REPORT_TITLE}" \
+       --email-from "${FROM_ADDRESS}" \
+       --email-to "${TO_ADDRESS}"
 }
 
 ifRequestedPrintUsageAndExit() {
@@ -54,20 +62,6 @@ ifRequestedPrintUsageAndExit() {
   if [ "${firstArg}" = '-h' ]; then
     usage
     exit 0
-  fi
-}
-
-sendReportByEmail() {
-  local report_file=${1}
-
-  if [ -e "${report_file}" ] && [ -s "${report_file}" ]; then
-    if [ "${USE_SMTP_PASSWORD}" = 0 ]; then
-      emailWithSMTP
-    else
-      emailWithGMail
-    fi
-  else
-    echo "No report generated"
   fi
 }
 
@@ -81,75 +75,17 @@ printConfig() {
   fi
 }
 
-deleteOldReportFile() {
-  local report_file=${1}
-
-  if [ -e "${REPORT_FILE}" ]; then
-    echo "Deleting ${REPORT_FILE}"
-    rm "${REPORT_FILE}"
-  fi
-}
-
-emailWithSMTP() {
-  echo Sending a report via the corporate SMTP server.
-
-  mutt -e "set from = '${FROM_ADDRESS}'" \
-       -e "set smtp_url = '${SMTP_URL}'" \
-       -e 'set content_type=text/html' \
-       -s "Possible component upgrades report - ${REPORT_TITLE}" \
-       "${TO_ADDRESS}" < "${REPORT_FILE}"
-}
-
-emailWithGMail() {
-  echo Sending a report via the Gmail SMTP server.
-
-  # disable debugging if enabled, to avoid revealing password when debugging is enabled
-  local debug=0;
-  if [[ $- =~ x ]]; then debug=1; set +x; fi
-
-  # print the mutt command without a password for debugging purposes
-  echo mutt -e 'set content_type = text/html' \
-       -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
-       -e "set smtp_pass = '***'" \
-       -e "set ssl_starttls = yes" \
-       -e "set ssl_force_tls = yes" \
-       -s "Possible component upgrades report - ${REPORT_TITLE}" \
-       "${TO_ADDRESS}" \< "${REPORT_FILE}"
-  
-  mutt -e 'set content_type = text/html' \
-       -e "set smtp_url = 'smtps://${FROM_ADDRESS}@smtp.gmail.com:465'" \
-       -e "set smtp_pass = '$(unpackSmtpPassword)'" \
-       -e "set ssl_starttls = yes" \
-       -e "set ssl_force_tls = yes" \
-       -s "Possible component upgrades report - ${REPORT_TITLE}" \
-       "${TO_ADDRESS}" < "${REPORT_FILE}"
-
-  # reset debugging
-  [[ $debug == 1 ]] && set -x
-}
-
-unpackSmtpPassword() {
-  gpg -d "${GMAIL_SMTP_PASSWORD_FILE}" 2> /dev/null
-}
-
 set +u
 ifRequestedPrintUsageAndExit "${1}"
 
 readonly DEBUG=${DEBUG:-true}
 readonly TARGET_DIR=${TARGET_DIR:-'.'}
 readonly COMPONENT_ALIGNMENT_HOME=${COMPONENT_ALIGNMENT_HOME:-'/opt/tools/component-alignment'}
-readonly CLI=${PATH_TO_CLI:-"${COMPONENT_ALIGNMENT_HOME}/alignment-cli-0.7.jar"}
+readonly CLI=${PATH_TO_CLI:-"${COMPONENT_ALIGNMENT_HOME}/alignment-cli-0.8.jar"}
 readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
-readonly REPORT_FILE=${REPORT_FILE:-'report.html'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
-
-readonly GMAIL_SMTP_PASSWORD_FILE=${GMAIL_SMTP_PASSWORD_FILE:-"${HOME}/.gmail-smtp-password.gpg"}
-if [ -e "${GMAIL_SMTP_PASSWORD_FILE}" ]; then
-  readonly USE_SMTP_PASSWORD=1
-else
-  readonly USE_SMTP_PASSWORD=0
-fi
+readonly JAVA_HOME=${JAVA_HOME:-'/opt/oracle/java'}
 
 if [ ! -e "${JOBS_SETTINGS}" ]; then
   echo "Invalid set up, missing jobs settings file: ${JOBS_SETTINGS}."
@@ -162,12 +98,13 @@ if [ -z "${JOB_NAME}" ]; then
   usage
   exit 2
 else
+  cat "${JOBS_SETTINGS}"
   readonly JOB_CONFIG=$(grep -e "^${JOB_NAME}," "${JOBS_SETTINGS}")
 fi
 
-readonly RULE_NAME=$(echo "${JOB_CONFIG}" | cut -f2 -d, )
+readonly RULE_NAME=$( echo "${JOB_CONFIG}" | cut -f2 -d, )
 readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
-readonly LOGGER_PROJECT_CODE=$(echo "${JOB_CONFIG}" | cut -f4 -d, )
+readonly LOGGER_PROJECT_CODE=$( echo "${JOB_CONFIG}" | cut -f4 -d, | xargs )
 
 readonly CONFIG_HOME=${CONFIG_HOME:-"${COMPONENT_ALIGNMENT_HOME}/dependency-alignment-configs/"}
 readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
@@ -187,8 +124,4 @@ checkEnvVar 'LOGGER_PROJECT_CODE' "${LOGGER_PROJECT_CODE}" '5'
 
 printConfig "${CONFIG}"
 
-deleteOldReportFile "${REPORT_FILE}"
-
 runComponentAlignment
-
-sendReportByEmail "${REPORT_FILE}"
