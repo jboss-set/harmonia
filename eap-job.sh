@@ -183,6 +183,17 @@ function get_dist_folder() {
     echo "${dist_folder}"
 }
 
+is_cci() {
+
+  # check if we're running in CCI. hostname will always by in 'large-cloud-node-\\d+' format
+  if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
+    readonly IS_CCI=true
+    export IS_CCI
+    echo "Running on CCI VM"
+  else
+    echo "Running on Olympus"
+  fi
+}
 
 BUILD_COMMAND=${1}
 
@@ -201,22 +212,16 @@ fi
 readonly MAVEN_VERBOSE=${MAVEN_VERBOSE}
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
 
-# check if we're runnig in CCI. hostname will always by in 'large-cloud-node-\\d+' format
-if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
-  readonly IS_CCI=true
-  echo "Running on CCI VM"
-else
-  echo "Running on Olympus"
-fi
+is_cci
 
 if [ -z "${IS_CCI}" ]; then
   readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
 
   readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
 else
+  # no default settings.xml on CCI
   readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
   readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
-  # no default settings.xml on CCI
 fi
 
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
