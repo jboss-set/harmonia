@@ -1,11 +1,15 @@
 #!/bin/bash
-if [ "${BUILD_COMMAND}" = 'build' ]; then
+
+full_path="$(realpath $0)"
+dir_path="$(dirname $full_path)"
+source "${dir_path}/base.sh"
+
+pre_build() {
   zip -qr "jboss-eap-src-${GIT_COMMIT:0:7}.zip" "${EAP_SOURCES_FOLDER}"
   cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+}
 
-  # shellcheck disable=SC2068
-  build ${@}
-
+post_build() {
   if [ -n "${ZIP_WORKSPACE}" ]; then
     zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
   fi
@@ -21,7 +25,9 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
 
   cd "${WORKSPACE}" || exit 1
   record_build_properties
-else
+}
+
+pre_test() {
   # unzip artifacts from build job
   find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
 
@@ -38,6 +44,11 @@ else
   then
     export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dipv6"
   fi
-  # shellcheck disable=SC2068
-  testsuite ${@}
-fi
+}
+
+# no default settings.xml on CCI
+readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
+readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
+
+setup ${@}
+do_run ${PARAMS}

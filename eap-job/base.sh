@@ -183,80 +183,82 @@ function get_dist_folder() {
     echo "${dist_folder}"
 }
 
-is_cci() {
+setup() {
+  BUILD_COMMAND=${1}
 
-  # check if we're running in CCI. hostname will always by in 'large-cloud-node-\\d+' format
-  if [ -n "${HOSTNAME}" ] && [[ "${HOSTNAME}" == large-cloud-node-* ]]; then
-    readonly IS_CCI=true
-    export IS_CCI
-    echo "Running on CCI VM"
-  else
-    echo "Running on Olympus"
+  if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
+    usage
+    exit 0
   fi
+
+  if [ "${BUILD_COMMAND}" != 'build' ] && [ "${BUILD_COMMAND}" != 'testsuite' ]; then
+    readonly BUILD_COMMAND='build'
+  else
+    readonly BUILD_COMMAND="${BUILD_COMMAND}"
+    shift
+  fi
+
+  readonly MAVEN_VERBOSE=${MAVEN_VERBOSE}
+  readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
+
+  readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
+  readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
+
+  readonly BUILD_OPTS=${BUILD_OPTS:-'-Drelease'}
+
+  readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
+  readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
+  readonly SUREFIRE_FORKED_PROCESS_TIMEOUT=${SUREFIRE_FORKED_PROCESS_TIMEOUT:-'90000'}
+  readonly FAIL_AT_THE_END=${FAIL_AT_THE_END:-'-fae'}
+  readonly RERUN_FAILING_TESTS=${RERUN_FAILING_TESTS:-'0'}
+
+  readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-/opt/old-as-releases}
+
+  readonly FOLDER_DOES_NOT_EXIST_ERROR_CODE='3'
+  readonly ZIP_WORKSPACE=${ZIP_WORKSPACE:-'false'}
+
+  # use PARAMS to account for shift
+  readonly PARAMS=${@}
+
+  if [ -n "${EXECUTOR_NUMBER}" ]; then
+    echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
+  fi
+
+  if [ -n "${WORKSPACE}" ]; then
+    echo -n "inside workspace: ${WORKSPACE}"
+  fi
+  echo '.'
+
+  check_java
+  configure_mvn_home
+  configure_mvn_opts
+  configure_mvn_settings
 }
 
-BUILD_COMMAND=${1}
+pre_build() {
+  :
+}
 
-if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
-  usage
-  exit 0
-fi
+post_build() {
+  :
+}
 
-if [ "${BUILD_COMMAND}" != 'build' ] && [ "${BUILD_COMMAND}" != 'testsuite' ]; then
-  readonly BUILD_COMMAND='build'
-else
-  readonly BUILD_COMMAND="${BUILD_COMMAND}"
-  shift
-fi
+pre_test() {
+  :
+}
 
-readonly MAVEN_VERBOSE=${MAVEN_VERBOSE}
-readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
+do_run() {
+  if [ "${BUILD_COMMAND}" = 'build' ]; then
+    pre_build
 
-is_cci
+    # shellcheck disable=SC2068
+    build ${PARAMS}
 
-if [ -z "${IS_CCI}" ]; then
-  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
+    post_build
+  else
+    pre_test
 
-  readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
-else
-  # no default settings.xml on CCI
-  readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
-  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
-fi
-
-readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
-readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m -XX:MaxPermSize=512m'}
-
-readonly BUILD_OPTS=${BUILD_OPTS:-'-Drelease'}
-
-readonly MAVEN_WAGON_HTTP_POOL=${WAGON_HTTP_POOL:-'false'}
-readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
-readonly SUREFIRE_FORKED_PROCESS_TIMEOUT=${SUREFIRE_FORKED_PROCESS_TIMEOUT:-'90000'}
-readonly FAIL_AT_THE_END=${FAIL_AT_THE_END:-'-fae'}
-readonly RERUN_FAILING_TESTS=${RERUN_FAILING_TESTS:-'0'}
-
-readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-/opt/old-as-releases}
-
-readonly FOLDER_DOES_NOT_EXIST_ERROR_CODE='3'
-readonly ZIP_WORKSPACE=${ZIP_WORKSPACE:-'false'}
-
-if [ -n "${EXECUTOR_NUMBER}" ]; then
-  echo -n "Job run by executor ID ${EXECUTOR_NUMBER} "
-fi
-
-if [ -n "${WORKSPACE}" ]; then
-  echo -n "inside workspace: ${WORKSPACE}"
-fi
-echo '.'
-
-check_java
-configure_mvn_home
-configure_mvn_opts
-configure_mvn_settings
-
-unset JBOSS_HOME
-if [ -n "${IS_CCI}" ]; then
-  ./cci.sh
-else
-  ./olympus.sh
-fi
+    # shellcheck disable=SC2068
+    testsuite ${PARAMS}
+  fi
+}
