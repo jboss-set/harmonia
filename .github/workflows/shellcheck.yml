@@ -1,0 +1,15 @@
+name: "ShellCheck"
+on: [push, pull_request]
+jobs:
+  build:
+    name: ShellCheck Harmonia Scripts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup BATS
+        uses: mig4/setup-bats@v1
+        with:
+          bats-version: 1.4.1
+      - name: Check out code
+        uses: actions/checkout@v1
+      - name: Run ShellCheck tests
+        run: ./tests/tests-suite.sh
