@@ -13,8 +13,8 @@ fi
 runTests() {
   for tests in tests/*.bats
   do
-    local tests_file=$(basename "${1}")
-    bats -t "${tests}" > "${tests_file%.bats}.tap"
+    local tests_file=$(basename "${tests}")
+    bats -t "${tests}" > "tests/${tests_file%.bats}.tap"
   done
 }
 
