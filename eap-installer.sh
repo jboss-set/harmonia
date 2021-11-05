@@ -82,7 +82,7 @@ else
     export DISPLAY=:1
     export INSTALL_TIMEOUT=600
 
-    BUILD_OPTS="${BUILD_OPTS} -Deap.install.timeout=1000 -Deap.start.timeout=120 -Deap.stop.timeout=20 -fn -fae -Dtests.gui.functional -Dgui.test.timeout=1000"
+    BUILD_OPTS="${BUILD_OPTS} -Deap.install.timeout=1000 -Deap.start.timeout=120 -Deap.stop.timeout=20 -fn -fae -Dgui.test.timeout=1000"
     # shellcheck disable=SC2086
     # BUILD_OPTS has to be interpreted as multiple parameters
     mvn clean test -B -Deap.installer="${INSTALLER}" ${BUILD_OPTS}
