@@ -38,6 +38,7 @@ ansible-galaxy collection build .
 if [ -n "${VERSION}" ]; then
   echo "Tagging release ${TAG}"
   git tag "${TAG}"
+  git commit -m "Release ${TAG}-${DOWNSTREAM_NS}" -a
   echo "Create branch"
   if [ -z "${GIT_REPOSITORY_BRANCH}" ]; then
     echo "No GIT_REPOSITORY_BRANCH provided, abort."
