@@ -20,9 +20,13 @@ if [ -n "${GIT_REPOSITORY_URL}" ]; then
 fi
 
 echo -n "Change collection namespace from ${UPSTREAM_NS} to ${DOWNSTREAM_NS}..."
-sed -i "${GALAXY_YML}" \
-    -e "s/\(^namespace: \)${UPSTREAM_NS}/\1${DOWNSTREAM_NS}/"
-echo 'Done.'
+for file_to_edit in $(grep -e "${UPSTREAM_NS}" -r . | cut -f1 -d: | sort -u)
+do
+  echo -n "Editing ${file_to_edit}..."
+  sed -i "${file_to_edit}" \
+      -e "s/${UPSTREAM_NS}/${DOWNSTREAM_NS}/"
+   echo 'Done.'
+done
 
 if [ -n "${VERSION}" ]; then
   readonly TAG="${VERSION}-${DOWNSTREAM_NS}"
