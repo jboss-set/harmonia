@@ -165,7 +165,7 @@ function get_dist_folder() {
     if [ -n "${eap_version}" ]; then
         major="${eap_version%.*}"
         minor="${eap_version##*.}"
-        if [ -n "${major}" ] && [ "${major}" = "7" ]; then
+        if [ -n "${major}" ] && [ "${major}" = "8" ]; then
             if [ -n "${minor}" ] && [ "${minor}" -lt "4" ]; then
                 dist_folder="dist/target"
             else
