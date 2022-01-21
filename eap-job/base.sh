@@ -171,7 +171,7 @@ function get_dist_folder() {
             else
                 dist_folder="ee-dist/target"
             fi
-        else if [ "${major}" = "8" ]; then
+        elif [ "${major}" = "8" ]; then
             dist_folder="ee-dist/target"
         else
             echo "Unsupported major version: ${major}"
