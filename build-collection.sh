@@ -4,7 +4,7 @@ set -eo pipefail
 readonly GALAXY_YML='galaxy.yml'
 readonly UPSTREAM_NS='middleware_automation'
 readonly DOWNSTREAM_NS='redhat'
-readonly PROJECT_DOWNSTREAM_NAME="${1}"
+readonly PROJECT_DOWNSTREAM_NAME="${PROJECT_DOWNSTREAM_NAME:-''}"
 readonly DEFAULT_UPSTREAM_GIT_BRANCH='main'
 
 echo GIT_REPOSITORY_URL: "${GIT_REPOSITORY_URL}"
