@@ -12,6 +12,7 @@ echo GIT_REPOSITORY_BRANCH: "${GIT_REPOSITORY_BRANCH}"
 echo WORKDIR: "${WORKDIR}"
 echo VERSION: "${VERSION}"
 
+echo "Building project from ${GIT_REPOSITORY_URL} inside ${WORKDIR}."
 cd "${WORKDIR}"
 if [ -n "${GIT_REPOSITORY_URL}" ]; then
   echo "Syncronizing with upstream ${GIT_REPOSITORY_URL} repository..."
@@ -43,8 +44,13 @@ if [ -n "${VERSION}" ]; then
   echo 'Done.'
 fi
 
-git diff --no-color .
+echo 'Display changes performed on code base:'
+git --no-pager diff --no-color -w .
+echo 'Done'
+
+echo 'Build collection:'
 ansible-galaxy collection build .
+echo 'Done.'
 
 if [ -n "${VERSION}" ]; then
   echo "Tagging release ${TAG}"
