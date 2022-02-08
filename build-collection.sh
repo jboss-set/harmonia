@@ -30,7 +30,7 @@ do
    echo 'Done.'
 done
 
-if [ -n "${PROJECT_DOWNSTREAM_NAME}" ]; then
+if [ "${PROJECT_DOWNSTREAM_NAME}" != "" ]; then
   echo "Change collection name to ${PROJECT_DOWNSTREAM_NAME}..."
   sed -i "${GALAXY_YML}" -e "s/\(^name: \).*$/\1${PROJECT_DOWNSTREAM_NAME}/"
   echo 'Done.'
