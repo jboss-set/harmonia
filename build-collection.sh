@@ -54,6 +54,10 @@ echo 'Build collection:'
 ansible-galaxy collection build .
 echo 'Done.'
 
+echo 'Installing resulting collection:'
+ansible-galaxy collection install *.tar.gz
+echo 'Done'
+
 if [ -n "${VERSION}" ]; then
   echo "Tagging release ${TAG}"
   git tag "${TAG}"
