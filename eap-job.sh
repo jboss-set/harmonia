@@ -68,6 +68,10 @@ function get_dist_folder() {
         dist_folder="ee-dist/target"
     fi
 
+    if [ -n "${IS_XP}" ]; then
+        dist_folder="dist/target"
+    fi
+
     echo "${dist_folder}"
 }
 
