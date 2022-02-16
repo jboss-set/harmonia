@@ -182,6 +182,12 @@ function get_dist_folder() {
         dist_folder="ee-dist/target"
     fi
 
+    grep -q expansion.pack.release.version pom.xml
+    # shellcheck disable=SC2181
+    if [ "${?}" -eq 0 ]; then
+        dist_folder="dist/target"
+    fi
+
     echo "${dist_folder}"
 }
 
