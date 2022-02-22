@@ -51,6 +51,22 @@ runMoleculeScenario() {
   return ${MOLECULE_RUN_STATUS}
 }
 
+installRequirementsIfAny() {
+  local requirementsFile=${1}
+
+  if [ -n "${requirementsFile}" ]; then
+    echo "Checks if ${requirementsFile} exists..."
+    if [ -e "${requirementsFile}" ]; then
+      echo 'It does, performing required installations.'
+      echo "Install Python dependencies provided in ${requirementsFile}:"
+      "${PIP_COMMAND}" install --user -r "${requirementsFile}"
+      echo 'Done.'
+    else
+      echo 'File does not exists. Skipping.'
+    fi
+  fi
+}
+
 readonly WORKSPACE=${WORKSPACE}
 
 if [ -z "${WORKSPACE}" ]; then
@@ -74,11 +90,14 @@ readonly SCENARIO_DEFAULT_NAME=${SCENARIO_DEFAULT_NAME:-'molecule/default'}
 readonly SCENARIO_DEFAULT_DIR="${WORKDIR}/${SCENARIO_DEFAULT_NAME}"
 readonly SCENARIO_HERA_BRANCH="${WORKDIR}/molecule/olympus"
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/olympus/molecule/olympus/"
+readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
+readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
+
+installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
 molecule --version
 
 deployHeraDriver $(determineExistingScenarioName "${WORKDIR}/molecule") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
-
 
 cd "${WORKDIR}" > /dev/null
 echo "Running Molecule test on project: ${JOB_NAME}..."
