@@ -55,7 +55,7 @@ if [ -n "${VERSION}" ]; then
   readonly TAG="${VERSION}-${DOWNSTREAM_NS}"
   echo -n "Bump version to ${TAG}..."
   sed -i "${GALAXY_YML}" \
-      -e "s/^\(version: \).*$/\1\"${TAG}\"/"
+      -e "s/^\(version: \).*$/\1\"${VERSION}\"/"
   echo 'Done.'
 fi
 
