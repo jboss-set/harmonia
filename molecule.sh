@@ -89,13 +89,27 @@ readonly SCENARIO_DEFAULT_NAME=${SCENARIO_DEFAULT_NAME:-'molecule/default'}
 
 readonly SCENARIO_DEFAULT_DIR="${WORKDIR}/${SCENARIO_DEFAULT_NAME}"
 readonly SCENARIO_HERA_BRANCH="${WORKDIR}/molecule/olympus"
-readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/olympus/molecule/olympus/"
+readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
 readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
 
 installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
 molecule --version
+
+install_eris_collection() {
+  local eris_home=${1}
+  local collection=${2:-'middleware_automation-eris'}
+  pwd
+  ls .
+  cd "${eris_home}"
+  rm -f "${collection}"-*.tar.gz
+  ansible-galaxy collection build .
+  ansible-galaxy collection install -vvv "${collection}"-*.tar.gz
+  cd -
+}
+
+install_eris_collection "${SCENARIO_NAME}"
 
 deployHeraDriver $(determineExistingScenarioName "${WORKDIR}/molecule") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
