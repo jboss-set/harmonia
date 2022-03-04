@@ -5,6 +5,8 @@ readonly GALAXY_YML='galaxy.yml'
 readonly UPSTREAM_NS='middleware_automation'
 readonly DOWNSTREAM_NS='redhat'
 readonly PROJECT_DOWNSTREAM_NAME="${PROJECT_DOWNSTREAM_NAME}"
+readonly JBOSS_UPSTREAM_NAME='wildfly'
+readonly JBOSS_DOWNSTREAM_NAME='jboss_eap'
 readonly DEFAULT_UPSTREAM_GIT_BRANCH='main'
 readonly -A UPSTREAM_TO_DOWNSTREAM_NAMES
 UPSTREAM_TO_DOWNSTREAM_NAMES["${UPSTREAM_NS}.wildfly"]='redhat.jboss_eap'
@@ -58,6 +60,15 @@ if [ -n "${VERSION}" ]; then
       -e "s/^\(version: \).*$/\1\"${VERSION}\"/"
   echo 'Done.'
 fi
+
+echo "Replace dependency to ${DOWNSTREAM_NS}.${JBOSS_UPSTREAM_NAME} by ${DOWNSTREAM_NS}.${JBOSS_DOWNSTREAM_NAME} (if any)."
+grep -e "${DOWNSTREAM_NS}.${JBOSS_UPSTREAM_NAME}" -r . | cut -f1 -d: | \
+while
+  read -r file_to_edit
+do
+  sed -i "${file_to_edit}"  \
+      -e "s;${DOWNSTREAM_NS}.${JBOSS_UPSTREAM_NAME};${DOWNSTREAM_NS}.${JBOSS_DOWNSTREAM_NAME};"
+done
 
 echo 'Display changes performed on code base:'
 git --no-pager diff --no-color -w .
