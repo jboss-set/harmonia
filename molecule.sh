@@ -11,7 +11,7 @@ deployHeraDriver() {
     exit 3
   fi
 
-  echo -n "Create Olympus config setup from ${molecule_source_dir}" to "${molecule_hera_dir}..."
+  echo -n "Create ${SCENARIO_NAME} config setup from ${molecule_source_dir}" to "${molecule_hera_dir}..."
   cp -r "${molecule_source_dir}" "${molecule_hera_dir}"
   echo "Done."
 
@@ -67,6 +67,18 @@ installRequirementsIfAny() {
   fi
 }
 
+install_eris_collection() {
+  local eris_home=${1}
+  local collection=${2:-'middleware_automation-eris'}
+  pwd
+  ls .
+  cd "${eris_home}"
+  rm -f "${collection}"-*.tar.gz
+  ansible-galaxy collection build .
+  ansible-galaxy collection install "${collection}"-*.tar.gz
+  cd -
+}
+
 readonly WORKSPACE=${WORKSPACE}
 
 if [ -z "${WORKSPACE}" ]; then
@@ -81,6 +93,9 @@ fi
 
 readonly HERA_HOME=${HERA_HOME:-"${WORKSPACE}/hera"}
 export HERA_HOME
+readonly ERIS_HOME=${ERIS_HOME:-"${WORKSPACE}/eris"}
+export ERIS_HOME
+
 readonly WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
 readonly MOLECULE_DEBUG=${DEBUG:-'--no-debug'}
 readonly SCENARIO_NAME=${1:-'olympus'}
@@ -97,19 +112,7 @@ installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
 molecule --version
 
-install_eris_collection() {
-  local eris_home=${1}
-  local collection=${2:-'middleware_automation-eris'}
-  pwd
-  ls .
-  cd "${eris_home}"
-  rm -f "${collection}"-*.tar.gz
-  ansible-galaxy collection build .
-  ansible-galaxy collection install -vvv "${collection}"-*.tar.gz
-  cd -
-}
-
-install_eris_collection "${SCENARIO_NAME}"
+install_eris_collection "${ERIS_HOME}"
 
 deployHeraDriver $(determineExistingScenarioName "${WORKDIR}/molecule") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
