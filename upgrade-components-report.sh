@@ -25,7 +25,7 @@ checkEnvVar() {
   local exitCode=${3}
 
   if [ -z "${envVarValue}" ]; then
-    echo "Environnement variable ${envVarName} is not defined."
+    echo "Environment variable ${envVarName} is not defined."
     usage
     exit "${exitCode}"
   else
@@ -92,7 +92,6 @@ if [ ! -e "${JOBS_SETTINGS}" ]; then
   exit 1
 fi
 
-readonly JOB_NAME=${JOB_NAME}
 if [ -z "${JOB_NAME}" ]; then
   echo "No JOB_NAME provided - aborting".
   usage
@@ -101,10 +100,6 @@ else
   cat "${JOBS_SETTINGS}"
   readonly JOB_CONFIG=$(grep -e "^${JOB_NAME}," "${JOBS_SETTINGS}")
 fi
-
-readonly RULE_NAME=$( echo "${JOB_CONFIG}" | cut -f2 -d, )
-readonly REPORT_TITLE=$( echo "${JOB_CONFIG}" | cut -f3 -d, )
-readonly LOGGER_PROJECT_CODE=$( echo "${JOB_CONFIG}" | cut -f4 -d, | xargs )
 
 readonly CONFIG_HOME=${CONFIG_HOME:-"${COMPONENT_ALIGNMENT_HOME}/dependency-alignment-configs/"}
 readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
