@@ -55,17 +55,43 @@ configure_mvn_home() {
       cd "$(pwd)/tools" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
       MAVEN_HOME="$(pwd)/maven"
       export MAVEN_HOME
-      export PATH=${MAVEN_HOME}/bin:${PATH}
       bash ./download-maven.sh
       chmod +x ./*/bin/*
       cd - || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
+      export IS_MAVEN_LOCAL=true
     fi
   fi
+  if [ -n "${VBE_EXTENSION}" ]; then
+  	#copy, into local, if its dwn, dont copy, just alter
+  	echo "------------------ SETTING UP Version Bump Extension ------------------"
+  	readonly PARENT_JOB_DIR=${PARENT_JOB_DIR:-'/parent_job'}
+  	VBE_JAR="$(ls "${PARENT_JOB_DIR}"/target/*-extension-*[^sources].jar)"
+	echo "VBE_JAR: ${VBE_JAR}"
 
+	if [ -z ${IS_MAVEN_LOCAL} ]; then
+		#Not local, we need one
+		mkdir "$(pwd)/maven"
+		cp -r $MAVEN_HOME/* "$(pwd)/maven"
+		export MAVEN_HOME="$(pwd)/maven"
+	fi
+	mkdir -p $MAVEN_HOME/lib/ext
+	cp $VBE_JAR $MAVEN_HOME/lib/ext/
+	if [ -n "${VBE_CHANNELS}" ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dvbe.channels=${VBE_CHANNELS}"
+	fi
+	if [ -n "${VBE_LOG_FILE}" ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dvbe.log.file=${VBE_LOG_FILE}"
+	fi
+	if [ -n "${VBE_REPOSITORY_NAMES}" ]; then
+            export MAVEN_OPTS="${MAVEN_OPTS} -Dvbe.repository.names=${VBE_REPOSITORY_NAMES}"
+	fi
+	echo "------------------ DONE SETTING UP Version Bump Extension ------------------"
+  fi
+  
+  export PATH=${MAVEN_HOME}/bin:${PATH}
   readonly MAVEN_BIN_DIR=${MAVEN_HOME}/bin
   echo "Adding ${MAVEN_BIN_DIR} to PATH:${PATH}."
-  export PATH=${MAVEN_BIN_DIR}:${PATH}
-
+  #export PATH=${MAVEN_BIN_DIR}:${PATH}
 
   command -v mvn
   mvn -version
