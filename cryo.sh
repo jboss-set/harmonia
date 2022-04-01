@@ -67,9 +67,9 @@ if [[ -n "${MAVEN_ARGS}" ]]; then
 	CRYO_COMMAND_ARGS="${CRYO_COMMAND_ARGS} -m${MAVEN_ARGS}"
 fi
 
-# use HarmoniaOperationCenter which requires env.ENV_HARMONIA_BUILD_SH pointing to eap-job.sh
+# use HarmoniaOperationCenter which requires env.ENV_HARMONIA_BUILD_SH pointing to eap-job/olympus.sh
 HARMONIA_HOME="$(cd "${WORKSPACE}/../harmonia" && pwd)"
-export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/${CRYO_HARMONIA_SH:-'eap-job.sh'}
+export ENV_HARMONIA_BUILD_SH=${HARMONIA_HOME}/${CRYO_HARMONIA_SH:-'eap-job/olympus.sh'}
 
 # disable interactive mode in pr-merge
 export NO_STOP_BEFORE_MERGE="true"
@@ -95,7 +95,7 @@ echo "CRYO_COMMAND_OPTS: ${CRYO_COMMAND_OPTS}"
 CRYO_JAR="$(ls "${PARENT_JOB_DIR}"/target/cryo-*[^sources].jar)"
 echo "CRYO_JAR: ${CRYO_JAR}"
 
-# do not zip workspace.zip when running eap-job.sh
+# do not zip workspace.zip when running eap-job/olympus.sh
 unset ZIP_WORKSPACE
 
 # shellcheck disable=SC2086
