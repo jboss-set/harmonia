@@ -23,26 +23,28 @@ deployHeraDriver() {
   done
 }
 
-determineExistingScenarioName() {
+deployHeraDriverInAllScenario() {
   local molecule_dir=${1}
+  local molecule_hera_dir=${2}
+  local molecule_hera_driver_dir=${3}
 
-  for scenario_name in default standalone
+  for scenario_name in "${molecule_dir}"/*
   do
     local scenario_dir=${molecule_dir}/${scenario_name}
     if [ -d "${scenario_dir}" ]; then
-      echo "${scenario_dir}"
+      deployHeraDriver "${scenario_dir}" "${molecule_hera_dir}" "${molecule_hera_driver_dir}"
       return
     fi
   done
 }
 
 runMoleculeScenario() {
-  local scenario_name=${1:-"${SCENARIO_NAME}"}
+  local scenario_name=${1:-"${SCENARIO_NAME:'--all'}"}
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
   # shellcheck disable=SC2086
-  molecule ${MOLECULE_DEBUG} test -s "${scenario_name}" -d "${scenario_driver_name}"
+  molecule ${MOLECULE_DEBUG} test --all -d "${scenario_driver_name}"
   readonly MOLECULE_RUN_STATUS="${?}"
   set -e
   if [ "${MOLECULE_RUN_STATUS}" -ne 0 ]; then
@@ -114,7 +116,7 @@ molecule --version
 
 install_eris_collection "${ERIS_HOME}"
 
-deployHeraDriver $(determineExistingScenarioName "${WORKDIR}/molecule") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
+deployHeraDriverInAllScenario "${WORKDIR}/molecule" "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
 cd "${WORKDIR}" > /dev/null
 echo "Running Molecule test on project: ${JOB_NAME}..."
