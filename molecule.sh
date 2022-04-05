@@ -39,8 +39,7 @@ deployHeraDriverInAllScenario() {
 }
 
 runMoleculeScenario() {
-  local scenario_name=${1:-"${SCENARIO_NAME:'--all'}"}
-  local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
+  local scenario_driver_name=${1:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
   # shellcheck disable=SC2086
