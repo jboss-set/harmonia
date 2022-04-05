@@ -30,8 +30,8 @@ deployHeraDriverInAllScenario() {
 
   for scenario_name in "${molecule_dir}"/*
   do
-    echo "DEBUG> Scenario name: ${scenario_name}"
-    local scenario_dir=${molecule_dir}/${scenario_name}
+    local scenario_dir=${molecule_dir}/$(basename "${scenario_name}")
+    echo "DEBUG> ${scenario_dir}"
     if [ -d "${scenario_dir}" ]; then
       deployHeraDriver "${scenario_dir}" "${molecule_hera_dir}" "${molecule_hera_driver_dir}"
     fi
