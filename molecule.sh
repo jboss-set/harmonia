@@ -43,6 +43,7 @@ runMoleculeScenario() {
 
   set +e
   # shellcheck disable=SC2086
+  echo DEBUG: molecule ${MOLECULE_DEBUG} test --all -d "${scenario_driver_name}"
   molecule ${MOLECULE_DEBUG} test --all -d "${scenario_driver_name}"
   readonly MOLECULE_RUN_STATUS="${?}"
   set -e
