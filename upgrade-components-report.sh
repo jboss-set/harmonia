@@ -82,23 +82,14 @@ readonly DEBUG=${DEBUG:-true}
 readonly TARGET_DIR=${TARGET_DIR:-'.'}
 readonly COMPONENT_ALIGNMENT_HOME=${COMPONENT_ALIGNMENT_HOME:-'/opt/tools/component-alignment'}
 readonly CLI=${PATH_TO_CLI:-"${COMPONENT_ALIGNMENT_HOME}/alignment-cli-0.8.jar"}
-readonly JOBS_SETTINGS=${JOBS_SETTINGS:-'/opt/tools/component-alignment-config-template.csv'}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
 readonly JAVA_HOME=${JAVA_HOME:-'/opt/oracle/java'}
-
-if [ ! -e "${JOBS_SETTINGS}" ]; then
-  echo "Invalid set up, missing jobs settings file: ${JOBS_SETTINGS}."
-  exit 1
-fi
 
 if [ -z "${JOB_NAME}" ]; then
   echo "No JOB_NAME provided - aborting".
   usage
   exit 2
-else
-  cat "${JOBS_SETTINGS}"
-  readonly JOB_CONFIG=$(grep -e "^${JOB_NAME}," "${JOBS_SETTINGS}")
 fi
 
 readonly CONFIG_HOME=${CONFIG_HOME:-"${COMPONENT_ALIGNMENT_HOME}/dependency-alignment-configs/"}
