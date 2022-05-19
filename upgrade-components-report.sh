@@ -81,7 +81,7 @@ ifRequestedPrintUsageAndExit "${1}"
 readonly DEBUG=${DEBUG:-true}
 readonly TARGET_DIR=${TARGET_DIR:-'.'}
 readonly COMPONENT_ALIGNMENT_HOME=${COMPONENT_ALIGNMENT_HOME:-'/opt/tools/component-alignment'}
-readonly CLI=${PATH_TO_CLI:-"${COMPONENT_ALIGNMENT_HOME}/alignment-cli-0.8.jar"}
+readonly CLI=${PATH_TO_CLI:-"${COMPONENT_ALIGNMENT_HOME}/alignment-cli.jar"}
 readonly FROM_ADDRESS=${FROM_ADDRESS:-'thofman@redhat.com'}
 readonly COMPONENT_UPGRADE_LOGGER=${COMPONENT_UPGRADE_LOGGER:-''}
 readonly JAVA_HOME=${JAVA_HOME:-'/opt/oracle/java'}
