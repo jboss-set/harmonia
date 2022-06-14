@@ -84,7 +84,8 @@ configure_mvn_vbe_if_required(){
 	  	#copy, into local, if its dwn, dont copy, just alter
 	  	echo "------------------ SETTING UP Version Bump Extension ------------------"
 	  	readonly PARENT_JOB_DIR=${PARENT_JOB_DIR:-'/parent_job'}
-	  	VBE_JAR=$(ls "${PARENT_JOB_DIR}/target/*-extension-*[^sources].jar")
+	  	VBE_JAR="$(ls "${PARENT_JOB_DIR}"/target/jboss-set-version-bump-extension-*[^sc].jar)"
+
 		echo "VBE_JAR: ${VBE_JAR}"
 	
 		if [ -z "${IS_MAVEN_LOCAL}" ]; then
