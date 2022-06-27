@@ -14,6 +14,7 @@ readonly SYSTEM_REQ=${SYSTEM_REQ:-'requirements.txt'}
 readonly COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
 readonly ANSIBLE_VERBOSITY=${ANSIBLE_VERBOSITY:-''}
 readonly JENKINS_JOBS_DIR=${JENKINS_JOB_DIR:-'/jenkins_jobs'}
+readonly PATH_TO_INVENTORY_FILE=${PATH_TO_INVENTORY_FILE:-"${WORKDIR}/inventory"}
 
 set -u
 cd "${WORKDIR}"
@@ -104,5 +105,11 @@ if [ -e "${COLLECTIONS_REQ}" ]; then
   ansible-galaxy collection install -r "${COLLECTIONS_REQ}"
 fi
 
+
+if [ ! -e "${PATH_TO_INVENTORY_FILE}" ]; then
+  echo '[all]' >> "${PATH_TO_INVENTORY_FILE}"
+  echo 'localhost ansible_connection=local' >> "${PATH_TO_INVENTORY_FILE}"
+fi
+
 #  shellcheck disable=SC2086
-ansible-playbook ${ANSIBLE_VERBOSITY} "${PLAYBOOK}"
+ansible-playbook -i "${PATH_TO_INVENTORY_FILE}" ${ANSIBLE_VERBOSITY} "${PLAYBOOK}"
