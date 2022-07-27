@@ -23,24 +23,12 @@ deployHeraDriver() {
   done
 }
 
-determineExistingScenarioName() {
-  local molecule_dir=${1}
-
-  for scenario_name in default standalone
-  do
-    local scenario_dir=${molecule_dir}/${scenario_name}
-    if [ -d "${scenario_dir}" ]; then
-      echo "${scenario_dir}"
-      return
-    fi
-  done
-}
-
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
+  rm -rf /var/jenkins_home/.cache/molecule/workdir/
   # shellcheck disable=SC2086
   molecule ${MOLECULE_DEBUG} test -s "${scenario_name}" -d "${scenario_driver_name}"
   readonly MOLECULE_RUN_STATUS="${?}"
@@ -64,6 +52,31 @@ installRequirementsIfAny() {
     else
       echo 'File does not exists. Skipping.'
     fi
+  fi
+}
+
+determinePathToScenario() {
+  local scenario_name=${1}
+  local workdir=${2}
+
+  if [ ! -d "${workdir}/molecule/${scenario_name}" ]; then
+    scenario_name=$(useScenarioNameIfExists 'default' "${workdir}")
+  fi
+
+  if [ ! -d "${workdir}/molecule/${scenario_name}" ]; then
+     scenario_name=$(useScenarioNameIfExists 'standalone' "${workdir}")
+  fi
+
+  echo "${workdir}/molecule/${scenario_name}"
+
+}
+
+useScenarioNameIfExists() {
+  local scenario_name=${1}
+  local workdir=${2}
+
+  if [ -d "${workdir}/molecule/${scenario_name}" ]; then
+    echo ${scenario_name}
   fi
 }
 
@@ -114,7 +127,7 @@ molecule --version
 
 install_eris_collection "${ERIS_HOME}"
 
-deployHeraDriver $(determineExistingScenarioName "${WORKDIR}/molecule") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
+deployHeraDriver $(determinePathToScenario "${SCENARIO_DEFAULT_NAME}" "${WORKDIR}") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
 cd "${WORKDIR}" > /dev/null
 echo "Running Molecule test on project: ${JOB_NAME}..."
