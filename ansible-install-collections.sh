@@ -82,16 +82,3 @@ readonly PROJECT_NAME_HOME="${PATH_TO_BUILDS_PROJECT_NAME}/${LAST_SUCCESSFUL_BUI
 # shellcheck disable=SC2155
 readonly PATH_TO_COLLECTION_ARCHIVE=$(get_path_to_collection_tarball "${PROJECT_NAME_HOME}" "${PROJECT_NAME}")
 tar -xf "${PATH_TO_COLLECTION_ARCHIVE}" -C "${WORKDIR}"
-
-#if [ -e "${SYSTEM_REQ}" ]; then
-#  cat "${SYSTEM_REQ}" | \
-#  while
-#    read package
-#  do
-#    command "${package}" 2> /dev/null
-#  done
-#fi
-
-if [ -e "${COLLECTIONS_REQ}" ]; then
-  ansible-galaxy collection install -r "${COLLECTIONS_REQ}"
-fi

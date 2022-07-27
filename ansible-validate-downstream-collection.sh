@@ -47,9 +47,9 @@ if [ ! -e "${PATH_TO_INVENTORY_FILE}" ]; then
   echo 'localhost ansible_connection=local' >> "${PATH_TO_INVENTORY_FILE}"
 fi
 
+ansible-playbook --version
 # shellcheck disable=SC2086
 ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${PLAYBOOK}"
 if [ -e "${VALIDATION_PLAYBOOK}" ]; then
-  echo "Validation requires changes upstream. Disabled."
   ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
 fi
