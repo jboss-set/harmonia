@@ -63,7 +63,7 @@ configure_mvn_home() {
     fi
   fi
   configure_mvn_vbe_if_required
-  
+
   #export PATH="${MAVEN_HOME}"/bin:"${PATH}"
   readonly MAVEN_BIN_DIR="${MAVEN_HOME}"/bin
   export MAVEN_BIN_DIR
@@ -87,7 +87,7 @@ configure_mvn_vbe_if_required(){
 	  	VBE_JAR="$(ls "${PARENT_JOB_DIR}"/target/jboss-set-version-bump-extension-*[^sc].jar)"
 
 		echo "VBE_JAR: ${VBE_JAR}"
-	
+
 		if [ -z "${IS_MAVEN_LOCAL}" ]; then
 			#Not local, we need one
 			mkdir "$(pwd)/maven"
@@ -164,7 +164,7 @@ testsuite() {
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.test.mixed.domain.dir=${OLD_RELEASES_FOLDER}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dmaven.test.failure.ignore=${MAVEN_IGNORE_TEST_FAILURE}"
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=${RERUN_FAILING_TESTS}"
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.memory.args=-Xmx1024m"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.memory.args=${SUREFIRE_MEMORY_SETTINGS}"
 
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
 
@@ -248,6 +248,7 @@ setup() {
 
   readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
   readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-'-Xmx2048m -Xms1024m'}
+  readonly SUREFIRE_MEMORY_SETTINGS=${SUREFIRE_MEMORY_SETTINGS:-'-Xmx1024m'}
 
   readonly BUILD_OPTS=${BUILD_OPTS:-'-Drelease'}
 
