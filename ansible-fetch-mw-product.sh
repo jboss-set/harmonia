@@ -1,7 +1,6 @@
 #!/bin/bash
 set -eo pipefail
 readonly PATH_TO_ARCHIVE_TO_FETCH=${1}
-#/webserver/5.6.2/jws-5.6.2-application-server-RHEL8-x86_64.zip
 readonly PATH_TO_ARCHIVE_FILE=${2}
 
 readonly MIDDLEWARE_DOWNLOAD_RELEASE_SERVER_URL=${MIDDLEWARE_DOWNLOAD_RELEASE_SERVER_URL}
