@@ -10,6 +10,9 @@ if [ ! -d "${WORKDIR}" ]; then
 fi
 
 cd "${WORKDIR}"
+
+ls .
+echo OK
 set +u
 ${HARMONIA_HOME}/ansible-install-collections.sh
 ${HARMONIA_HOME}/molecule.sh
