@@ -161,7 +161,7 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   # configure product repository URL used by tests
-  export BUILD_OPTS="${BUILD_OPTS} -Dorg.jboss.model.test.maven.repository.urls=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/,https://repository.jboss.org/nexus/content/repositories/releases/"
+  export BUILD_OPTS="${BUILD_OPTS} -Dorg.jboss.model.test.maven.repository.urls=${EAP_64_MAVEN_REPO_URL},https://repository.jboss.org/nexus/content/repositories/releases/"
 
   # shellcheck disable=SC2086,SC2068
   echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
@@ -237,7 +237,7 @@ else
   export MVN_ARGS="-DsomeNoneEmptyValue"
 
   # configure product repository URL used by integration tests
-  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.eap.repourl=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/"
+  export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.eap.repourl=${EAP_64_MAVEN_REPO_URL}"
 
   # shellcheck disable=SC2086,SC2068
   bash -x ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
