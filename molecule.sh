@@ -28,10 +28,15 @@ runMoleculeScenario() {
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
-  #rm -rf /var/jenkins_home/.cache/molecule/workdir/
-  # shellcheck disable=SC2086
-  molecule ${MOLECULE_DEBUG} test -s "${scenario_name}" -d "${scenario_driver_name}"
+  if [ "${scenario_name}" != '--all' ]; then
+    # shellcheck disable=SC2086
+    molecule ${MOLECULE_DEBUG} test -s "${scenario_name}" -d "${scenario_driver_name}"
+  else
+   # shellcheck disable=SC2086
+    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}"
+  fi
   readonly MOLECULE_RUN_STATUS="${?}"
+
   set -e
   if [ "${MOLECULE_RUN_STATUS}" -ne 0 ]; then
     echo "MOLECULE_EXIT_CODE: ${MOLECULE_RUN_STATUS}."
@@ -140,6 +145,7 @@ configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
 deployHeraDriver "$(determinePathToScenario "${SCENARIO_DEFAULT_NAME}" "${WORKDIR}")" "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
+set -x
 cd "${WORKDIR}" > /dev/null
 echo "Running Molecule test on project: ${JOB_NAME}..."
 runMoleculeScenario
