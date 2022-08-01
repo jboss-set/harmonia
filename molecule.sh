@@ -85,7 +85,7 @@ useScenarioNameIfExists() {
   local workdir=${2}
 
   if [ -d "${workdir}/molecule/${scenario_name}" ]; then
-    echo ${scenario_name}
+    echo "${scenario_name}"
   fi
 }
 
@@ -124,7 +124,6 @@ readonly SCENARIO_NAME=${1:-'olympus'}
 readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 readonly SCENARIO_DEFAULT_NAME=${SCENARIO_DEFAULT_NAME:-'molecule/default'}
 
-readonly SCENARIO_DEFAULT_DIR="${WORKDIR}/${SCENARIO_DEFAULT_NAME}"
 readonly SCENARIO_HERA_BRANCH="${WORKDIR}/molecule/olympus"
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
@@ -139,7 +138,7 @@ install_eris_collection "${ERIS_HOME}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
-deployHeraDriver $(determinePathToScenario "${SCENARIO_DEFAULT_NAME}" "${WORKDIR}") "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
+deployHeraDriver "$(determinePathToScenario "${SCENARIO_DEFAULT_NAME}" "${WORKDIR}")" "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
 
 cd "${WORKDIR}" > /dev/null
 echo "Running Molecule test on project: ${JOB_NAME}..."
