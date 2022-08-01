@@ -3,22 +3,17 @@ set -euo pipefail
 
 deployHeraDriver() {
   local molecule_source_dir=${1}
-  local molecule_hera_dir=${2}
-  local molecule_hera_driver_dir=${3}
+  local molecule_hera_driver_dir=${2}
 
   if [ -z "${molecule_source_dir}" ]; then
     echo "No ${molecule_source_dir} provided."
     exit 3
   fi
 
-  echo -n "Create ${SCENARIO_NAME} config setup from ${molecule_source_dir}" to "${molecule_hera_dir}..."
-  cp -r "${molecule_source_dir}" "${molecule_hera_dir}"
-  echo "Done."
-
   for file in create.yml destroy.yml
   do
-    echo -n  "Deploying ${file} into ${molecule_hera_dir} ..."
-    cp "${molecule_hera_driver_dir}/${file}" "${molecule_hera_dir}"
+    echo -n  "Deploying ${file} into ${molecule_source_dir} ..."
+    cp "${molecule_hera_driver_dir}/${file}" "${molecule_source_dir}/"
     echo 'Done.'
   done
 }
@@ -69,22 +64,6 @@ configureAnsible() {
   fi
 }
 
-determinePathToScenario() {
-  local scenario_name=${1}
-  local workdir=${2}
-
-  if [ ! -d "${workdir}/molecule/${scenario_name}" ]; then
-    scenario_name=$(useScenarioNameIfExists 'default' "${workdir}")
-  fi
-
-  if [ ! -d "${workdir}/molecule/${scenario_name}" ]; then
-     scenario_name=$(useScenarioNameIfExists 'standalone' "${workdir}")
-  fi
-
-  echo "${workdir}/molecule/${scenario_name}"
-
-}
-
 useScenarioNameIfExists() {
   local scenario_name=${1}
   local workdir=${2}
@@ -125,11 +104,10 @@ export ERIS_HOME
 
 readonly WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
 readonly MOLECULE_DEBUG=${DEBUG:-'--no-debug'}
-readonly SCENARIO_NAME=${1:-'olympus'}
+readonly SCENARIO_NAME=${1:-'--all'}
 readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 readonly SCENARIO_DEFAULT_NAME=${SCENARIO_DEFAULT_NAME:-'molecule/default'}
 
-readonly SCENARIO_HERA_BRANCH="${WORKDIR}/molecule/olympus"
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
@@ -143,7 +121,12 @@ install_eris_collection "${ERIS_HOME}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
-deployHeraDriver "$(determinePathToScenario "${SCENARIO_DEFAULT_NAME}" "${WORKDIR}")" "${SCENARIO_HERA_BRANCH}" "${SCENARIO_HERA_DRIVER_DIR}"
+for scenario in ${WORKDIR}/molecule/*
+do
+  if [ -d "${scenario}" ]; then
+    deployHeraDriver "${scenario}" "${SCENARIO_HERA_DRIVER_DIR}"
+  fi
+done
 
 set -x
 cd "${WORKDIR}" > /dev/null
