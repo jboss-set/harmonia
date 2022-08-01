@@ -28,7 +28,7 @@ runMoleculeScenario() {
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
-  rm -rf /var/jenkins_home/.cache/molecule/workdir/
+  #rm -rf /var/jenkins_home/.cache/molecule/workdir/
   # shellcheck disable=SC2086
   molecule ${MOLECULE_DEBUG} test -s "${scenario_name}" -d "${scenario_driver_name}"
   readonly MOLECULE_RUN_STATUS="${?}"
