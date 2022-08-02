@@ -85,6 +85,16 @@ install_eris_collection() {
   cd -
 }
 
+printEnv() {
+  set +u
+  if [ -n "${HERA_DEBUG}" ]; then
+    echo ==========
+    env
+    echo ==========
+  fi
+  set -u
+}
+
 readonly WORKSPACE=${WORKSPACE}
 
 if [ -z "${WORKSPACE}" ]; then
@@ -130,9 +140,7 @@ done
 
 set -x
 cd "${WORKDIR}" > /dev/null
-echo ==========
-env
-echo ==========
+printEnv() {
 echo "Running Molecule test on project: ${JOB_NAME}..."
 runMoleculeScenario
 exit "${MOLECULE_RUN_STATUS}"
