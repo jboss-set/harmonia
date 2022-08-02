@@ -104,9 +104,8 @@ export ERIS_HOME
 
 readonly WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
 readonly MOLECULE_DEBUG=${DEBUG:-'--no-debug'}
-readonly SCENARIO_NAME=${1:-'--all'}
+readonly SCENARIO_NAME=${SCENARIO_NAME:-'--all'}
 readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
-readonly SCENARIO_DEFAULT_NAME=${SCENARIO_DEFAULT_NAME:-'molecule/default'}
 
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
@@ -121,6 +120,7 @@ install_eris_collection "${ERIS_HOME}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
+# shellcheck disable=SC2231
 for scenario in ${WORKDIR}/molecule/*
 do
   if [ -d "${scenario}" ]; then
