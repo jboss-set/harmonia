@@ -140,7 +140,7 @@ done
 
 set -x
 cd "${WORKDIR}" > /dev/null
-printEnv() {
+printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 runMoleculeScenario
 exit "${MOLECULE_RUN_STATUS}"
