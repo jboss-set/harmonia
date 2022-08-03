@@ -82,11 +82,10 @@ useScenarioNameIfExists() {
   fi
 }
 
-install_eris_collection() {
+installErisCollection() {
   local eris_home=${1}
   local collection=${2:-'middleware_automation-eris'}
-  pwd
-  ls .
+
   cd "${eris_home}"
   rm -f "${collection}"-*.tar.gz
   ansible-galaxy collection build .
@@ -133,11 +132,11 @@ readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
 
 installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
+configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
+
 molecule --version
 
-install_eris_collection "${ERIS_HOME}"
-
-configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
+installErisCollection "${ERIS_HOME}"
 
 # shellcheck disable=SC2231
 for scenario in ${WORKDIR}/molecule/*
