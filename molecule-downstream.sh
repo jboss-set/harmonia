@@ -36,7 +36,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
      echo "PARENT_JOB_HOME not provided and required for this kind of build, aborting..."
      exit 3
   fi
-  copyCollectionFrom "${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream/${PROJECT_NAME}"
+  copyCollectionFrom "${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream"/*
 else
   echo "TODO: a git checkout from gitlab"
   exit 4
