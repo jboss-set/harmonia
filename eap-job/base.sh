@@ -304,7 +304,7 @@ do_run() {
 
   
     # shellcheck disable=SC2068
-  #build ${PARAMS}
+  build ${PARAMS}
 
   post_build
 }
