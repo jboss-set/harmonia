@@ -294,7 +294,7 @@ pre_test() {
 }
 
 do_run() {
-  
+  su -c dnf install -y make
   # build netty
   cd netty
   mvn clean install -DskipTests
