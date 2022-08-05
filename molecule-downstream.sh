@@ -13,6 +13,7 @@ copyCollectionFrom() {
     echo 'Done.'
   else
     echo "Invalid path to collection (does not exists or not a directory): ${path_to_collection}."
+    exit 5
   fi
 }
 
