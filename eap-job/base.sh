@@ -294,17 +294,15 @@ pre_test() {
 }
 
 do_run() {
-#  if [ "${BUILD_COMMAND}" = 'build' ]; then
-    pre_build
+  
+  # build netty
+  ls -alF
 
+  pre_build
+
+  
     # shellcheck disable=SC2068
-    build ${PARAMS}
+  #build ${PARAMS}
 
-    post_build
-#  else
-#    pre_test
-
-    # shellcheck disable=SC2068
-#    testsuite ${PARAMS}
-#  fi
+  post_build
 }
