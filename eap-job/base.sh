@@ -296,7 +296,9 @@ pre_test() {
 do_run() {
   
   # build netty
-  ls -alF
+  cd netty
+  mvn clean install -DskipTests
+  cd ..
 
   pre_build
 
