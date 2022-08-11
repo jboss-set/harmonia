@@ -32,7 +32,7 @@ fi
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
 if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
-  echo "The LAST_SUCCESSFULL_BUILD_ID provied: ${LAST_SUCCESS_FULL_BUILD_ID}"
+  echo "The LAST_SUCCESSFULL_BUILD_ID provided: ${LAST_SUCCESS_FULL_BUILD_ID}"
   if [ -z "${PARENT_JOB_HOME}" ] ; then
      echo "PARENT_JOB_HOME not provided and required for this kind of build, aborting..."
      exit 3
