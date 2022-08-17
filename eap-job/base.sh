@@ -198,32 +198,32 @@ record_build_properties() {
 
 function get_dist_folder() {
     dist_folder="ee-dist/target"
-    eap_version=$(xmllint pom.xml --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='jboss.eap.release.version']/text()")
-    if [ -n "${eap_version}" ]; then
-        major="${eap_version%.*}"
-        minor="${eap_version##*.}"
-        if [ -n "${major}" ] && [ "${major}" = "7" ]; then
-            if [ -n "${minor}" ] && [ "${minor}" -lt "4" ]; then
-                dist_folder="dist/target"
-            else
-                dist_folder="ee-dist/target"
-            fi
-        elif [ "${major}" = "8" ]; then
-            dist_folder="ee-dist/target"
-        else
-            echo "Unsupported major version: ${major}"
-            exit 1
-        fi
-    else
-        # TODO: verify we're building WFLY
-        dist_folder="ee-dist/target"
-    fi
-
-    grep -q expansion.pack.release.version pom.xml
-    # shellcheck disable=SC2181
-    if [ "${?}" -eq 0 ]; then
-        dist_folder="dist/target"
-    fi
+#    eap_version=$(xmllint pom.xml --xpath "//*[local-name()='project']/*[local-name()='properties']/*[local-name()='jboss.eap.release.version']/text()")
+#    if [ -n "${eap_version}" ]; then
+#        major="${eap_version%.*}"
+#        minor="${eap_version##*.}"
+#        if [ -n "${major}" ] && [ "${major}" = "7" ]; then
+#            if [ -n "${minor}" ] && [ "${minor}" -lt "4" ]; then
+#                dist_folder="dist/target"
+#            else
+#                dist_folder="ee-dist/target"
+#            fi
+#        elif [ "${major}" = "8" ]; then
+#            dist_folder="ee-dist/target"
+#        else
+#            echo "Unsupported major version: ${major}"
+#            exit 1
+#        fi
+#    else
+#        # TODO: verify we're building WFLY
+#        dist_folder="ee-dist/target"
+#    fi
+#
+#    grep -q expansion.pack.release.version pom.xml
+#    # shellcheck disable=SC2181
+#    if [ "${?}" -eq 0 ] && [ "${eap_version}" != "8.0" ]; then
+#        dist_folder="dist/target"
+#    fi
 
     echo "${dist_folder}"
 }
