@@ -92,7 +92,7 @@ if [ -z "${JOB_NAME}" ]; then
   exit 2
 fi
 
-readonly CONFIG_HOME=${CONFIG_HOME:-"${COMPONENT_ALIGNMENT_HOME}/dependency-alignment-configs/"}
+readonly CONFIG_HOME=${CONFIG_HOME:-"${TARGET_DIR}/../configs/"} # should be $JOB_WORKSPACE/configs/
 readonly CONFIG=${CONFIG:-"${CONFIG_HOME}/rules-${RULE_NAME}.json"}
 
 if [ ! -e "${CONFIG}" ]; then
