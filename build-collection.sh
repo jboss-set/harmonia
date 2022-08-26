@@ -36,16 +36,18 @@ do
   echo 'Done'
 done
 
-echo -n "Change collection namespace from ${UPSTREAM_NS} to ${DOWNSTREAM_NS}..."
-grep -e "${UPSTREAM_NS}" -r . | cut -f1 -d: | sort -u | \
-while
-  read -r file_to_edit
-do
-  echo -n "Editing ${file_to_edit}..."
-  sed -i "${file_to_edit}" \
-      -e "s/${UPSTREAM_NS}/${DOWNSTREAM_NS}/"
-   echo 'Done.'
-done
+if [ -z "${SKIP_RECURSE_NS_EDIT}" ] ; then
+  echo -n "Change collection namespace from ${UPSTREAM_NS} to ${DOWNSTREAM_NS}..."
+  grep -e "${UPSTREAM_NS}" -r . | cut -f1 -d: | sort -u | \
+  while
+    read -r file_to_edit
+  do
+    echo -n "Editing ${file_to_edit}..."
+    sed -i "${file_to_edit}" \
+        -e "s/${UPSTREAM_NS}/${DOWNSTREAM_NS}/"
+     echo 'Done.'
+  done
+fi
 
 if [ "${PROJECT_DOWNSTREAM_NAME}" != "" ]; then
   echo "Change collection name to ${PROJECT_DOWNSTREAM_NAME}..."
