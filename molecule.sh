@@ -18,12 +18,6 @@ deployHeraDriver() {
   done
 }
 
-spitScenarioNamesIfNeeded() {
-  local scenario_name=${1}
-
-
-}
-
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
