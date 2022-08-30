@@ -75,7 +75,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
                                                  "${PATH_TO_REQUIREMENTS_TEMPLATE}"
   else
     echo "${JOB_NAME} will copy over the collection ${PATH_TO_COLLECTION} and run its molecule tests."
-    copyCollectionFrom "${PATH_TO_COLLECTION}"/*
+    copyCollectionFrom "${PATH_TO_COLLECTION}"
   fi
 else
   echo "TODO: a git checkout from gitlab"
