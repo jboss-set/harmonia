@@ -140,6 +140,7 @@ readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'
 readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
 
 readonly MOLECULE_CACHE_ROOT=${MOLECULE_CACHE_ROOT:-"${HOME}/.cache/molecule/"}
+readonly MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
 
 cleanMoleculeCache "${MOLECULE_CACHE_ROOT}/${JOB_NAME}"
 
