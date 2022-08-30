@@ -97,6 +97,10 @@ printEnv() {
   set -u
 }
 
+setRequiredEnvVars() {
+  export ANSIBLE_HOST_KEY_CHECKING='False'
+}
+
 readonly WORKSPACE=${WORKSPACE}
 
 if [ -z "${WORKSPACE}" ]; then
@@ -132,6 +136,7 @@ molecule --version
 
 installErisCollection "${ERIS_HOME}"
 
+setRequiredEnvVars
 # shellcheck disable=SC2231
 for scenario in ${WORKDIR}/molecule/*
 do
