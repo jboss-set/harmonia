@@ -97,6 +97,17 @@ printEnv() {
   set -u
 }
 
+cleanMoleculeCache() {
+  local path_to_cache=${1}
+
+  if [ -z "${MOLECULE_KEEP_CACHE}" ]; then
+    if [ -e "${path_to_cache}" ]; then # just to avoid running rm -rf on an invalid path...
+      rm -rf "${path_to_cache}"
+    fi
+  fi
+}
+
+
 setRequiredEnvVars() {
   export ANSIBLE_HOST_KEY_CHECKING='False'
 }
@@ -127,6 +138,10 @@ readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
 readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
+
+readonly MOLECULE_CACHE_ROOT=${MOLECULE_CACHE_ROOT:-"${HOME}/.cache/molecule/"}
+
+cleanMoleculeCache "${MOLECULE_CACHE_ROOT}/${JOB_NAME}"
 
 installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
