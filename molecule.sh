@@ -193,7 +193,6 @@ do
   fi
 done
 
-set -x
 cd "${WORKDIR}" > /dev/null
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
