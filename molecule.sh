@@ -94,8 +94,12 @@ configureAnsible() {
   local path_to_ansible_cfg=${1}
   local workdir=${2}
 
+  echo -n "Copying ansible.cfg from ${path_to_ansible_cfg} to ${workdir}..."
   if [ -e "${path_to_ansible_cfg}" ]; then
     cp "${path_to_ansible_cfg}" "${workdir}"
+    echo Done
+  else
+    echo " No such file, skip."
   fi
 }
 
