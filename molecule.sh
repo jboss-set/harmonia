@@ -23,7 +23,7 @@ runMolecule() {
   local scenario_driver_name=${2}
 
    # shellcheck disable=SC2086
-   molecule ${MOLECULE_DEBUG} test ${config_scenario} "${scenario_driver_name}" -- --ssh-extra-args="-o StrictHostKeyChecking=no"
+   molecule ${MOLECULE_DEBUG} test ${config_scenario} ${scenario_driver_name} -- --ssh-extra-args="-o StrictHostKeyChecking=no"
 }
 
 executeRequestedScenarios() {
