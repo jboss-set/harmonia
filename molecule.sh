@@ -18,6 +18,14 @@ deployHeraDriver() {
   done
 }
 
+runMolecule() {
+  local config_scenario=${1}
+  local scenario_driver_name=${2}
+
+   # shellcheck disable=SC2086
+   molecule ${MOLECULE_DEBUG} test ${config_scenario} -d "${scenario_driver_name}"
+}
+
 executeRequestedScenarios() {
   local scenario_name=${1}
   local scenario_driver_name=${2}
@@ -27,7 +35,7 @@ executeRequestedScenarios() {
   for scenario in $(echo "${scenario_name}" | sed -e 's;,;\n;g')
   do
     # shellcheck disable=SC2086
-    molecule ${MOLECULE_DEBUG} test -s "${scenario}" -d "${scenario_driver_name}"
+    runMolecule "-s ${scenario}" -d "${scenario_driver_name}"
     scenarios_status["${scenario}"]=${?}
   done
   MOLECULE_RUN_STATUS="$(echo "${scenario_status[@]}" | grep -e 1 -c)"
