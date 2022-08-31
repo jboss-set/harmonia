@@ -38,7 +38,7 @@ executeRequestedScenarios() {
     runMolecule "-s ${scenario}" "-d ${scenario_driver_name}"
     scenarios_status["${scenario}"]=${?}
   done
-  MOLECULE_RUN_STATUS="$(echo "${scenario_status[@]}" | grep -e 1 -c)"
+  export MOLECULE_RUN_STATUS="$(echo "${scenarios_status[@]}" | grep -e 1 -c)"
   printScenariosThatFailed
 }
 
