@@ -23,7 +23,7 @@ runMolecule() {
   local scenario_driver_name=${2}
 
    # shellcheck disable=SC2086
-   molecule ${MOLECULE_DEBUG} test ${config_scenario} -d "${scenario_driver_name}" -- --ssh-extra-args="-o StrictHostKeyChecking=no"
+   molecule ${MOLECULE_DEBUG} test ${config_scenario} "${scenario_driver_name}" -- --ssh-extra-args="-o StrictHostKeyChecking=no"
 }
 
 executeRequestedScenarios() {
@@ -35,7 +35,7 @@ executeRequestedScenarios() {
   for scenario in $(echo "${scenario_name}" | sed -e 's;,;\n;g')
   do
     # shellcheck disable=SC2086
-    runMolecule "-s ${scenario}" -d "${scenario_driver_name}"
+    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}"
     scenarios_status["${scenario}"]=${?}
   done
   MOLECULE_RUN_STATUS="$(echo "${scenario_status[@]}" | grep -e 1 -c)"
