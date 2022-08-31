@@ -18,22 +18,46 @@ deployHeraDriver() {
   done
 }
 
+executeRequestedScenarios() {
+  local scenario_name=${1}
+  local scenario_driver_name=${2}
+
+  declare -A scenarios_status
+  # shellcheck disable=SC2001
+  for scenario in $(echo "${scenario_name}" | sed -e 's;,;\n;g')
+  do
+    # shellcheck disable=SC2086
+    molecule ${MOLECULE_DEBUG} test -s "${scenario}" -d "${scenario_driver_name}"
+    scenarios_status["${scenario}"]=${?}
+  done
+  MOLECULE_RUN_STATUS="$(echo "${scenario_status[@]}" | grep -e 1 -c)"
+  printScenariosThatFailed
+}
+
+printScenariosThatFailed() {
+  for scenario in "${!scenarios_status[@]}"
+  do
+    scenario_status=${scenarios_status["${scenario}"]}
+    if [ "${scenario_status}" -ne 0 ]; then
+      echo "ERROR: Scenario: ${scenario} failed with status code: ${scenario_status}."
+    fi
+  done
+}
+
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
 
   set +e
+  MOLECULE_RUN_STATUS=0
   if [ "${scenario_name}" != '--all' ]; then
-    for scenario in $(echo ${scenario_name} | sed -e 's;,;\n;g')
-    do
-      # shellcheck disable=SC2086
-      molecule ${MOLECULE_DEBUG} test -s "${scenario}" -d "${scenario_driver_name}"
-    done
+    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}"
   else
-   # shellcheck disable=SC2086
+    # shellcheck disable=SC2086
     molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}"
+    MOLECULE_RUN_STATUS="${?}"
   fi
-  readonly MOLECULE_RUN_STATUS="${?}"
+  readonly MOLECULE_RUN_STATUS
 
   set -e
   if [ "${MOLECULE_RUN_STATUS}" -ne 0 ]; then
