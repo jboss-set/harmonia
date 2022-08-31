@@ -71,8 +71,8 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
     readonly PATH_TO_COLLECTION_ARCHIVE=$(ls -1 "${PATH_TO_COLLECTION}/${DOWNSTREAM_NS}-${PROJECT_NAME}"*.tar.gz)
     echo "Collection archive used: ${PATH_TO_COLLECTION_ARCHIVE}."
     generateRequirementsFromCItemplateIfProvided "${PATH_TO_COLLECTION_ARCHIVE}" \
-                                                 "${PATH_TO_MOLECULE_REQUIREMENTS_FILE}" \
-                                                 "${PATH_TO_REQUIREMENTS_TEMPLATE}"
+                                                 "${WORKDIR}/${PATH_TO_MOLECULE_REQUIREMENTS_FILE}" \
+                                                 "${WORKDIR}/${PATH_TO_REQUIREMENTS_TEMPLATE}"
   else
     echo "${JOB_NAME} will copy over the collection ${PATH_TO_COLLECTION} and run its molecule tests."
     copyCollectionFrom "${PATH_TO_COLLECTION}"
