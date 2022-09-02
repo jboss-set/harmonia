@@ -65,7 +65,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
      echo "PARENT_JOB_HOME not provided and required for this kind of build, aborting..."
      exit 3
   fi
-  readonly PATH_TO_COLLECTION="${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream/${PROJECT_NAME}/"
+  readonly PATH_TO_COLLECTION="${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream/${PROJECT_UPSTREAM_NAME}/"
   if [[ "${JOB_NAME}" =~ .*"-dot".* ]]; then
     echo "${JOB_NAME} will use the latest available collection to run the tests."
     readonly PATH_TO_COLLECTION_ARCHIVE=$(ls -1 "${PATH_TO_COLLECTION}/${DOWNSTREAM_NS}-${PROJECT_UPSTREAM_NAME}"*.tar.gz)
