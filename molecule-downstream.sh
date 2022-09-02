@@ -68,7 +68,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
   readonly PATH_TO_COLLECTION="${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream/${PROJECT_NAME}/"
   if [[ "${JOB_NAME}" =~ .*"-dot".* ]]; then
     echo "${JOB_NAME} will use the latest available collection to run the tests."
-    readonly PATH_TO_COLLECTION_ARCHIVE=$(ls -1 "${PATH_TO_COLLECTION}/${DOWNSTREAM_NS}-${PROJECT_NAME}"*.tar.gz)
+    readonly PATH_TO_COLLECTION_ARCHIVE=$(ls -1 "${PATH_TO_COLLECTION}/${DOWNSTREAM_NS}-${PROJECT_UPSTREAM_NAME}"*.tar.gz)
     echo "Collection archive used: ${PATH_TO_COLLECTION_ARCHIVE}."
     generateRequirementsFromCItemplateIfProvided "${PATH_TO_COLLECTION_ARCHIVE}" \
                                                  "${WORKDIR}/${PATH_TO_MOLECULE_REQUIREMENTS_FILE}" \
