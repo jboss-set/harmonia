@@ -4,6 +4,10 @@ full_path="$(realpath $0)"
 dir_path="$(dirname $full_path)"
 source "${dir_path}/base.sh"
 
+get_vbe_jar() {
+  echo "$(ls jboss-set-version-bump-extension-*[^sc].jar)"
+}
+
 pre_build() {
   zip -qr "jboss-eap-src-${GIT_COMMIT:0:7}.zip" "${EAP_SOURCES_FOLDER}"
   cd "${EAP_SOURCES_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
@@ -31,7 +35,7 @@ pre_test() {
   # unzip artifacts from build job
   find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
 
-  TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
+  TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-[7-8]\.[0-9]+')
   if [ -z "$TEST_JBOSS_DIST" ]; then
     echo "No EAP distribution to be tested"
     exit 2
