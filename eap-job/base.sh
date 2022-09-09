@@ -83,8 +83,7 @@ configure_mvn_vbe_if_required(){
   if [ -n "${VBE_EXTENSION}" ]; then
 	  	#copy, into local, if its dwn, dont copy, just alter
 	  	echo "------------------ SETTING UP Version Bump Extension ------------------"
-	  	readonly PARENT_JOB_DIR=${PARENT_JOB_DIR:-'/parent_job'}
-	  	VBE_JAR="$(ls "${PARENT_JOB_DIR}"/target/jboss-set-version-bump-extension-*[^sc].jar)"
+      readonly VBE_JAR=$(get_vbe_jar)
 
 		echo "VBE_JAR: ${VBE_JAR}"
 
@@ -214,15 +213,18 @@ function get_dist_folder() {
             echo "Unsupported major version: ${major}"
             exit 1
         fi
+
+        grep -q expansion.pack.release.version pom.xml
+        # shellcheck disable=SC2181
+        # `expansion.pack.release.version` is currently present in EAP8 beta branch, so this condition doesn't work for EAP8
+        # TODO: find different way to differentiate XP and EAP8
+        if [ "${?}" -eq 0 ] && [ -n "${major}" ] && [ "${major}" = "7" ]; then
+           dist_folder="dist/target"
+        fi
+
     else
         # TODO: verify we're building WFLY
         dist_folder="ee-dist/target"
-    fi
-
-    grep -q expansion.pack.release.version pom.xml
-    # shellcheck disable=SC2181
-    if [ "${?}" -eq 0 ]; then
-        dist_folder="dist/target"
     fi
 
     echo "${dist_folder}"
