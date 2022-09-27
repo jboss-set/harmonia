@@ -166,7 +166,7 @@ readonly ERIS_HOME=${ERIS_HOME:-"${WORKSPACE}/eris"}
 export ERIS_HOME
 
 readonly WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
-readonly MOLECULE_DEBUG=${DEBUG:-'--no-debug'}
+readonly MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
 readonly SCENARIO_NAME=${SCENARIO_NAME:-'--all'}
 readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 
