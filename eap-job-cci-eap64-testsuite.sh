@@ -49,4 +49,4 @@ if [ "${jdk}" != "IBM_JDK8" ]; then
   fi
   rm "${CONSOLE_LOG}"
 fi
-xit "${status_code}"
+exit "${status_code}"
