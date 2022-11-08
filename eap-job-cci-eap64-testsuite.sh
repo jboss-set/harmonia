@@ -27,8 +27,9 @@ if [ -z "${NO_ZIPFILES}" ]; then
   unzip "${EAP_MAVEN_ARTIFACTS_ZIPFILE}" -d "${EAP_LOCAL_MAVEN_REPO_FOLDER}" > /dev/null
 fi
 
+export MODEL_TEST_JBOSS_DEV_REPO_URL=${MODEL_TEST_JBOSS_DEV_REPO_URL:-'https://repository.jboss.org/'}
 export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dsurefire.rerunFailingTestsCount=2"
-export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.jbossdeveloper.repourl=https://repository.jboss.org/"
+export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.jbossdeveloper.repourl=${MODEL_TEST_JBOSS_DEV_REPO_URL}"
 export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.eap.repourl=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/"
 
 ./build.sh clean install -fae -B -Dts.noSmoke -s "${MAVEN_SETTINGS_XML}" ${TESTSUITE_OPTS}
