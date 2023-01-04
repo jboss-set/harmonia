@@ -14,6 +14,7 @@ readonly ANSIBLE_VERBOSITY_LEVEL=${ANSIBLE_VERBOSITY_LEVEL}
 readonly PATH_TO_ARCHIVE_DIR=${PATH_TO_ARCHIVE_DIR:-'/opt'}
 readonly PRODUCT_VERSION=${PRODUCT_VERSION:-'5.6.0'}
 readonly PATHS_TO_PRODUCTS_TO_DOWNLOAD=${PATHS_TO_PRODUCTS_TO_DOWNLOAD}
+readonly COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
 set -u
 cd "${WORKDIR}"
 
@@ -49,6 +50,9 @@ fi
 
 ansible-playbook --version
 # shellcheck disable=SC2086
+if [ -e "${COLLECTIONS_REQ}" ]; then
+  ansible-galaxy collection install -r "${COLLECTIONS_REQ}"
+fi
 ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${PLAYBOOK}"
 if [ -e "${VALIDATION_PLAYBOOK}" ]; then
   ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
