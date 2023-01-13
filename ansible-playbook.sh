@@ -21,15 +21,6 @@ if [ ! -e "${PATH_TO_PLAYBOOK}" ]; then
   exit 2
 fi
 
-#if [ -e "${SYSTEM_REQ}" ]; then
-#  cat "${SYSTEM_REQ}" | \
-#  while
-#    read package
-#  do
-#    command "${package}" 2> /dev/null
-#  done
-#fi
-
 if [ -e "${COLLECTIONS_REQ}" ]; then
   ansible-galaxy collection install -r "${COLLECTIONS_REQ}"
 fi
