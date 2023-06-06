@@ -15,8 +15,7 @@ readonly PATH_TO_ARCHIVE_DIR=${PATH_TO_ARCHIVE_DIR:-'/opt'}
 readonly PRODUCT_VERSION=${PRODUCT_VERSION:-'5.6.0'}
 readonly PATHS_TO_PRODUCTS_TO_DOWNLOAD=${PATHS_TO_PRODUCTS_TO_DOWNLOAD}
 readonly COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
-set -u
-cd "${WORKDIR}"
+readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
 downloadProducts() {
   local paths=${1}
@@ -27,6 +26,24 @@ downloadProducts() {
     "${HARMONIA_HOME}/ansible-fetch-mw-product.sh" "${path_to_archive}" "${path_to_archive##*/}"
   done
 }
+
+loadJBossNetworkAPISecrets() {
+  if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
+    # extra spaces in front of -e is to prevent its interpretation as an arg of echo
+    echo '   -e' rhn_username="$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})" -e rhn_password="$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE}) -e omit_rhn_output=false"
+  fi
+}
+
+readValueFromFile() {
+  local field=${1}
+  local file=${2}
+  local sep=${3:-':'}
+
+  grep -e "${field}" "${file}" | cut "-d${sep}" -f2 | sed -e 's;^ *;;'
+}
+
+set -u
+cd "${WORKDIR}"
 
 "${HARMONIA_HOME}/ansible-install-collections.sh"
 
@@ -53,7 +70,7 @@ ansible-playbook --version
 if [ -e "${COLLECTIONS_REQ}" ]; then
   ansible-galaxy collection install -r "${COLLECTIONS_REQ}"
 fi
-ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${PLAYBOOK}"
+ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" $(loadJBossNetworkAPISecrets) "${PLAYBOOK}"
 if [ -e "${VALIDATION_PLAYBOOK}" ]; then
   ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
 fi
