@@ -21,9 +21,10 @@ deployHeraDriver() {
 runMolecule() {
   local config_scenario=${1}
   local scenario_driver_name=${2}
+  local extra_args=${3}
 
    # shellcheck disable=SC2086
-   molecule ${MOLECULE_DEBUG} test ${config_scenario} ${scenario_driver_name} -- --ssh-extra-args="-o StrictHostKeyChecking=no"
+   molecule ${MOLECULE_DEBUG} test ${config_scenario} ${scenario_driver_name} -- --ssh-extra-args="-o StrictHostKeyChecking=no" "${extra_args}"
 }
 
 executeRequestedScenarios() {
@@ -34,8 +35,9 @@ executeRequestedScenarios() {
   # shellcheck disable=SC2001
   for scenario in $(echo "${scenario_name}" | sed -e 's;,;\n;g')
   do
+
     # shellcheck disable=SC2086
-    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}"
+    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}" "${extra_args}"
     scenarios_status["${scenario}"]=${?}
   done
   export MOLECULE_RUN_STATUS="$(echo "${scenarios_status[@]}" | grep -e 1 -c)"
@@ -55,14 +57,16 @@ printScenariosThatFailed() {
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
+  local extra_args=${3:-"${EXTRA_ARGS}"}
 
   set +e
   MOLECULE_RUN_STATUS=0
   if [ "${scenario_name}" != '--all' ]; then
-    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}"
+    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" -- ${extra_args}
   else
+    echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
     # shellcheck disable=SC2086
-    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}"
+    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
     MOLECULE_RUN_STATUS="${?}"
   fi
   readonly MOLECULE_RUN_STATUS
@@ -200,5 +204,5 @@ done
 cd "${WORKDIR}" > /dev/null
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
-runMoleculeScenario
+runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
 exit "${MOLECULE_RUN_STATUS}"

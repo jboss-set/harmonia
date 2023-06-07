@@ -7,6 +7,8 @@ readonly PATH_TO_REQUIREMENTS_TEMPLATE=${PATH_TO_REQUIREMENTS_TEMPLATE:-'molecul
 
 readonly DOWNSTREAM_NS='redhat'
 
+readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
+
 generateRequirementsFromCItemplateIfProvided() {
   local path_to_collection_archive=${1}
   local path_to_requirements_file=${2}
@@ -42,6 +44,21 @@ copyCollectionFrom() {
   else
     echo "Invalid path to collection (does not exists or not a directory): ${path_to_collection}."
     exit 5
+  fi
+}
+
+readValueFromFile() {
+  local field=${1}
+  local file=${2}
+  local sep=${3:-':'}
+
+  grep -e "${field}" "${file}" | cut "-d${sep}" -f2 | sed -e 's;^ *;;'
+}
+
+loadJBossNetworkAPISecrets() {
+  if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
+    # extra spaces in front of -e is to prevent its interpretation as an arg of echo
+    echo ' -e' rhn_username="$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})" -e rhn_password="$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE}) -e omit_rhn_output=false"
   fi
 }
 
@@ -82,4 +99,6 @@ else
   exit 4
 fi
 
+readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
+export EXTRA_ARGS
 "${HARMONIA_HOME}/molecule.sh"
