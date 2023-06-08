@@ -204,5 +204,7 @@ done
 cd "${WORKDIR}" > /dev/null
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
+set +u
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
+set -u
 exit "${MOLECULE_RUN_STATUS}"
