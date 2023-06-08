@@ -99,6 +99,6 @@ else
   exit 4
 fi
 
-readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
+readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets) -vvv"
 export EXTRA_ARGS
 "${HARMONIA_HOME}/molecule.sh"
