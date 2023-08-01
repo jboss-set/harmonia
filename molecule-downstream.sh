@@ -76,6 +76,12 @@ fi
 
 mkdir -p "${WORKDIR}"
 cd "${WORKDIR}"
+
+echo =======================================
+
+ls
+echo =====================================
+
 if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
   echo "The LAST_SUCCESSFULL_BUILD_ID provided: ${LAST_SUCCESS_FULL_BUILD_ID}"
   if [ -z "${PARENT_JOB_HOME}" ] ; then
