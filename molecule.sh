@@ -177,7 +177,7 @@ readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
-readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3'}
+readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
 
 readonly MOLECULE_CACHE_ROOT=${MOLECULE_CACHE_ROOT:-"${HOME}/.cache/molecule/"}
 readonly MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
