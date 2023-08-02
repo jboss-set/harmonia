@@ -17,20 +17,9 @@ readonly PATHS_TO_PRODUCTS_TO_DOWNLOAD=${PATHS_TO_PRODUCTS_TO_DOWNLOAD}
 readonly COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
-loadJBossNetworkAPISecrets() {
-  if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
-    # extra spaces in front of -e is to prevent its interpretation as an arg of echo
-    echo '   -e' rhn_username="$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})" -e rhn_password="$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE}) -e omit_rhn_output=false"
-  fi
-}
-
-readValueFromFile() {
-  local field=${1}
-  local file=${2}
-  local sep=${3:-':'}
-
-  grep -e "${field}" "${file}" | cut "-d${sep}" -f2 | sed -e 's;^ *;;'
-}
+full_path="$(realpath ${0})"
+dir_path="$(dirname $full_path)"
+source "${dir_path}/ansible/common.sh"
 
 set -u
 cd "${WORKDIR}"
