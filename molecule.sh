@@ -94,6 +94,14 @@ installRequirementsIfAny() {
   fi
 }
 
+installAnsibleDependencyIfAny() {
+  local requirements_yml=${1}
+
+  if [ -e "${requirements_yml}" ]; then
+    ansible-galaxy collection install -r "${requirements_yml}"
+  fi
+}
+
 configureAnsible() {
   local path_to_ansible_cfg=${1}
   local workdir=${2}
@@ -147,7 +155,6 @@ cleanMoleculeCache() {
   fi
 }
 
-
 setRequiredEnvVars() {
   export ANSIBLE_HOST_KEY_CHECKING='False'
 }
@@ -177,6 +184,7 @@ readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
 readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
+readonly ANSIBLE_REQUIREMENTS_FILE=${ANSIBLE_REQUIREMENTS_FILE:-'requirements.yml'}
 readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
 
 readonly MOLECULE_CACHE_ROOT=${MOLECULE_CACHE_ROOT:-"${HOME}/.cache/molecule/"}
@@ -187,6 +195,8 @@ cleanMoleculeCache "${MOLECULE_CACHE_ROOT}/${JOB_NAME}"
 installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
+
+installAnsibleDependencyIfAny "${ANSIBLE_REQUIREMENTS_FILE}"
 
 molecule --version
 
