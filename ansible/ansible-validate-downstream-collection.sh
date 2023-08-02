@@ -17,16 +17,6 @@ readonly PATHS_TO_PRODUCTS_TO_DOWNLOAD=${PATHS_TO_PRODUCTS_TO_DOWNLOAD}
 readonly COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
-downloadProducts() {
-  local paths=${1}
-
-  IFS=',' read -ra PATHS_TO_ARCHIVE <<< "${paths}"
-  for path_to_archive in "${PATHS_TO_ARCHIVE[@]}"
-  do
-    "${HARMONIA_HOME}/ansible-fetch-mw-product.sh" "${path_to_archive}" "${path_to_archive##*/}"
-  done
-}
-
 loadJBossNetworkAPISecrets() {
   if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
     # extra spaces in front of -e is to prevent its interpretation as an arg of echo
@@ -51,8 +41,6 @@ if [ -z "${PATHS_TO_PRODUCTS_TO_DOWNLOAD}" ]; then
   echo "No PATHS_TO_PRODUCTS_TO_DOWNLOAD provided, aborting."
   exit 1
 fi
-
-downloadProducts "${PATHS_TO_PRODUCTS_TO_DOWNLOAD}"
 
 if [ ! -e "${PATH_TO_PLAYBOOK}" ]; then
   echo "Playbook does not exists: ${PATH_TO_PLAYBOOK}."
