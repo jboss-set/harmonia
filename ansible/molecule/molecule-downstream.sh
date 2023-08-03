@@ -9,47 +9,10 @@ readonly DOWNSTREAM_NS='redhat'
 
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
-generateRequirementsFromCItemplateIfProvided() {
-  local path_to_collection_archive=${1}
-  local path_to_requirements_file=${2}
-  local path_to_template=${3}
-
-  if [ ! -e "${path_to_template}" ]; then
-    echo "Path to template to generate requirements.yml is invalid: ${path_to_template}, aborting."
-    exit 4
-  fi
-
-  if [ -e "${path_to_collection_archive}" ]; then
-    ansible -m template \
-            -a "src=${path_to_template} dest=${path_to_requirements_file}" \
-            -e path_to_collection="${path_to_collection_archive}" \
-            localhost
-  else
-    echo "Invalid path to collection (does not exists or not a directory): ${path_to_collection_archive}."
-    exit 5
-  fi
-}
-
-copyCollectionFrom() {
-  local path_to_collection=${1}
-  local workdir=${WORKDIR:-"${2}"}
-
-  if [ -d "${path_to_collection}" ]; then
-    rm -rf "${workdir}"/*
-    echo -n "Fetching last build from ${path_to_collection}..."
-    cp -r "${path_to_collection}"/* "${workdir}"
-    cp "${path_to_collection}/.ansible-lint" "${workdir}"
-    cp "${path_to_collection}/.yamllint" "${workdir}"
-    echo 'Done.'
-  else
-    echo "Invalid path to collection (does not exists or not a directory): ${path_to_collection}."
-    exit 5
-  fi
-}
-
-full_path="$(realpath ${0})"
-dir_path="$(dirname ${full_path})"
+full_path=$(realpath "${0}")
+dir_path=$(dirname "${full_path}")
 source "${dir_path}/../common.sh"
+source "${dir_path}/common.sh"
 
 if [ -z "${WORKSPACE}" ]; then
   echo "No WORKSPACE env var defined, aborting..."
@@ -74,6 +37,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
   readonly PATH_TO_COLLECTION="${PARENT_JOB_HOME}/builds/${LAST_SUCCESS_FULL_BUILD_ID}/archive/workdir/downstream/${PROJECT_UPSTREAM_NAME}/"
   if [[ "${JOB_NAME}" =~ .*"-dot".* ]]; then
     echo "${JOB_NAME} will use the latest available collection to run the tests."
+    # shellcheck disable=SC2155
     readonly PATH_TO_COLLECTION_ARCHIVE=$(ls -1 "${PATH_TO_COLLECTION}/${DOWNSTREAM_NS}-${PROJECT_UPSTREAM_NAME}"*.tar.gz)
     echo "Collection archive used: ${PATH_TO_COLLECTION_ARCHIVE}."
     generateRequirementsFromCItemplateIfProvided "${PATH_TO_COLLECTION_ARCHIVE}" \
@@ -88,6 +52,7 @@ else
   exit 4
 fi
 
+# shellcheck disable=SC2155
 readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
 export EXTRA_ARGS
 "${HARMONIA_HOME}/ansible/molecule/molecule.sh"
