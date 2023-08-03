@@ -1,13 +1,9 @@
 #!/bin/bash
 set -eo pipefail
 
+source "$(dirname $(realpath ${0}))/common.sh"
 
-if [ ! -d "${WORKDIR}" ]; then
-  echo "WORKDIR ${WORKDIR} does not exists or is not a directory."
-  exit 1
-fi
-
-cd "${WORKDIR}"
+checkWorkdirExistsAndSetAsDefault
 
 ansible-galaxy collection build .
 ansible-galaxy collection install *.tar.gz
