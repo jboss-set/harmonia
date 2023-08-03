@@ -78,43 +78,6 @@ runMoleculeScenario() {
   return ${MOLECULE_RUN_STATUS}
 }
 
-installPythonRequirementsIfAny() {
-  local requirementsFile=${1}
-
-  if [ -n "${requirementsFile}" ]; then
-    echo "Checks if ${requirementsFile} exists..."
-    if [ -e "${requirementsFile}" ]; then
-      echo 'It does, performing required installations.'
-      echo "Install Python dependencies provided in ${requirementsFile}:"
-      "${PIP_COMMAND}" install --user -r "${requirementsFile}"
-      echo 'Done.'
-    else
-      echo 'File does not exists. Skipping.'
-    fi
-  fi
-}
-
-installAnsibleDependencyIfAny() {
-  local requirements_yml=${1}
-
-  if [ -e "${requirements_yml}" ]; then
-    ansible-galaxy collection install -r "${requirements_yml}"
-  fi
-}
-
-configureAnsible() {
-  local path_to_ansible_cfg=${1}
-  local workdir=${2}
-
-  echo -n "Copying ansible.cfg from ${path_to_ansible_cfg} to ${workdir}..."
-  if [ -e "${path_to_ansible_cfg}" ]; then
-    cp "${path_to_ansible_cfg}" "${workdir}"
-    echo Done
-  else
-    echo " No such file, skip."
-  fi
-}
-
 useScenarioNameIfExists() {
   local scenario_name=${1}
   local workdir=${2}
@@ -135,16 +98,6 @@ installErisCollection() {
   cd -
 }
 
-printEnv() {
-  set +u
-  if [ -n "${HERA_DEBUG}" ]; then
-    echo ==========
-    env
-    echo ==========
-  fi
-  set -u
-}
-
 cleanMoleculeCache() {
   local path_to_cache=${1}
 
@@ -155,9 +108,9 @@ cleanMoleculeCache() {
   fi
 }
 
-setRequiredEnvVars() {
-  export ANSIBLE_HOST_KEY_CHECKING='False'
-}
+full_path=$(realpath "${0}")
+dir_path=$(dirname "${full_path}")
+source "${dir_path}/common.sh"
 
 readonly WORKSPACE=${WORKSPACE}
 
@@ -182,7 +135,6 @@ readonly SCENARIO_NAME=${SCENARIO_NAME:-'--all'}
 readonly SCENARIO_DRIVER_NAME=${2:-'delegated'}
 
 readonly SCENARIO_HERA_DRIVER_DIR="${WORKSPACE}/eris/molecule/olympus/"
-readonly ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 readonly PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
 readonly ANSIBLE_REQUIREMENTS_FILE=${ANSIBLE_REQUIREMENTS_FILE:-'requirements.yml'}
 readonly PIP_COMMAND=${PIP_COMMAND:-'pip-3.8'}
