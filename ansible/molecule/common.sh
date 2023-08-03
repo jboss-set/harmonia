@@ -1,4 +1,11 @@
 #!/bin/bash
+
+full_path=$(realpath "${0}")
+dir_path=$(dirname "${full_path}")
+source "${dir_path}/../common.sh"
+
+
+
 generateRequirementsFromCItemplateIfProvided() {
   local path_to_collection_archive=${1}
   local path_to_requirements_file=${2}
@@ -36,3 +43,42 @@ copyCollectionFrom() {
     exit 5
   fi
 }
+
+installAnsibleDependencyIfAny() {
+  local requirements_yml=${1}
+
+  if [ -e "${requirements_yml}" ]; then
+    ansible-galaxy collection install -r "${requirements_yml}"
+  fi
+}
+
+installPythonRequirementsIfAny() {
+  local requirementsFile=${1}
+
+  if [ -n "${requirementsFile}" ]; then
+    echo "Checks if ${requirementsFile} exists..."
+    if [ -e "${requirementsFile}" ]; then
+      echo 'It does, performing required installations.'
+      echo "Install Python dependencies provided in ${requirementsFile}:"
+      "${PIP_COMMAND}" install --user -r "${requirementsFile}"
+      echo 'Done.'
+    else
+      echo 'File does not exists. Skipping.'
+    fi
+  fi
+}
+
+printEnv() {
+  set +u
+  if [ -n "${HERA_DEBUG}" ]; then
+    echo ==========
+    env
+    echo ==========
+  fi
+  set -u
+}
+
+setRequiredEnvVars() {
+  export ANSIBLE_HOST_KEY_CHECKING='False'
+}
+
