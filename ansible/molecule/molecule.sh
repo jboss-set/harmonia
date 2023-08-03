@@ -78,7 +78,7 @@ runMoleculeScenario() {
   return ${MOLECULE_RUN_STATUS}
 }
 
-installRequirementsIfAny() {
+installPythonRequirementsIfAny() {
   local requirementsFile=${1}
 
   if [ -n "${requirementsFile}" ]; then
@@ -192,7 +192,7 @@ readonly MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
 
 cleanMoleculeCache "${MOLECULE_CACHE_ROOT}/${JOB_NAME}"
 
-installRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
+installPythonRequirementsIfAny "${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
