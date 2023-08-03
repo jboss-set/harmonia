@@ -27,7 +27,7 @@ cd "${WORKDIR}"
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
-"${HARMONIA_HOME}/ansible/ansible-install-collections.sh"
+"${HARMONIA_HOME}/ansible/install-collections.sh"
 
 if [ -z "${PATHS_TO_PRODUCTS_TO_DOWNLOAD}" ]; then
   echo "No PATHS_TO_PRODUCTS_TO_DOWNLOAD provided, aborting."
