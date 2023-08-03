@@ -3,30 +3,16 @@ set -eo pipefail
 
 readonly PATH_TO_MOLECULE_REQUIREMENTS_FILE=${PATH_TO_MOLECULE_REQUIREMENTS_FILE:-'molecule/requirements.yml'}
 readonly PATH_TO_REQUIREMENTS_TEMPLATE=${PATH_TO_REQUIREMENTS_TEMPLATE:-'molecule/.ci_requirements.yml.j2'}
-
 readonly DOWNSTREAM_NS='redhat'
-
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
-full_path=$(realpath "${0}")
-dir_path=$(dirname "${full_path}")
+dir_path=$(dirname $(realpath "${0}"))
 source "${dir_path}/../common.sh"
 source "${dir_path}/common.sh"
 
-if [ -z "${WORKSPACE}" ]; then
-  echo "No WORKSPACE env var defined, aborting..."
-  exit 1
-fi
+checkWorkspaceIsDefinedAndExists
+checkWorkdirExistsAndSetAsDefault
 
-readonly HARMONIA_HOME=${HARMONIA_HOME:-"${WORKSPACE}/harmonia"}
-
-if [ -z "${WORKDIR}" ]; then
-  echo "WORKDIR is not defined, aborting..."
-  exit 2
-fi
-
-mkdir -p "${WORKDIR}"
-cd "${WORKDIR}"
 if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
   echo "The LAST_SUCCESSFULL_BUILD_ID provided: ${LAST_SUCCESS_FULL_BUILD_ID}"
   if [ -z "${PARENT_JOB_HOME}" ] ; then

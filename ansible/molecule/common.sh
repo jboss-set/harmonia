@@ -1,10 +1,117 @@
 #!/bin/bash
-
 full_path=$(realpath "${0}")
 dir_path=$(dirname "${full_path}")
 source "${dir_path}/../common.sh"
 
+MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
+MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
 
+deployHeraDriver() {
+  local molecule_source_dir=${1}
+  local molecule_hera_driver_dir=${2}
+
+  if [ -z "${molecule_source_dir}" ]; then
+    echo "No ${molecule_source_dir} provided."
+    exit 3
+  fi
+
+  for file in create.yml destroy.yml
+  do
+    echo -n  "Deploying ${file} into ${molecule_source_dir} ..."
+    cp "${molecule_hera_driver_dir}/${file}" "${molecule_source_dir}/"
+    echo 'Done.'
+  done
+}
+
+runMolecule() {
+  local config_scenario=${1}
+  local scenario_driver_name=${2}
+  local extra_args=${3}
+
+   # shellcheck disable=SC2086
+   molecule ${MOLECULE_DEBUG} test ${config_scenario} ${scenario_driver_name} -- --ssh-extra-args="-o StrictHostKeyChecking=no" "${extra_args}"
+}
+
+executeRequestedScenarios() {
+  local scenario_name=${1}
+  local scenario_driver_name=${2}
+
+  declare -A scenarios_status
+  # shellcheck disable=SC2001
+  for scenario in $(echo "${scenario_name}" | sed -e 's;,;\n;g')
+  do
+
+    # shellcheck disable=SC2086
+    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}" -- "${extra_args}"
+    scenarios_status["${scenario}"]=${?}
+  done
+  export MOLECULE_RUN_STATUS="$(echo "${scenarios_status[@]}" | grep -e 1 -c)"
+  printScenariosThatFailed
+}
+
+printScenariosThatFailed() {
+  for scenario in "${!scenarios_status[@]}"
+  do
+    scenario_status=${scenarios_status["${scenario}"]}
+    if [ "${scenario_status}" -ne 0 ]; then
+      echo "ERROR: Scenario: ${scenario} failed with status code: ${scenario_status}."
+    fi
+  done
+}
+
+runMoleculeScenario() {
+  local scenario_name=${1:-"${SCENARIO_NAME}"}
+  local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
+  local extra_args=${3:-"${EXTRA_ARGS}"}
+
+  set +e
+  MOLECULE_RUN_STATUS=0
+  if [ "${scenario_name}" != '--all' ]; then
+    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" -- ${extra_args}
+  else
+    echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
+    # shellcheck disable=SC2086
+    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
+    MOLECULE_RUN_STATUS="${?}"
+  fi
+  readonly MOLECULE_RUN_STATUS
+
+  set -e
+  if [ "${MOLECULE_RUN_STATUS}" -ne 0 ]; then
+    echo "MOLECULE_EXIT_CODE: ${MOLECULE_RUN_STATUS}."
+  fi
+  return ${MOLECULE_RUN_STATUS}
+}
+
+useScenarioNameIfExists() {
+  local scenario_name=${1}
+  local workdir=${2}
+
+  if [ -d "${workdir}/molecule/${scenario_name}" ]; then
+    echo "${scenario_name}"
+  fi
+}
+
+installErisCollection() {
+  local eris_home=${1}
+  local collection=${2:-'middleware_automation-eris'}
+
+  cd "${eris_home}"
+  rm -f "${collection}"-*.tar.gz
+  ansible-galaxy collection build .
+  ansible-galaxy collection install "${collection}"-*.tar.gz
+  cd -
+}
+
+cleanMoleculeCache() {
+  local path_to_cache=${1}
+
+  if [ -z "${MOLECULE_KEEP_CACHE}" ]; then
+    if [ -e "${path_to_cache}" ]; then # just to avoid running rm -rf on an invalid path...
+      rm -rf "${path_to_cache}"
+    fi
+  fi
+}
 
 generateRequirementsFromCItemplateIfProvided() {
   local path_to_collection_archive=${1}
@@ -43,42 +150,3 @@ copyCollectionFrom() {
     exit 5
   fi
 }
-
-installAnsibleDependencyIfAny() {
-  local requirements_yml=${1}
-
-  if [ -e "${requirements_yml}" ]; then
-    ansible-galaxy collection install -r "${requirements_yml}"
-  fi
-}
-
-installPythonRequirementsIfAny() {
-  local requirementsFile=${1}
-
-  if [ -n "${requirementsFile}" ]; then
-    echo "Checks if ${requirementsFile} exists..."
-    if [ -e "${requirementsFile}" ]; then
-      echo 'It does, performing required installations.'
-      echo "Install Python dependencies provided in ${requirementsFile}:"
-      "${PIP_COMMAND}" install --user -r "${requirementsFile}"
-      echo 'Done.'
-    else
-      echo 'File does not exists. Skipping.'
-    fi
-  fi
-}
-
-printEnv() {
-  set +u
-  if [ -n "${HERA_DEBUG}" ]; then
-    echo ==========
-    env
-    echo ==========
-  fi
-  set -u
-}
-
-setRequiredEnvVars() {
-  export ANSIBLE_HOST_KEY_CHECKING='False'
-}
-
