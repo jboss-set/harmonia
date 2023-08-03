@@ -1,7 +1,6 @@
 #!/bin/bash
 set -eo pipefail
 
-
 readonly PATH_TO_MOLECULE_REQUIREMENTS_FILE=${PATH_TO_MOLECULE_REQUIREMENTS_FILE:-'molecule/requirements.yml'}
 readonly PATH_TO_REQUIREMENTS_TEMPLATE=${PATH_TO_REQUIREMENTS_TEMPLATE:-'molecule/.ci_requirements.yml.j2'}
 
@@ -48,7 +47,7 @@ if [ -n "${LAST_SUCCESS_FULL_BUILD_ID}" ]; then
     copyCollectionFrom "${PATH_TO_COLLECTION}"
   fi
 else
-  echo "TODO: a git checkout from gitlab"
+  echo "Can't run job without a LAST_SUCCESS_FULL_BUILD_ID defined."
   exit 4
 fi
 

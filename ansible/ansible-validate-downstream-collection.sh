@@ -5,6 +5,7 @@ if [ ! -d "${WORKDIR}" ]; then
   echo "WORKDIR ${WORKDIR} does not exists or is not a directory."
   exit 1
 fi
+
 readonly HARMONIA_HOME=${HARMONIA_HOME:-"${WORKSPACE}/harmonia"}
 readonly PLAYBOOK=${PLAYBOOK:-'playbooks/playbook.yml'}
 readonly VALIDATION_PLAYBOOK=${VALIDATION_PLAYBOOK:-'playbooks/validate.yml'}
@@ -19,12 +20,14 @@ readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-
 
 full_path="$(realpath ${0})"
 dir_path="$(dirname $full_path)"
-source "${dir_path}/ansible/common.sh"
+source "${dir_path}/common.sh"
 
 set -u
 cd "${WORKDIR}"
 
-"${HARMONIA_HOME}/ansible-install-collections.sh"
+configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
+
+"${HARMONIA_HOME}/ansible/ansible-install-collections.sh"
 
 if [ -z "${PATHS_TO_PRODUCTS_TO_DOWNLOAD}" ]; then
   echo "No PATHS_TO_PRODUCTS_TO_DOWNLOAD provided, aborting."
