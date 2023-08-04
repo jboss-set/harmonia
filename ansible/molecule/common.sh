@@ -1,14 +1,17 @@
 #!/bin/bash
-full_path=$(realpath "${0}")
-dir_path=$(dirname "${full_path}")
-source "${dir_path}/../common.sh"
+source "$(dirname $(realpath "${0}"))/../common.sh"
+
+HERA_HOME=${HERA_HOME:-"${WORKSPACE}/hera"}
+export HERA_HOME
+ERIS_HOME=${ERIS_HOME:-"${WORKSPACE}/eris"}
+export ERIS_HOME
 
 MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
 MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
 
 deployHeraDriver() {
   local molecule_source_dir=${1}
-  local molecule_hera_driver_dir=${2}
+  local molecule_hera_driver_dir=${2:-"${WORKSPACE}/eris/molecule/olympus/"}
 
   if [ -z "${molecule_source_dir}" ]; then
     echo "No ${molecule_source_dir} provided."
@@ -61,7 +64,7 @@ printScenariosThatFailed() {
 
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
-  local scenario_driver_name=${2:-"${SCENARIO_DRIVER_NAME}"}
+  local scenario_driver_name=${2:-'delegated'}
   local extra_args=${3:-"${EXTRA_ARGS}"}
 
   set +e
@@ -93,7 +96,7 @@ useScenarioNameIfExists() {
 }
 
 installErisCollection() {
-  local eris_home=${1}
+  local eris_home=${1:-"${ERIS_HOME}"}
   local collection=${2:-'middleware_automation-eris'}
 
   cd "${eris_home}"
@@ -104,7 +107,7 @@ installErisCollection() {
 }
 
 cleanMoleculeCache() {
-  local path_to_cache=${1}
+  local path_to_cache=${1:-"${HOME}/.cache/molecule/${JOB_NAME}"}
 
   if [ -z "${MOLECULE_KEEP_CACHE}" ]; then
     if [ -e "${path_to_cache}" ]; then # just to avoid running rm -rf on an invalid path...

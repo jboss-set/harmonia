@@ -1,5 +1,7 @@
 #!/bin/bash
 
+WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
+WORKSPACE=${WORKSPACE}
 ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
 COLLECTIONS_REQ=${COLLECTIONS_REQ:-'requirements.yml'}
 PYTHON_REQUIREMENTS_FILE=${PYTHON_REQUIREMENTS_FILE:-'requirements.txt'}
@@ -9,8 +11,8 @@ JENKINS_JOBS_DIR=${JENKINS_JOB_DIR:-'/jenkins_jobs'}
 HARMONIA_HOME=${HARMONIA_HOME:-"${WORKSPACE}/harmonia"}
 
 configureAnsible() {
-  local path_to_ansible_cfg=${1}
-  local workdir=${2}
+  local path_to_ansible_cfg=${1:-"${ANSIBLE_CONFIG}"}
+  local workdir=${2:-"${WORKDIR}"}
 
   echo -n "Copying ansible.cfg from ${path_to_ansible_cfg} to ${workdir}..."
   if [ -e "${path_to_ansible_cfg}" ]; then
@@ -64,7 +66,7 @@ ansibleGalaxyCollectionInstallByName() {
 }
 
 installPythonRequirementsIfAny() {
-  local requirementsFile=${1}
+  local requirementsFile=${1:-"${WORKDIR}/${PYTHON_REQUIREMENTS_FILE}"}
 
   if [ -n "${requirementsFile}" ]; then
     echo "Checks if ${requirementsFile} exists..."
