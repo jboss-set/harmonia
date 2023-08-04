@@ -151,23 +151,3 @@ get_path_to_collection_tarball() {
   fi
   echo "${path_to_tarball}"
 }
-
-install_collections() {
-  local collections_to_install=${@}
-
-  if [ -n "${collections_to_install}" ]; then
-    IFS=','
-    read -r -a collections_to_install_array <<< "${collections_to_install}"
-    for collection_to_install in "${collections_to_install_array[@]}"
-    do
-      path_to_builds=${JENKINS_JOBS_DIR}/ansible-janus-${collection_to_install}/builds
-      if [ ! -d "${path_to_builds}" ]; then
-        echo "Invalid path to collection job: ${path_to_builds}."
-        exit 2
-      fi
-      last_build_id=$(get_last_build_id "${path_to_builds}")
-      path_to_collection_archive=$(get_path_to_collection_tarball "${path_to_builds}/${last_build_id}/archive/workdir/downstream/" "${collection_to_install}")
-      ansible-galaxy collection install "${path_to_collection_archive}"
-    done
-  fi
-}
