@@ -39,7 +39,7 @@ readValueFromFile() {
 }
 
 ansibleGalaxyCollectionInstall() {
-    local args=${1}
+    local args=${@}
 
     ansible-galaxy collection install --force ${args}
 }
@@ -50,7 +50,7 @@ ansibleGalaxyCollectionInstallFromRequirementFile() {
 
   # shellcheck disable=SC2086
   if [ -e "${path_to_req}" ]; then
-    ansibleGalaxyCollectionInstall --force -r "${path_to_req}"
+    ansibleGalaxyCollectionInstall -r "${path_to_req}"
   fi
 }
 
