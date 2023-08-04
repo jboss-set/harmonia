@@ -3,7 +3,6 @@ set -eo pipefail
 
 readonly PATH_TO_MOLECULE_REQUIREMENTS_FILE=${PATH_TO_MOLECULE_REQUIREMENTS_FILE:-'molecule/requirements.yml'}
 readonly PATH_TO_REQUIREMENTS_TEMPLATE=${PATH_TO_REQUIREMENTS_TEMPLATE:-'molecule/.ci_requirements.yml.j2'}
-readonly DOWNSTREAM_NS='redhat'
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
 dir_path=$(dirname $(realpath "${0}"))
