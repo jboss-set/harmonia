@@ -28,8 +28,8 @@ ansibleGalaxyCollectionInstallFromRequirementFile
 
 echo "Install collection from Janus builds."
 path_to_builds=${JENKINS_JOBS_DIR}/ansible-janus-${PROJECT_NAME}/builds
-last_build_id=$(get_last_build_id "${path_to_builds}")
-path_to_collection_archive=$(get_path_to_collection_tarball "${path_to_builds}/${last_build_id}/archive/workdir/downstream/" "${PROJECT_NAME}")
+last_build_id=$(getLastBuildId "${path_to_builds}")
+path_to_collection_archive=$(getPathToCollectionTarball "${path_to_builds}/${last_build_id}/archive/workdir/downstream/" "${PROJECT_NAME}")
 ansibleGalaxyCollectionInstall "${path_to_collection_archive}"
 
 echo ${PLAYBOOK}/${VALIDATION_PLAYBOOK}

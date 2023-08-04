@@ -120,7 +120,7 @@ checkWorkspaceIsDefinedAndExists() {
     fi
 }
 
-get_last_build_id() {
+getLastBuildId() {
   local path_to_permalinks="${1}/permalinks"
 
   if [ -z "${path_to_permalinks}" ]; then
@@ -137,7 +137,7 @@ get_last_build_id() {
   echo "${last_build_id}"
 }
 
-get_path_to_collection_tarball() {
+getPathToCollectionTarball() {
   local collection_home=${1}
   local collection_name=${2}
   local collection_namespace=${3:-'redhat'}
