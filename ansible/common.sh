@@ -54,6 +54,18 @@ ansibleGalaxyCollectionInstallFromRequirementFile() {
   fi
 }
 
+ansibleGalaxyCollectionFromAllRequirementsFile() {
+  local workdir=${1:-"${WORKDIR}"}
+  local req_filename=${2:-'requirements.yml'}
+
+  find "${workdir}" -name "${req_filename}" | \
+  while
+    read req
+  do
+    ansibleGalaxyCollectionInstallFromRequirementFile "{req}"
+  done
+}
+
 ansibleGalaxyCollectionInstallByName() {
   local collectionName=${1}
   local exitStatus=${2:-'1'}
@@ -140,7 +152,7 @@ getLastBuildId() {
 getPathToCollectionTarball() {
   local collection_home=${1}
   local collection_name=${2}
-  local collection_namespace=${3:-'redhat'}
+ local collection_namespace=${3:-'redhat'}
   local tarball_extension=${4:-'tar.gz'}
 
   path_to_tarball=$(ls "${collection_home}/${collection_name}/${collection_namespace}-${collection_name}"*."${tarball_extension}")
