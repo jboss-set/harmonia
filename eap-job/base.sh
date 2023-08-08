@@ -184,8 +184,8 @@ record_build_properties() {
 
   # shellcheck disable=SC2129
   echo "BUILD_URL=${BUILD_URL}" >> ${PROPERTIES_FILE}
-  echo "SERVER_URL=${BUILD_URL}/artifact/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
-  echo "SOURCE_URL=${BUILD_URL}/artifact/jboss-eap-src-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "SERVER_URL=${BUILD_URL}artifact/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
+  echo "SOURCE_URL=${BUILD_URL}artifact/jboss-eap-src-${GIT_COMMIT:0:7}.zip" >> ${PROPERTIES_FILE}
   echo "VERSION=${EAP_VERSION}-${GIT_COMMIT:0:7}" >> ${PROPERTIES_FILE}
   echo "BASE_VERSION=${EAP_VERSION}" >> ${PROPERTIES_FILE}
   echo "BUILD_ID=${BUILD_ID}" >> ${PROPERTIES_FILE}
