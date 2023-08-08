@@ -14,7 +14,7 @@ installPythonRequirementsIfAny
 
 configureAnsible
 
-ansibleGalaxyCollectionInstallFromRequirementFile
+ansibleGalaxyCollectionFromAllRequirementsFile
 
 molecule --version
 
