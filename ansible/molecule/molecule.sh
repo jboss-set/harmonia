@@ -34,5 +34,7 @@ echo "Running Molecule test on project: ${JOB_NAME}..."
 set +eu
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
 set -u
+echo "Wait to allow container debug..."
 sleep 600
+echo "Done."
 exit "${MOLECULE_RUN_STATUS}"
