@@ -31,7 +31,7 @@ done
 
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
-set +u
+set +eu
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
 set -u
 sleep 600
