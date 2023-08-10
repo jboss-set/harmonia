@@ -62,7 +62,10 @@ ansibleGalaxyCollectionFromAllRequirementsFile() {
   while
     read req
   do
-    ansibleGalaxyCollectionInstallFromRequirementFile "{req}"
+    echo "Installing depencies specified in ${req}..."
+    ansibleGalaxyCollectionInstallFromRequirementFile "${req}"
+    echo "Processing depencies from ${req} is done."
+    echo ""
   done
 }
 
