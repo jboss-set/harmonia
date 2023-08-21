@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail
 source "$(dirname $(realpath ${0}))/common.sh"
 
 readonly SCENARIO_NAME=${SCENARIO_NAME:-'--all'}
