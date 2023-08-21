@@ -25,9 +25,22 @@ configureAnsible() {
 
 loadJBossNetworkAPISecrets() {
   if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
+    local rhn_username=$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})
+    local rhn_password=$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})
     # extra spaces in front of -e is to prevent its interpretation as an arg of echo
-    echo '   -e' rhn_username="$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})" -e rhn_password="$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE}) -e omit_rhn_output=false"
+    echo '   -e' rhn_username="${rhn_username}" -e rhn_password="${rhn_password} -e omit_rhn_output=false"
+    setRHNCredsAsEnvVars "${rhn_username}" "${rhn_password}"
   fi
+}
+
+setRHNCredsAsEnvVars() {
+  local rhn_username=${1}
+  local rhn_password=${2}
+
+  readonly REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID_ENV_VAR="${rhn_username}"
+  export REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID_ENV_VAR
+  readonly REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET_ENV_VAR="${rhn_password}"
+  export REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET_ENV_VAR
 }
 
 readValueFromFile() {
