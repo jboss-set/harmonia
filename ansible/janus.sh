@@ -1,15 +1,22 @@
 #!/bin/bash
 set -eo pipefail
+# workaround for Ansible 2.14 issue https://github.com/NixOS/nixpkgs/issues/223151#
+export LANG=C.UTF-8 ansible
 
 source "$(dirname $(realpath ${0}))/common.sh"
 
+readonly PLAYS_DIR=${PLAYS_DIR:-"${WORKDIR}/playbooks"}
+
 checkWorkdirExistsAndSetAsDefault
 
-ansible-galaxy collection build .
-ansible-galaxy collection install *.tar.gz
+ansible-galaxy collection install community.fqcn_migration
 
+pwd
+ls .
 if [ "${PLAYBOOK}" == 'playbooks/janus.yml' ]; then
-  ansible-playbook middleware_automation.janus.janus
+  echo "${PLAYS_DIR}/${PLAYBOOK}"
+  ansible-playbook "${PLAYS_DIR}/${PLAYBOOK}"
 else
-  ansible-playbook middleware_automation.janus.${PROJECT_NAME}
+  echo "${PLAYS_DIR}/${PROJECT_NAME}.yml"
+  ansible-playbook "${PLAYS_DIR}/${PROJECT_NAME}.yml"
 fi
