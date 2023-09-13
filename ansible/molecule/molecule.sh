@@ -32,6 +32,8 @@ done
 # shellcheck disable=SC2155
 readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
 export EXTRA_ARGS
+export REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID=$(readRHNUsername)
+export REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET=$(readRHNPassord)
 
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."

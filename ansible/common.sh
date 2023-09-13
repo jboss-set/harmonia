@@ -27,8 +27,23 @@ configureAnsible() {
 loadJBossNetworkAPISecrets() {
   if [ -e "${JBOSS_NETWORK_API_CREDENTIAL_FILE}" ]; then
     # extra spaces in front of -e is to prevent its interpretation as an arg of echo
-    echo '   -e' rhn_username="$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})" -e rhn_password="$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE}) -e omit_rhn_output=false"
+    echo '   -e' rhn_username="$(readRHNUsername)" -e rhn_password="$(readRHNPassword) -e omit_rhn_output=false"
   fi
+}
+
+readValueFromField() {
+  local field_name=${1}
+  local cred_file=${2:-"${JBOSS_NETWORK_API_CREDENTIAL_FILE}"}
+
+  readValueFromFile "${field_name}" "${cred_file}"
+}
+
+readRHNUsername() {
+  readValueFromField 'rhn_username'
+}
+
+readRHNPassword() {
+  readValueFromField 'rhn_password'
 }
 
 readValueFromFile() {
