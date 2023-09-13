@@ -30,11 +30,8 @@ do
 done
 
 # shellcheck disable=SC2155
-export REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID=$(readValueFromFile 'rhn_username' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})
-export REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET=$(readValueFromFile 'rhn_password' ${JBOSS_NETWORK_API_CREDENTIAL_FILE})
-
-echo REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID: ${REDHAT_PRODUCT_DOWNLOAD_CLIENT_ID}
-echo REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET: ${REDHAT_PRODUCT_DOWNLOAD_CLIENT_SECRET}
+readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
+export EXTRA_ARGS
 
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."

@@ -35,7 +35,4 @@ else
   exit 4
 fi
 
-# shellcheck disable=SC2155
-readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
-export EXTRA_ARGS
 "${HARMONIA_HOME}/ansible/molecule/molecule.sh"
