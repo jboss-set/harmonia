@@ -29,6 +29,14 @@ do
   fi
 done
 
+# shellcheck disable=SC2155
+readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
+export EXTRA_ARGS
+export PROD_JBOSSNETWORK_API_CLIENTID=$(readRHNUsername)
+export PROD_JBOSSNETWORK_API_SECRET=$(readRHNPassword)
+export STAGE_JBOSSNETWORK_API_CLIENTID=$(readRHNUsername)
+export STAGE_JBOSSNETWORK_API_SECRET=$(readRHNPassword)
+
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
