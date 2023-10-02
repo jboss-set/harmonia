@@ -3,6 +3,12 @@
 echo Set the environment variables for Maven and Java
 set "PATH=%M2_HOME%\bin;%JAVA_HOME%\bin;%PATH%"
 
+echo Java version is
+java -version
+
+echo Maven version is
+call mvn -v
+
 echo Expand all .zip files in the current directory
 for %%F in (*.zip) do (
     powershell -Command "Expand-Archive -Path '%%~F' -DestinationPath 'eap' -Force"
