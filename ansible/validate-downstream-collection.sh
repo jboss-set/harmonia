@@ -9,16 +9,28 @@ readonly PATH_TO_PLAYBOOK=${PATH_TO_PLAYBOOK:-"${WORKDIR}/${PLAYBOOK}"}
 readonly PATH_TO_INVENTORY_FILE=${PATH_TO_INVENTORY_FILE:-"${WORKDIR}/inventory"}
 readonly ANSIBLE_VERBOSITY_LEVEL=${ANSIBLE_VERBOSITY_LEVEL}
 readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
+readonly INVENTORY_LOCALHOST='localhost ansible_connection=local'
 
 set -u
+
+addEntryToInventoryFile() {
+  local section=${1}
+  local content=${2}
+
+  echo "${section}"
+  echo "${content}"
+  echo ""
+}
 
 checkWorkdirExistsAndSetAsDefault
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
 
 if [ ! -e "${PATH_TO_INVENTORY_FILE}" ]; then
-  echo '[all]' >> "${PATH_TO_INVENTORY_FILE}"
-  echo 'localhost ansible_connection=local' >> "${PATH_TO_INVENTORY_FILE}"
+  for entry in '[all]' '[zookeepers]' '[brokers]'
+  do
+    addEntryToInventoryFile "${entry}" "${INVENTORY_LOCALHOST}" >> "${PATH_TO_INVENTORY_FILE}"
+  done
 fi
 
 ansible-playbook --version
