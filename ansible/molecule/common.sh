@@ -71,7 +71,7 @@ runMoleculeScenario() {
   set +e
   MOLECULE_RUN_STATUS=0
   if [ "${scenario_name}" != '--all' ]; then
-    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" -- ${extra_args}
+    executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" ${extra_args}
   else
     echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
     # shellcheck disable=SC2086
