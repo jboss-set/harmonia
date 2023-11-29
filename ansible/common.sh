@@ -88,7 +88,7 @@ installPythonRequirementsIfAny() {
     if [ -e "${requirementsFile}" ]; then
       echo 'It does, performing required installations.'
       echo "Install Python dependencies provided in ${requirementsFile}:"
-      "${PIP_COMMAND}" install --user -r "${requirementsFile}"
+      "${PIP_COMMAND}" install --user -q -r "${requirementsFile}"
       echo 'Done.'
     else
       echo 'File does not exists. Skipping.'
