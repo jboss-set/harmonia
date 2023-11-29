@@ -46,7 +46,7 @@ executeRequestedScenarios() {
   do
 
     # shellcheck disable=SC2086
-    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}" -- "${extra_args}"
+    runMolecule "-s ${scenario}" "-d ${scenario_driver_name}" "${extra_args}"
     scenarios_status["${scenario}"]=${?}
   done
   export MOLECULE_RUN_STATUS="$(echo "${scenarios_status[@]}" | grep -e 1 -c)"
