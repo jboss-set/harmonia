@@ -38,6 +38,7 @@ runMolecule() {
 executeRequestedScenarios() {
   local scenario_name=${1}
   local scenario_driver_name=${2}
+  local extra_args=${3}
 
   declare -A scenarios_status
   # shellcheck disable=SC2001
