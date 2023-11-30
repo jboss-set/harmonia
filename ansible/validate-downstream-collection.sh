@@ -3,7 +3,7 @@ set -eo pipefail
 
 source "$(dirname $(realpath ${0}))/common.sh"
 
-readonly PLAYBOOK=${PLAYBOOK:-"${DOWNSTREAM_NS}.${PROJECT_NAME}.playbook"}
+readonly PLAYBOOK=${DOWNSTREAM_NS}.${PROJECT_NAME}.${PLAYBOOK:-"playbook"}
 readonly VALIDATION_PLAYBOOK=${VALIDATION_PLAYBOOK:-"${DOWNSTREAM_NS}.${PROJECT_NAME}.validate"}
 readonly PATH_TO_PLAYBOOK=${PATH_TO_PLAYBOOK:-"${WORKDIR}/${PLAYBOOK}"}
 readonly PATH_TO_INVENTORY_FILE=${PATH_TO_INVENTORY_FILE:-"${WORKDIR}/inventory"}
