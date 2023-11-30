@@ -47,4 +47,6 @@ ansibleGalaxyCollectionInstall "${path_to_collection_archive}"
 echo ${PLAYBOOK}/${VALIDATION_PLAYBOOK}
 
 ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" $(loadJBossNetworkAPISecrets) "${PLAYBOOK}"
-ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
+if [ -e "${VALIDATION_PLAYBOOK}" ]; then
+  ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
+fi
