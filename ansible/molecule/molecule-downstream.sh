@@ -39,4 +39,6 @@ fi
 # shellcheck disable=SC2155
 readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
 export EXTRA_ARGS
+set +e
 "${HARMONIA_HOME}/ansible/molecule/molecule.sh"
+sleep 3600
