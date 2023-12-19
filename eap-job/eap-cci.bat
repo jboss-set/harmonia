@@ -20,21 +20,27 @@ IF "%EAP_VERSION%"=="" (
     exit /b 1
 )
 
-REM Where JBoss EAP stores
-cd eap\eap-sources
-
 REM Printing all the variables
 echo Workspace is: %WORKSPACE%
 echo EAP version is: jboss-eap-%EAP_VERSION%
 echo Current ip version is: %ip%
 
-REM Set the testsuite command
-set "COMMAND=mvn clean install -fae -Djboss.dist=%WORKSPACE%\eap\jboss-eap-%EAP_VERSION% -DallTests -DfailIfNoTests=false -D%ip%"
+REM Where JBoss EAP testsuite stores
+cd eap\eap-sources\testsuite
 
-echo Running testsuite command: %COMMAND%
-
-echo Executing the testsuite
-%COMMAND%
+REM Check if %ip% is defined and run the testsuite accordingly
+if "%ip%"=="ipv6" (
+    echo Using IPv6
+    REM delete hanging test case
+    REM no IPv6 connection outside our infrastructure -> Maven repositories are not reachable inside the test case (IPv6 forced)
+    del integration\basic\src\test\java\org\jboss\as\test\integration\management\api\ClientCompatibilityUnitTestCase.java
+    del integration\basic\src\test\java\org\jboss\as\test\integration\xerces\unit\XercesUsageTestCase.java
+    del integration\basic\src\test\java\org\jboss\as\test\integration\xerces\ws\unit\XercesUsageInWebServiceTestCase.java
+    cmd /c "mvn clean install -fae -DallTests -DfailIfNoTests=false -Dipv6"
+) else (
+    echo Using IPv4
+    cmd /c "mvn clean install -fae -DallTests -DfailIfNoTests=false -Dipv4"
+)
 
 REM Check if the build was successful or not
 IF %ERRORLEVEL% NEQ 0 (
