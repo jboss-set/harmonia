@@ -26,16 +26,16 @@ echo EAP version is: jboss-eap-%EAP_VERSION%
 echo Current ip version is: %ip%
 
 REM Where JBoss EAP testsuite stores
-cd eap\eap-sources\testsuite
+cd eap\eap-sources
 
 REM Check if %ip% is defined and run the testsuite accordingly
 if "%ip%"=="ipv6" (
     echo Using IPv6
     REM delete hanging test case
     REM no IPv6 connection outside our infrastructure -> Maven repositories are not reachable inside the test case (IPv6 forced)
-    del integration\basic\src\test\java\org\jboss\as\test\integration\management\api\ClientCompatibilityUnitTestCase.java
-    del integration\basic\src\test\java\org\jboss\as\test\integration\xerces\unit\XercesUsageTestCase.java
-    del integration\basic\src\test\java\org\jboss\as\test\integration\xerces\ws\unit\XercesUsageInWebServiceTestCase.java
+    del testsuite\integration\basic\src\test\java\org\jboss\as\test\integration\management\api\ClientCompatibilityUnitTestCase.java
+    del testsuite\integration\basic\src\test\java\org\jboss\as\test\integration\xerces\unit\XercesUsageTestCase.java
+    del testsuite\integration\basic\src\test\java\org\jboss\as\test\integration\xerces\ws\unit\XercesUsageInWebServiceTestCase.java
     cmd /c "mvn clean install -fae -DallTests -DfailIfNoTests=false -Dipv6"
 ) else (
     echo Using IPv4
