@@ -29,9 +29,11 @@ do
   fi
 done
 
+
+
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
-runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
+runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}" -- -e skip_wait_for_server_port=True
 set -u
 exit "${MOLECULE_RUN_STATUS}"
