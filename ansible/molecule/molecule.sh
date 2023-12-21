@@ -34,6 +34,6 @@ done
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
-runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}" -- -e skip_wait_for_server_port=True
+runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}" -- -e amq_streams_common_download_dir="$(mktemp -d)"
 set -u
 exit "${MOLECULE_RUN_STATUS}"
