@@ -22,6 +22,21 @@ addEntryToInventoryFile() {
   echo ""
 }
 
+enableLingerForUser() {
+  set +e
+  systemctl unmask systemd-logind.service
+  if [ "${?}" -ne 0 ]; then
+      sleep 20
+      systemctl unmask systemd-logind.service
+  fi
+  set -e
+  systemctl enable systemd-logind.service
+  loginctl enable-linger $(whoami)
+  export XDG_RUNTIME_DIR=/run/user/$(id -u)
+}
+
+enableLingerForUser
+
 checkWorkdirExistsAndSetAsDefault
 
 configureAnsible "${ANSIBLE_CONFIG}" "${WORKDIR}"
@@ -46,7 +61,7 @@ ansibleGalaxyCollectionInstall "${path_to_collection_archive}"
 
 echo ${PLAYBOOK}/${VALIDATION_PLAYBOOK}
 
-ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" $(loadJBossNetworkAPISecrets) "${PLAYBOOK}"
+ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" $(loadJBossNetworkAPISecrets) "${PLAYBOOK}" -e amq_streams_broker_listener_port_delay=30
 if [ -e "${VALIDATION_PLAYBOOK}" ]; then
   ansible-playbook ${ANSIBLE_VERBOSITY_LEVEL} -i "${PATH_TO_INVENTORY_FILE}" "${VALIDATION_PLAYBOOK}"
 fi
