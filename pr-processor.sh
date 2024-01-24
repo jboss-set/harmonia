@@ -9,6 +9,7 @@ readonly PR_PROCESSOR_WRITE_MODE=${PR_PROCESSOR_WRITE_MODE:-'true'}
 readonly PR_PROCESSOR_HTML_REPORT="${WORKSPACE}/report.html"
 readonly CACHE_NAME=${CACHE_NAME:-'github-cache'}
 readonly CACHE_SIZE=${CACHE_SIZE:-'20'}
+readonly PATH=${JAVA_HOME}/bin:${PATH}
 
 declare -a ACTIVES_STREAMS
 ACTIVES_STREAMS[0]='jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
@@ -31,7 +32,7 @@ if [ -z "${APHRODITE_CONFIG}" ]; then
   exit 3
 fi
 
-if [  ! -e "${APHRODITE_CONFIG}" ]; then
+if [ ! -e "${APHRODITE_CONFIG}" ]; then
   echo "APHRODITE_CONFIG does not exist (${APHRODITE_CONFIG}) abort."
   exit 4
 fi
@@ -45,6 +46,13 @@ if [ ! -e "${PATH_TO_JAR}" ]; then
   echo "Missing Pull Processor JAR (${PATH_TO_JAR}) - abort."
   exit 6
 fi
+
+if [ -z "${JAVA_HOME}" ]; then
+  echo "No JAVA_HOME has been defined - abort"
+  exit 7
+fi
+
+
 
 java -jar \
      -Daphrodite.config="${APHRODITE_CONFIG}" \
