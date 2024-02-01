@@ -14,10 +14,6 @@ pre_build() {
 }
 
 post_build() {
-  if [ -n "${ZIP_WORKSPACE}" ]; then
-    zip -x "${HARMONIA_FOLDER}" -x \*.zip -qr 'workspace.zip' "${WORKSPACE}"
-  fi
-
   # shellcheck disable=SC2155
   readonly EAP_DIST_DIR=$(get_dist_folder)
   echo "Using ${EAP_DIST_DIR}"
