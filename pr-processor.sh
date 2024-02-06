@@ -12,8 +12,8 @@ readonly CACHE_SIZE=${CACHE_SIZE:-'20'}
 readonly PATH=${JAVA_HOME}/bin:${PATH}
 
 declare -a ACTIVES_STREAMS
-ACTIVES_STREAMS[0]='jboss-eap-7.3.z[wildfly-wildfly,wildfly-wildfly-core]'
-ACTIVES_STREAMS[1]='jboss-eap-7.4.z[wildfly-wildfly,wildfly-wildfly-core]'
+ACTIVES_STREAMS[0]='jboss-eap-7.4.z[wildfly-wildfly,wildfly-wildfly-core]'
+ACTIVES_STREAMS[1]='jboss-eap-8.0.z[wildfly-wildfly,wildfly-wildfly-core]'
 
 set -u
 
