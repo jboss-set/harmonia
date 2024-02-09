@@ -1,4 +1,5 @@
 #!/bin/bash
+export LANG='C.UTF-8'
 set -euo pipefail
 source "$(dirname $(realpath ${0}))/common.sh"
 
