@@ -32,6 +32,8 @@ done
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
+set +e
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
+sleep 300
 set -u
 exit "${MOLECULE_RUN_STATUS}"
