@@ -1,5 +1,6 @@
 #!/bin/bash
 export LANG='C.UTF-8'
+export LC_ALL='C.UTF-8'
 set -euo pipefail
 source "$(dirname $(realpath ${0}))/common.sh"
 
@@ -33,7 +34,6 @@ done
 printEnv
 echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
-export LANG='C.UTF-8'
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
 set -u
 sleep 300
