@@ -34,4 +34,5 @@ echo "Running Molecule test on project: ${JOB_NAME}..."
 set +u
 runMoleculeScenario "${SCENARIO_NAME}" "${SCENARIO_DRIVER_NAME}" "${EXTRA_ARGS}"
 set -u
+sleep 300
 exit "${MOLECULE_RUN_STATUS}"
