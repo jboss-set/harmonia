@@ -1,4 +1,8 @@
 #!/bin/bash
+# workaround for Ansible 2.14 issue
+export LANG='C.UTF-8'
+export LC_ALL='C.UTF-8'
+
 source "$(dirname $(realpath "${0}"))/../common.sh"
 
 HERA_HOME=${HERA_HOME:-"${WORKSPACE}/hera"}
@@ -8,6 +12,19 @@ export ERIS_HOME
 
 MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
 MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
+
+determineMoleculeVersion() {
+
+  local mol_version=$(molecule --version | head -1 | sed -e 's/using python .*$//' -e 's/^molecule *//' -e 's/ //g')
+  if [ "$(echo "${mol_version}" | grep -e '4' | wc -l )" -eq 1 ]; then
+    echo "delegated"
+  else
+    echo "default"
+  fi
+}
+
+readonly HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME=$(determineMoleculeVersion)
+echo "DEBUG> ${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"
 
 deployHeraDriver() {
   local molecule_source_dir=${1}
@@ -64,7 +81,7 @@ printScenariosThatFailed() {
 
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
-  local scenario_driver_name=${2:-'delegated'}
+  local scenario_driver_name=${2:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
   local extra_args=${3:-"${EXTRA_ARGS}"}
 
   set +e
