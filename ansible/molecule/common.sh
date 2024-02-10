@@ -14,17 +14,31 @@ MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
 MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
 
 determineMoleculeVersion() {
+  echo "$(molecule --version | head -1 | sed -e 's/using python .*$//' -e 's/^molecule *//' -e 's/ //g' | grep -e '4' | wc -l )"
+}
 
-  local mol_version=$(molecule --version | head -1 | sed -e 's/using python .*$//' -e 's/^molecule *//' -e 's/ //g')
-  if [ "$(echo "${mol_version}" | grep -e '4' | wc -l )" -eq 1 ]; then
+determineMoleculeSlaveImage() {
+  if [ "$(determineMoleculeVersion)" -eq 1 ]; then
+    echo "localhost/molecule-slave"
+  else
+    echo "localhost/molecule-slave-9"
+  fi
+
+}
+
+determineMoleculeDriverName() {
+
+  if [ "$(determineMoleculeVersion)" -eq 1 ]; then
     echo "delegated"
   else
     echo "default"
   fi
 }
 
-readonly HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME=$(determineMoleculeVersion)
+readonly HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME=$(determineMoleculeDriverName)
 echo "DEBUG> ${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"
+readonly HERA_MOLECULE_SLAVE_IMAGE=$(determineMoleculeSlaveImage)
+export HERA_MOLECULE_SLAVE_IMAGE
 
 deployHeraDriver() {
   local molecule_source_dir=${1}
