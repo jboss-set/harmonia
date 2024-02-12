@@ -1,7 +1,4 @@
 #!/bin/bash
-# workaround for Ansible 2.14 issue
-export LANG='C.UTF-8'
-export LC_ALL='C.UTF-8'
 
 source "$(dirname $(realpath "${0}"))/../common.sh"
 
