@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# workaround for Ansible 2.14 issue
+export LANG='C.UTF-8'
+export LC_ALL='C.UTF-8'
+
 WORKDIR=${WORKDIR:-"$(pwd)/workdir"}
 WORKSPACE=${WORKSPACE}
 ANSIBLE_CONFIG=${ANSIBLE_CONFIG:-'/var/jenkins_home/ansible.cfg'}
