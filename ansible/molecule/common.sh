@@ -34,7 +34,7 @@ determineMoleculeDriverName() {
 
 readonly HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME=$(determineMoleculeDriverName)
 echo "DEBUG> ${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"
-readonly HERA_MOLECULE_SLAVE_IMAGE=$(determineMoleculeSlaveImage)
+readonly HERA_MOLECULE_SLAVE_IMAGE=${HERA_MOLECULE_SLAVE_IMAGE:-"$(determineMoleculeSlaveImage)"}
 export HERA_MOLECULE_SLAVE_IMAGE
 
 deployHeraDriver() {
