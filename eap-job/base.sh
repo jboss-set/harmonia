@@ -214,12 +214,19 @@ function get_dist_folder() {
             exit 1
         fi
 
+        # XP 4.0.x
         grep -q expansion.pack.release.version pom.xml
         # shellcheck disable=SC2181
         # `expansion.pack.release.version` is currently present in EAP8 beta branch, so this condition doesn't work for EAP8
-        # TODO: find different way to differentiate XP and EAP8
         if [ "${?}" -eq 0 ] && [ -n "${major}" ] && [ "${major}" = "7" ]; then
            dist_folder="dist/target"
+        fi
+
+        # XP 5.0.x
+        grep -q org.jboss.eap.xp pom.xml
+        # shellcheck disable=SC2181
+        if [ "${?}" -eq 0 ] && [ -n "${major}" ] && [ "${major}" = "8" ]; then
+          dist_folder="dist/target"
         fi
 
     else
