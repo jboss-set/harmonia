@@ -34,7 +34,11 @@ is_dirpath_defined_and_exists() {
 check_java() {
   # ensure provided JAVA_HOME, if any, is first in PATH
   if [ -n "${JAVA_HOME}" ]; then
-    export PATH=${JAVA_HOME}/bin:${PATH}
+    export PATH="${JAVA_HOME}/bin:${PATH}"
+    if [ ! -x "${JAVA_HOME}/bin/java" ]; then
+      echo "JAVA_HOME is defined but the file is not executable."
+      exit 5
+    fi
   fi
 
   command -v java
@@ -69,6 +73,10 @@ configure_mvn_home() {
   export MAVEN_BIN_DIR
   echo "Adding ${MAVEN_BIN_DIR} to PATH:${PATH}."
   export PATH="${MAVEN_BIN_DIR}":"${PATH}"
+  if [ ! -x "${MAVEN_HOME}/bin/mvn" ]; then
+    echo "MAVEN_HOME is defined but the file is not executable."
+    exit 5
+  fi
 
   command -v mvn
   mvn -version
