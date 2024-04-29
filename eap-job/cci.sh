@@ -39,13 +39,15 @@ pre_test() {
     export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Djboss.dist=${WORKSPACE}/${TEST_JBOSS_DIST}"
   fi
 
-  # hack to make the tests pass in internal-only IPv6 env - see SET-505
-  # pre-run the ClientCompatibilityUnitTestCase to download the depedencies using IPv4.
-  # the test is then run again using IPv6 without the need to reach outside the IPv6 network
-  echo "Pre build of tests"
-  cd "${EAP_SOURCES_DIR}/testsuite/integration/basic"
-  mvn clean install "-Dtest=ClientCompatibilityUnitTestCase" ${TESTSUITE_OPTS}
-  cd "${WORKDIR}"
+  if [ "$EAP_DIST_DIR" == "ee-dist/target" ]; then
+    # hack to make the tests pass in internal-only IPv6 env - see SET-505
+    # pre-run the ClientCompatibilityUnitTestCase to download the depedencies using IPv4.
+    # the test is then run again using IPv6 without the need to reach outside the IPv6 network
+    echo "Pre build of tests"
+    cd "${EAP_SOURCES_DIR}/testsuite/integration/basic"
+    mvn clean install "-Dtest=ClientCompatibilityUnitTestCase" ${TESTSUITE_OPTS}
+    cd "${WORKDIR}"
+  fi
 
   # shellcheck disable=SC2154
   if [ "${ip}" == "ipv6" ];
