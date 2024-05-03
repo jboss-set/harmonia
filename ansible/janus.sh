@@ -11,12 +11,16 @@ checkWorkdirExistsAndSetAsDefault
 
 ansible-galaxy collection install community.fqcn_migration
 
-pwd
-ls .
 if [ "${PLAYBOOK}" == 'playbooks/janus.yml' ]; then
   echo "${PLAYS_DIR}/${PLAYBOOK}"
   ansible-playbook "${PLAYS_DIR}/${PLAYBOOK}"
 else
+  if [ -e "${PLAYBOOK}" ]; then
+    echo "Using provided playbook: ${PLAYBOOK}."
+    ansible-playbook "${WORKDIR}/${PLAYBOOK}"
+  else
+    echo "Provided ${PLAYBOOK} is not a path, computing default playbook name instead"
+  fi
   echo "${PLAYS_DIR}/${PROJECT_NAME}.yml"
   ansible-playbook "${PLAYS_DIR}/${PROJECT_NAME}.yml"
 fi
