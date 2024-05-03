@@ -252,7 +252,10 @@ setup() {
     shift
   fi
 
-  readonly MAVEN_VERBOSE=${MAVEN_VERBOSE}
+  if [ ! -z "${MAVEN_VERBOSE}" ]; then
+    readonly MAVEN_VERBOSE='-X'
+  fi
+
   readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
 
   readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
