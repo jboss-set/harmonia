@@ -11,9 +11,9 @@ usage() {
   echo
   echo "ex: ${script_name} 'testsuite' -Dcustom.args"
   echo
-  echo Note that if no arguments is provided, it default to 'build'. To run the testsuite, you need to provide 'testsuite' as a first argument. All arguments beyond this first will be appended to the mvn command line.
+  echo "Note that if no arguments are provided, it defaults to 'build'. To run the testsuite, you need to provide 'testsuite' as the first argument. All arguments beyond this first will be appended to the mvn command line."
   echo
-  echo 'Warning: This script also set several mvn args. Please refer to its content before adding some extra maven arguments.'
+  echo 'Warning: This script also sets several mvn args. Please refer to its content before adding some extra maven arguments.'
 }
 
 is_dirpath_defined_and_exists() {
@@ -55,9 +55,22 @@ function get_eap_version() {
     echo $eap_version;
 }
 
-function get_dist_folder() {
-    dist_folder="build/target"
-    echo "${dist_folder}"
+function debug_script() {
+  if [ -z "${DEBUG}" ] ; then
+    echo ""
+  else
+    echo '-x'
+  fi
+}
+
+# Check Maven version and perform the maven setup accordingly.
+readonly MAVEN_VERSION=$(mvn -v | awk '/Apache Maven/ {print $3}')
+function maven_setup() {
+  if [ "${MAVEN_VERSION}" != "3.2.5" ]; then
+    # with EAP 6.4, let maven 3.2 be downloaded to the tools/maven/ directory, which is a hardcoded path in the integration-tests.sh script
+    cd "${EAP_SOURCES_DIR}"
+    bash $(debug_script) ./tools/download-maven.sh
+  fi
 }
 
 BUILD_COMMAND=${1}
@@ -82,8 +95,8 @@ if [ -n "${JAVA_HOME}" ]; then
 fi
 
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
-readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
-readonly MAVEN_SETTINGS_XML=${MAVEN_SETTINGS_XML-'/home/master/settings.xml'}
+readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
+readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-''}
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 export BUILD_OPTS=${BUILD_OPTS:-'-Drelease'}
@@ -92,6 +105,7 @@ readonly MAVEN_WAGON_HTTP_MAX_PER_ROUTE=${MAVEN_WAGON_HTTP_MAX_PER_ROUTE:-'3'}
 readonly SUREFIRE_FORKED_PROCESS_TIMEOUT=${SUREFIRE_FORKED_PROCESS_TIMEOUT:-'90000'}
 readonly FAIL_AT_THE_END=${FAIL_AT_THE_END:-'-fae'}
 readonly RERUN_FAILING_TESTS=${RERUN_FAILING_TESTS:-'0'}
+readonly DIST_FOLDER=${DIST_FOLDER:-'dist/target'}
 
 readonly OLD_RELEASES_FOLDER=${OLD_RELEASES_FOLDER:-/opt/old-as-releases}
 
@@ -162,11 +176,9 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
 
   # configure product repository URL used by tests
   export BUILD_OPTS="${BUILD_OPTS} -Dorg.jboss.model.test.maven.repository.urls=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/,https://repository.jboss.org/nexus/content/repositories/releases/"
-
+  maven_setup
   # shellcheck disable=SC2086,SC2068
-  echo mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
-  # shellcheck disable=SC2086,SC2068
-  mvn clean install -Dts.skipTests=true ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
+  bash $(debug_script) ./build.sh ${MAVEN_VERBOSE}  "${FAIL_AT_THE_END}" ${MAVEN_SETTINGS_XML_OPTION} -B ${BUILD_OPTS} ${@}
   status=${?}
   if [ "${status}" -ne 0 ]; then
     echo "Compilation failed"
@@ -178,14 +190,13 @@ if [ "${BUILD_COMMAND}" = 'build' ]; then
   fi
 
   if [ -n "${IS_CCI}" ]; then
-    readonly EAP_DIST_DIR=$(get_dist_folder)
+    readonly EAP_DIST_DIR="${DIST_FOLDER}"
     echo "Using ${EAP_DIST_DIR}"
 
     cd "${EAP_DIST_DIR}" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-    zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*/
+    zip -qr "${WORKSPACE}/jboss-eap-dist-${GIT_COMMIT:0:7}.zip" jboss-eap-*
     cd "${LOCAL_REPO_DIR}/.." || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
     zip -qr "${WORKSPACE}/jboss-eap-maven-artifacts-${GIT_COMMIT:0:7}.zip" "maven-local-repository"
-
 
     cd "${WORKSPACE}"
 
@@ -200,8 +211,9 @@ else
   if [ -n "${IS_CCI}" ]; then
     # unzip artifacts from build job
     find . -maxdepth 1 -name '*.zip' -exec unzip -q {} \;
+    for file in jboss-eap-6.[0-9]*.zip; do unzip "$file"; done
 
-    TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-7\.[0-9]+')
+    TEST_JBOSS_DIST=$(find . -regextype posix-extended -regex '.*jboss-eap-6\.[0-9]+')
     if [ -z "$TEST_JBOSS_DIST" ]; then
       echo "No EAP distribution to be tested"
       exit 2
@@ -226,13 +238,7 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} ${MAVEN_SETTINGS_XML_OPTION}"
 
   export TEST_TO_RUN=${TEST_TO_RUN:-'-DallTests'}
-  cd "${EAP_SOURCES_DIR}/testsuite" || exit "${FOLDER_DOES_NOT_EXIST_ERROR_CODE}"
-  mvn clean
-  cd ..
-
-  # with EAP 6.4, let maven 3.2 be downloaded to the tools/maven/ directory, which is a hardcoded path in the integration-tests.sh script
-  bash -x ./tools/download-maven.sh
-
+  maven_setup
   # define this var so that integration-tests.sh doesn't use its hardcoded default value
   export MVN_ARGS="-DsomeNoneEmptyValue"
 
@@ -240,6 +246,6 @@ else
   export TESTSUITE_OPTS="${TESTSUITE_OPTS} -Dorg.jboss.model.test.eap.repourl=http://download.lab.bos.redhat.com/brewroot/repos/jb-eap-6.4-rhel-6-build/latest/maven/"
 
   # shellcheck disable=SC2086,SC2068
-  bash -x ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
+  bash $(debug_script) ./integration-tests.sh "${TEST_TO_RUN}" ${MAVEN_VERBOSE} "${FAIL_AT_THE_END}" ${TESTSUITE_OPTS} ${@}
   exit "${?}"
 fi
