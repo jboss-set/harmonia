@@ -63,16 +63,6 @@ function debug_script() {
   fi
 }
 
-# Check Maven version and perform the maven setup accordingly.
-readonly MAVEN_VERSION=$(mvn -v | awk '/Apache Maven/ {print $3}')
-function maven_setup() {
-  if [ "${MAVEN_VERSION}" != "3.2.5" ]; then
-    # with EAP 6.4, let maven 3.2 be downloaded to the tools/maven/ directory, which is a hardcoded path in the integration-tests.sh script
-    cd "${EAP_SOURCES_DIR}"
-    bash $(debug_script) ./tools/download-maven.sh
-  fi
-}
-
 BUILD_COMMAND=${1}
 
 if [ "${BUILD_COMMAND}" = '--help' ] || [ "${BUILD_COMMAND}" = '-h' ]; then
@@ -94,9 +84,13 @@ if [ -n "${JAVA_HOME}" ]; then
   export PATH=${JAVA_HOME}/bin:${PATH}
 fi
 
+if [ -n "${IS_CCI}" ]; then
+  readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
+  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
+else
+  readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}"}
+fi
 readonly GIT_SKIP_BISECT_ERROR_CODE=${GIT_SKIP_BISECT_ERROR_CODE:-'125'}
-readonly EAP_SOURCES_FOLDER=${EAP_SOURCES_FOLDER:-"eap-sources"}
-readonly EAP_SOURCES_DIR=${EAP_SOURCES_DIR:-"${WORKSPACE}/${EAP_SOURCES_FOLDER}"}
 readonly MEMORY_SETTINGS=${MEMORY_SETTINGS:-''}
 readonly LOCAL_REPO_DIR=${LOCAL_REPO_DIR:-${WORKSPACE}/maven-local-repository}
 export BUILD_OPTS=${BUILD_OPTS:-'-Drelease'}
@@ -142,6 +136,16 @@ fi
 readonly MAVEN_BIN_DIR=${MAVEN_HOME}/bin
 echo "Adding ${MAVEN_BIN_DIR} to PATH:${PATH}."
 export PATH=${MAVEN_BIN_DIR}:${PATH}
+
+# Check Maven version and perform the maven setup accordingly.
+readonly MAVEN_VERSION=$(mvn -v | awk '/Apache Maven/ {print $3}')
+function maven_setup() {
+  if [ "${MAVEN_VERSION}" != "3.2.5" ]; then
+    # with EAP 6.4, let maven 3.2 be downloaded to the tools/maven/ directory, which is a hardcoded path in the integration-tests.sh script
+    cd "${EAP_SOURCES_DIR}"
+    bash $(debug_script) ./tools/download-maven.sh
+  fi
+}
 
 command -v java
 java -version
