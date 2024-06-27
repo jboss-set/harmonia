@@ -90,6 +90,17 @@ printScenariosThatFailed() {
   done
 }
 
+runAllMoleculeScenarios() {
+  local scenario_name=${1:-"${SCENARIO_NAME}"}
+  local scenario_driver_name=${2:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
+  local extra_args=${3:-"${EXTRA_ARGS}"}
+
+  echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
+  # shellcheck disable=SC2086
+  molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
+  echo "${?}"
+}
+
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
@@ -100,10 +111,7 @@ runMoleculeScenario() {
   if [ "${scenario_name}" != '--all' ]; then
     executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" "${extra_args}"
   else
-    echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
-    # shellcheck disable=SC2086
-    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
-    MOLECULE_RUN_STATUS="${?}"
+    MOLECULE_RUN_STATUS="$(runAllMoleculeScenarios "${scenario_name}" "${scenario_driver_name}" ${extra_args})"
   fi
   readonly MOLECULE_RUN_STATUS
 
