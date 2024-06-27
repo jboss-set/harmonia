@@ -138,12 +138,14 @@ runAllMoleculeScenariosInParralel() {
     echo PID:${pids[${scenario_name}]} for scenario ${scenario_name}
   done
 
+  sleep 300
+
   MOLECULE_RUN_STATUS=0
   for pid in ${pids[@]}
   do
     wait "${pid}"
     scenario_exit_status=${?}
-    echo "PID(${pid}) returned: ${scenario_exit_status}"
+    echo "PID ${pid} returned: ${scenario_exit_status}"
     if [ "${scenario_exit_status}" -ne 0 ]; then
       MOLECULE_RUN_STATUS="${scenario_exit_status}"
     fi
