@@ -9,6 +9,9 @@ export ERIS_HOME
 
 MOLECULE_DEBUG=${MOLECULE_DEBUG:-'--no-debug'}
 MOLECULE_KEEP_CACHE=${MOLECULE_KEEP_CACHE:-''}
+MOLECULE_CONFIG_FILE_HOME=${MOLECULE_CONFIG_FILE_HOME:-'.config/molecule/'}
+MOLECULE_CONFIG_FILE=${MOLECULE_CONFIG_FILE:-"${MOLECULE_CONFIG_FILE_HOME}/config.yml"}
+MOLECULE_RUN_SCENARIOS_IN_PARRALEL=${MOLECULE_RUN_SCENARIOS_IN_PARRALEL:-''}
 
 determineMoleculeVersion() {
   echo "$(molecule --version | head -1 | sed -e 's/using python .*$//' -e 's/^molecule *//' -e 's/ //g' | grep -e '4' | wc -l )"
@@ -20,7 +23,6 @@ determineMoleculeSlaveImage() {
   else
     echo "localhost/molecule-slave-9"
   fi
-
 }
 
 determineMoleculeDriverName() {
@@ -90,6 +92,67 @@ printScenariosThatFailed() {
   done
 }
 
+configMolForParralelRuns() {
+  if [ -n "${MOLECULE_RUN_SCENARIOS_IN_PARRALEL}" ]; then
+    if [ -e "${MOLECULE_CONFIG_FILE}" ] ; then
+      echo "Molecule configuration file already exists: ${MOLECULE_CONFIG_FILE}."
+      echo "Skipping creation and configuration for parallel runs, it is assumed that configuration allow parralel execution of the projet scenarios."
+    else
+      # see https://www.die-welt.net/2024/04/running-ansible-molecule-tests-in-parallel/
+      mkdir -p "${MOLECULE_CONFIG_FILE_HOME}"
+      echo 'prerun: false' >> "${MOLECULE_CONFIG_FILE}"
+    fi
+  fi
+}
+
+runAllMoleculeScenarios() {
+  local scenario_name=${1:-"${SCENARIO_NAME}"}
+  local scenario_driver_name=${2:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
+  local extra_args=${3:-"${EXTRA_ARGS}"}
+
+  echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
+  # shellcheck disable=SC2086
+  molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
+  echo "${?}"
+}
+
+listAllScenarios() {
+    for molecule_xml in $(find molecule/*/molecule.yml -maxdepth 1 -print)
+    do
+      echo $(basename $(dirname "${molecule_xml}"))
+    done
+}
+
+runAllMoleculeScenariosInParralel() {
+  declare -A pids
+  local scenario_driver_name=${1:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
+  local extra_args=${2:-"${EXTRA_ARGS}"}
+
+  configMolForParralelRuns
+  for scenario_name in $(listAllScenarios)
+  do
+    echo "DEBUG> molecule ${MOLECULE_DEBUG} test --parallel -s "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}" -e wildfly_node_id=${scenario_name} ${extra_args} "${@}" '&>' "${scenario_name}.log '&'"
+    # shellcheck disable=SC2086
+    molecule ${MOLECULE_DEBUG} test --parallel -s "${scenario_name}" -d "${scenario_driver_name}" -- -e wildfly_node_id=${scenario_name} ${extra_args} "${@}" &> "${scenario_name}.log" &
+    pids["${scenario_name}"]="${!}"
+    echo PID:${pids[${scenario_name}]} for scenario ${scenario_name}
+  done
+
+  sleep 300
+
+  MOLECULE_RUN_STATUS=0
+  for pid in ${pids[@]}
+  do
+    wait "${pid}"
+    scenario_exit_status=${?}
+    echo "PID ${pid} returned: ${scenario_exit_status}"
+    if [ "${scenario_exit_status}" -ne 0 ]; then
+      MOLECULE_RUN_STATUS="${scenario_exit_status}"
+    fi
+  done
+  export MOLECULE_RUN_STATUS
+}
+
 runMoleculeScenario() {
   local scenario_name=${1:-"${SCENARIO_NAME}"}
   local scenario_driver_name=${2:-"${HARMONIA_MOLECULE_DEFAULT_DRIVER_NAME}"}
@@ -100,10 +163,11 @@ runMoleculeScenario() {
   if [ "${scenario_name}" != '--all' ]; then
     executeRequestedScenarios "${scenario_name}" "${scenario_driver_name}" "${extra_args}"
   else
-    echo "DEBUG> molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}"
-    # shellcheck disable=SC2086
-    molecule ${MOLECULE_DEBUG} test "${scenario_name}" -d "${scenario_driver_name}" -- ${extra_args}
-    MOLECULE_RUN_STATUS="${?}"
+    if [ -z "${MOLECULE_RUN_SCENARIOS_IN_PARRALEL}" ]; then
+      MOLECULE_RUN_STATUS="$(runAllMoleculeScenarios '--all' "${scenario_driver_name}" ${extra_args})"
+    else
+      runAllMoleculeScenariosInParralel "${scenario_driver_name}" ${extra_args}
+    fi
   fi
   readonly MOLECULE_RUN_STATUS
 
