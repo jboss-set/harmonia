@@ -3,6 +3,7 @@ set -euo pipefail
 source "$(dirname $(realpath ${0}))/common.sh"
 
 readonly SCENARIO_NAME=${SCENARIO_NAME:-'--all'}
+readonly JBOSS_NETWORK_API_CREDENTIAL_FILE=${JBOSS_NETWORK_API_CREDENTIAL_FILE:-'/var/jenkins_home/jboss_network_api.yml'}
 
 checkWorkspaceIsDefinedAndExists
 
@@ -21,6 +22,9 @@ molecule --version
 installErisCollection
 
 setRequiredEnvVars
+
+readonly EXTRA_ARGS="$(loadJBossNetworkAPISecrets)"
+export EXTRA_ARGS
 # shellcheck disable=SC2231
 for scenario in ${WORKDIR}/molecule/*
 do
